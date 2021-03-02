@@ -1,0 +1,22 @@
+##################
+# code/submission/nonpareil3_run.sub
+# Submission script for calculating
+# metagenome coverage and diversity.
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 10
+request_memory = 30GB
+
+executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/nonpareil3_run.sh
+
+environment = "metagenome=$(metagenome) \
+              workingDirectory=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/readBasedAnalysis/nonpareil \
+              metagenomeFolder=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/metagenomes"
+
+output = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/outs/$(metagenome)_nonpareil3.out
+error = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/errs/$(metagenome)_nonpareil3.err
+log = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/logs/$(metagenome)_nonpareil3.log
+
+queue metagenome from /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/MG_list_all.txt
