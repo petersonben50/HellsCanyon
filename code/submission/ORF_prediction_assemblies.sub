@@ -1,0 +1,19 @@
+##################
+# code/submission/ORF_prediction_assemblies.sub
+# Submission script for predicting ORF sequences
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 4
+request_memory = 10GB
+
+executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/ORF_prediction_assemblies.sh
+arguments = $(assembly)
+
+environment = "assembly=$(assembly)"
+output = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/outs/$(assembly)_orfPredictionAssemblies.out
+error = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/errs/$(assembly)_orfPredictionAssemblies.err
+log = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/logs/$(assembly)_orfPredictionAssemblies.log
+
+queue assembly from /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/assembly_list.txt
