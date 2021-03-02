@@ -1,0 +1,22 @@
+##################
+# read_mapping_assemblies.sub
+# Submission script for mapping metagenomic
+# reads to the appropriate assemblies.
+# It also cleans and processes the output
+# using samtools.
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 12
+request_memory = 120GB
+
+executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/read_mapping_assemblies.sh
+#arguments = $(assembly)
+
+environment = "assembly=$(assembly) metagenome=$(metagenome) read_storage=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/metagenomes scaffolds=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/assemblies/scaffolds output=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/mapping"
+output = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/outs/mapping_$(metagenome)_to_$(assembly)_readMappingAssemblies.out
+error = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/errs/mapping_$(metagenome)_to_$(assembly)_readMappingAssemblies.err
+log = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/logs/mapping_$(metagenome)_to_$(assembly)_readMappingAssemblies.log
+
+queue metagenome,assembly from /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/mapping_key_pairsRemaining.tsv
