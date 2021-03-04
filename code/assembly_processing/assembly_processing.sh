@@ -357,6 +357,7 @@ do
     if [ -e scaffolds/$assembly\_assembly.fna ]; then
       echo "Dude, you already cleaned the assembly for" $assembly". Relax."
     else
+      echo "Cleaning the assembly for" $assembly
       anvi-script-reformat-fasta assembly_files/$assembly/scaffolds.fasta \
                                   -o scaffolds/$assembly\_assembly.fna \
                                   -l 1000 \
