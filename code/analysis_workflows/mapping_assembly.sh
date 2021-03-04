@@ -77,6 +77,7 @@ done
 # Identify mapping pairs that have not been completed
 cd ~/HellsCanyon/dataEdited/mapping/
 rm -f ~/HellsCanyon/metadata/lists/mapping_key_pairsRemaining.tsv
+touch ~/HellsCanyon/metadata/lists/mapping_key_pairsRemaining.tsv
 cat ~/HellsCanyon/metadata/lists/mapping_key.tsv | while read -r line
 do
   metagenome=`echo $line | awk -F '\t' '{ print $1 }'`
