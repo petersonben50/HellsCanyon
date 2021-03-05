@@ -1,0 +1,29 @@
+##################
+# SCG_abundance_in_assemblies.sub
+# Submission script for pulling out the abundances of
+# single copy genes (SCGs) from metagenomes.
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 8
+request_memory = 40GB
+
+executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/SCG_abundance_in_assemblies.sh
+
+environment = "geneName=$(geneName) \
+                scripts=/home/GLBRCORG/bpeterson26/HellsCanyon/code/generalUse \
+                scgHmms_location=/home/GLBRCORG/bpeterson26/references/rp16 \
+                scgHmms_key=/home/GLBRCORG/bpeterson26/references/scg_key.csv \
+                assembly_list=/home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/assembly_list.txt \
+                assembly_key=/home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/assembly_key.csv \
+                assembly_location=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/assemblies/ORFs \
+                metagenome_list=/home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/metagenome_list.txt \
+                metagenome_location=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/mapping \
+                output_directory=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/scg_abundance"
+
+output = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/outs/$(geneName)_scgAbund.out
+error = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/errs/$(geneName)_scgAbund.err
+log = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/logs/$(geneName)_scgAbund.log
+
+queue geneName from /home/GLBRCORG/bpeterson26/references/scg_list.txt
