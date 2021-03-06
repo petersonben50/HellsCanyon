@@ -19,6 +19,14 @@ mkdir /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/scg_abundance
 chmod +x /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/SCG_abundance_in_assemblies.sh
 condor_submit /home/GLBRCORG/bpeterson26/HellsCanyon/code/submission/SCG_abundance_in_assemblies.sub
 
+
+######################
+# Concatenate files
+######################
+cd ~/HellsCanyon/dataEdited/scg_abundance
+cat *_scg_coverage.tsv > scg_coverage.tsv
+
+
 ######################
 # Clean up
 ######################
