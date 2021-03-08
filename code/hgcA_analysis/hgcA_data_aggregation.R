@@ -87,3 +87,15 @@ hgcA.df %>%
   select(seqID) %>%
   unlist(use.names = FALSE) %>%
   writeLines("dataEdited/hgcA_analysis/hgcA_repAbundance_list.txt")
+
+
+#### Add in other info about hgcA ####
+hgcA.manual.taxonomy <- read_xlsx("dataEdited/hgcA_analysis/phylogeny/manual_taxonomy.xlsx") %>%
+  left_join(hgcA.df %>% select(seqID, clstr)) %>%
+  select(clstr, manual_classification)
+hgcA.df <- hgcA.df %>%
+  left_join(hgcA.manual.taxonomy)
+
+
+saveRDS(hgcA.df,
+        "dataEdited/hgcA_analysis/hgcA_information.rds")

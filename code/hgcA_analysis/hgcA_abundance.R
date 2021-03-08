@@ -16,9 +16,8 @@ hgcA.list <- readLines("dataEdited/hgcA_analysis/hgcA_repAbundance_list.txt")
 
 
 #### Read in hgcA classification ####
-tax.data <- read_xlsx("dataEdited/hgcA_analysis/hgcA_dereplication.xlsx") %>%
-  mutate(phylum = classification %>% strsplit(";") %>% sapply("[", 1)) %>%
-  select(seqID, phylum)
+tax.data <- readRDS("dataEdited/hgcA_analysis/hgcA_information.rds") %>%
+  select(seqID, manual_classification)
 
 
 #### Read in data ####
@@ -37,7 +36,7 @@ hgcA.profiling <- function(RM.of.interest,
            RM == RM.of.interest) %>%
     ggplot(aes(x = depth,
                y = coverage,
-               fill = phylum)) +
+               fill = manual_classification)) +
     geom_bar(stat = "identity") +
     xlim(80, 0) +
     coord_flip() +
@@ -65,32 +64,3 @@ profile.300.2017 <- hgcA.profiling(RM.of.interest = "RM300",
                                    year.of.interest = 2017)
 
 profile.286.2017 + profile.300.2017
-
-
-hgcA.data %>%
-  filter(year(date) == 2017,
-         RM == "RM286") %>%
-  ggplot(aes(x = depth,
-             y = coverage,
-             fill = phylum)) +
-  geom_bar(stat = "identity")
-
-
-hgcA.data %>%
-  filter(year(date) == 2017,
-         RM == "RM300") %>%
-  ggplot(aes(x = depth,
-             y = coverage,
-             fill = phylum)) +
-  geom_bar(stat = "identity")
-
-
-
-
-hgcA.data %>%
-  filter(year(date) == 2019,
-         RM == "310") %>%
-  ggplot(aes(x = depth,
-             y = coverage,
-             fill = phylum)) +
-  geom_bar(stat = "identity")
