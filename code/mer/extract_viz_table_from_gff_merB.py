@@ -32,7 +32,7 @@ genekey = gene.split("_", 1)[1].lstrip('0')
 outputDF.loc[(outputDF['geneID'] == genekey), 'color'] = 'blue'
 outputDF.loc[(outputDF['geneID'] == genekey), 'focalGene'] = 'True'
 
-# Add colors for other genes
+# merA genes will be red
 outputDF.loc[(outputDF['kofam'] == "K00520"), 'color'] = 'red'
 
 # Transport proteins are green

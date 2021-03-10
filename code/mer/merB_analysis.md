@@ -92,4 +92,5 @@ I did this using the same workflow that I used for HeCaMT.
 Finally, I generated gene neighborhood images for each of the clusters of sequences, using this script: `extract_viz_table_from_gff.py`
 I wanted to add in colors to correspond to the additional *mer* genes on the scaffold.
 Got a list of the KO families here: https://www.kegg.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1000&locale=en&serv=kegg&dbkey=orthology&keywords=mercuric&page=1
-We'll make *merA* genes red,
+I made the *merA* genes red, the transport genes green, the binding proteins yellow, and the *merR* genes black.
+I saved out separate files for gene neighborhoods of the different clusters of merB-like genes.
