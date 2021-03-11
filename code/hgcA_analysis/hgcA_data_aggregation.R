@@ -97,5 +97,8 @@ hgcA.df <- hgcA.df %>%
   left_join(hgcA.manual.taxonomy)
 
 
+#### Save out data ####
 saveRDS(hgcA.df,
         "dataEdited/hgcA_analysis/hgcA_information.rds")
+write.csv(hgcA.df,
+          "dataEdited/hgcA_analysis/hgcA_information.csv")

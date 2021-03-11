@@ -15,6 +15,7 @@ executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/binning_map
 environment = "assembly=$(assembly) \
               mapping=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/mapping \
               scaffoldsLocation=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/scaffolds \
+              metagenomeLocation=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/metagenomes \
               mappingKey=/home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/mapping_key.tsv"
 output = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/outs/$(assembly)_binningMapping.out
 error = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/errs/$(assembly)_binningMapping.err
