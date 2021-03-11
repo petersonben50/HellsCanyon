@@ -1,0 +1,23 @@
+##################
+# binning_mapping.sub
+# Submission script for mapping metagenomic
+# reads to the scaffolds from the assemblies
+# that will be used for binning.
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 12
+request_memory = 120GB
+
+executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/binning_mapping.sh
+
+environment = "assembly=$(assembly) \
+              mapping=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/mapping \
+              scaffoldsLocation=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/scaffolds \
+              mappingKey=/home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/mapping_key.tsv"
+output = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/outs/$(assembly)_binningMapping.out
+error = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/errs/$(assembly)_binningMapping.err
+log = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/logs/$(assembly)_binningMapping.log
+
+queue assembly from /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/assembly_list.txt
