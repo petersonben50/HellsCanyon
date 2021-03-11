@@ -57,9 +57,9 @@ do
   if [ ! -e $mapping/$metagenome\_to_$assembly.bam ]; then
     echo "Mapping MG" $metagenome "to" $assembly
     /opt/bifxapps/bowtie2-2.2.2/bowtie2 -x $mapping/indices/$assembly \
-                                        -1 metagenomes/$metagenome\_R1.fastq.gz \
-                                        -2 metagenomes/$metagenome\_R2.fastq.gz \
-                                        -U metagenomes/$metagenome\_single.fastq.gz,metagenomes/$metagenome\_merged.fastq.gz \
+                                        -1 $metagenomeLocation/$metagenome\_R1.fastq.gz \
+                                        -2 $metagenomeLocation/$metagenome\_R2.fastq.gz \
+                                        -U $metagenomeLocation/$metagenome\_single.fastq.gz,$metagenomeLocation/$metagenome\_merged.fastq.gz \
                                         -p 10 \
                                         -S $mapping/$metagenome\_to_$assembly.sam
     echo "Converting, sorting, and indexing mapping data from" $metagenome "to" $assembly
