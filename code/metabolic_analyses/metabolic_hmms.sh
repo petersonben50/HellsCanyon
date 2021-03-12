@@ -34,25 +34,31 @@ do
     echo "Searching for" $geneName
     mkdir identification/$geneName
 
-    awk -F ',' '{ print $1 }' ~/HellsCanyon/metadata/lists/assembly_key.csv | while read assembly
+    cat ~/HellsCanyon/metadata/lists/assembly_key.csv | while read -r line
     do
-      if [ ! -e identification/$geneName/$assembly.out ]; then
+      assembly=`echo $line | awk -F ',' '{ print $1 }'`
+      year=`echo $line | awk -F ',' '{ print $2 }'`
+      if [ ! -d identification/$geneName/$year ]; then
+        mkdir identification/$geneName/$year
+      fi
+
+      if [ ! -e identification/$geneName/$year/$assembly.out ]; then
         echo "Searching for" $geneName "in" $assembly
-        hmmsearch --tblout identification/$geneName/$assembly\_$geneName.out \
+        hmmsearch --tblout identification/$geneName/$year/$assembly\_$geneName.out \
                   --cpu 4 \
                   --cut_tc \
                   $metabolic_HMMs/$HMM \
                   $ORFs/$assembly.faa \
-                  > identification/$geneName/$assembly\_$geneName.txt
-        lineCount=`wc -l < identification/$geneName/$assembly\_$geneName.out`
+                  > identification/$geneName/$year/$assembly\_$geneName.txt
+        lineCount=`wc -l < identification/$geneName/$year/$assembly\_$geneName.out`
         if [ $lineCount -eq 13 ]; then
           echo "No" $gene "hits in" $geneName
         else
           echo "Pulling" $geneName "sequences out of" $assembly
           python $scripts/extract_protein_hitting_HMM.py \
-                  identification/$geneName/$assembly\_$geneName.out \
+                  identification/$geneName/$year/$assembly\_$geneName.out \
                   $ORFs/$assembly.faa \
-                  identification/$geneName/$assembly\_$geneName.faa
+                  identification/$geneName/$year/$assembly\_$geneName.faa
         fi
       else
         echo "Search for" $geneName "is already done in" $assembly
@@ -60,26 +66,29 @@ do
     done
 
     # Aggregate all sequences and align to HMM
-
     cd identification
+    awk -F ',' '{ print $2 }' ~/HellsCanyon/metadata/lists/assembly_key.csv | \
+      sort | uniq | \
+      while read year
+      do
+        shopt -s nullglob
+        for i in $geneName/$year/*$geneName.faa; do FOUND=$i;break;done
 
-    shopt -s nullglob
-    for i in $geneName/*$geneName.faa; do FOUND=$i;break;done
-
-    if [ ! -z $FOUND ]; then
-      echo "Concatenating and aligning" $geneName
-      cat $geneName/*$geneName.faa \
-          > $geneName\_all.faa
-      hmmalign -o $geneName.sto \
-                  $metabolic_HMMs/$HMM \
-                  $geneName\_all.faa
-      $scripts/convert_stockhold_to_fasta.py $geneName.sto
-      grep '>' $geneName\_all.faa | \
-        sed 's/>//' \
-        > $geneName\_all_list.txt
-    else
-      echo "No" $geneName "sequences found at all :("
-    fi
+        if [ ! -z $FOUND ]; then
+          echo "Concatenating and aligning" $geneName
+          cat $geneName/$year/*$geneName.faa \
+              > $geneName\_from_$year\_all.faa
+          hmmalign -o $geneName\_from_$year.sto \
+                      $metabolic_HMMs/$HMM \
+                      $geneName\_from_$year\_all.faa
+          $scripts/convert_stockhold_to_fasta.py $geneName\_from_$year.sto
+          grep '>' $geneName\_from_$year\_all.faa | \
+            sed 's/>//' \
+            > $geneName\_from_$year\_all_list.txt
+        else
+          echo "No" $geneName "sequences found at all :("
+        fi
+    done
     FOUND=""
   else
     echo "Already pulled out" $geneName "sequences"
@@ -100,7 +109,7 @@ exit
 # Generate list of all scaffolds that have potential metabolic genes on them
 cd ~/HellsCanyon/dataEdited/metabolic_analyses
 mkdir depth
-grep '>' -h identification/*.afa | \
+grep '>' -h identification/201*/*.afa | \
   sed 's/>//' | \
   cut -d"_" -f1,2 | \
   sort | \
@@ -108,6 +117,39 @@ grep '>' -h identification/*.afa | \
   > depth/scaffold_all_list.txt
 
 # Pull out all depths
-
 chmod +x /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/aggregate_depth_proteins.sh
 condor_submit /home/GLBRCORG/bpeterson26/HellsCanyon/code/submission/aggregate_depth_proteins.sub
+
+
+############################################
+############################################
+# Dereplicate sequences
+############################################
+############################################
+
+cd ~/HellsCanyon/dataEdited/metabolic_analyses
+mkdir dereplication
+cdhit=~/programs/cdhit-master
+
+tail -n +2 $metabolic_HMMs.csv | awk -F ',' '{ print $1 }' | while read geneName
+do
+  cd ~/HellsCanyon/dataEdited/metabolic_analyses
+  awk -F ',' '{ print $2 }' ~/HellsCanyon/metadata/lists/assembly_key.csv | \
+    sort | uniq | \
+    while read year
+    do
+      $cdhit/cd-hit -g 1 \
+                    -i identification/$geneName\_from_$year\_all.faa \
+                    -o dereplication/$geneName\_from_$year.faa \
+                    -c 0.97 \
+                    -n 5 \
+                    -d 0
+      $cdhit/clstr2txt.pl dereplication/$geneName\_from_$year.faa.clstr \
+        > dereplication/$geneName\_from_$year.tsv
+    done
+  cd dereplication
+  cat $geneName\_from_*.faa > $geneName\_derep.faa
+  grep '>' $geneName\_derep.faa | \
+    sed 's/>//' \
+    > $geneName\_derep_list.txt
+done
