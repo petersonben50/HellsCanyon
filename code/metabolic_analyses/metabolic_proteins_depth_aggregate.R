@@ -13,6 +13,10 @@ library(tidyverse)
 normalized.coverage.vector <- readRDS("dataEdited/scg_abundance/scg_normalization_vector.rds")
 
 
+#### Metadata vector ####
+metadata.df <- read.csv("metadata/metagenome_metadata.csv")
+
+
 #### Read in depth data ####
 list.o.depths <- list.files(path = "dataEdited/metabolic_analyses/depth",
                             pattern = "depth.tsv",
@@ -38,10 +42,15 @@ raw.depth.counts <- lapply(list.o.depths,
 #### Combine data into dataframe ####
 mean.df <- do.call(rbind,
                    raw.depth.counts) %>%
-  spread(key = read.origin, value = depth, fill = NA)
+  rename(metagenomeID = read.origin,
+         coverage = depth)
+
+
+#### Add in metadata ####
+mean.df <- mean.df %>%
+  left_join(metadata.df)
 
 
 #### Write out file
-write.csv(mean.df,
-          "dataEdited/metabolic_analyses/depth/metabolicProtein_depth_clean.csv",
-          row.names = FALSE)
+saveRDS(mean.df,
+        "dataEdited/metabolic_analyses/depth/metabolicProtein_depth_clean.rds")
