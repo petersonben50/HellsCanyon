@@ -73,6 +73,13 @@ hgcA.df <- read_xlsx("dataEdited/hgcA_analysis/hgcA_dereplication.xlsx") %>%
 coverage.all.sequences <- full_join(hgcA.df,
                                     coverage.all.sequences)
 
+
+#### Add column to identify final representatives info ####
+hgcA.list <- readLines("dataEdited/hgcA_analysis/hgcA_repAbundance_list.txt")
+coverage.all.sequences <- coverage.all.sequences %>%
+  mutate(rep = (seqID %in% hgcA.list))
+
+
 #### Read out dataframe ####
 write.csv(coverage.all.sequences,
           "dataEdited/hgcA_analysis/depth/hgcA_coverage.csv",
