@@ -131,6 +131,8 @@ cd ~/HellsCanyon/dataEdited/metabolic_analyses
 mkdir dereplication
 cdhit=~/programs/cdhit-master
 
+echo "geneID,geneName" > metabolic_gene_key.csv
+
 tail -n +2 $metabolic_HMMs.csv | awk -F ',' '{ print $1 }' | while read geneName
 do
   cd ~/HellsCanyon/dataEdited/metabolic_analyses
@@ -152,4 +154,5 @@ do
   grep '>' $geneName\_derep.faa | \
     sed 's/>//' \
     > $geneName\_derep_list.txt
+  awk -v geneName="$geneName" '{ print $0","geneName }' $geneName\_derep_list.txt >> ../metabolic_gene_key.csv
 done
