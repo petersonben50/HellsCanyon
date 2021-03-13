@@ -3,7 +3,6 @@
 
 
 #### Clean up crew on line 5 ####
-
 rm(list = ls())
 setwd("/Users/benjaminpeterson/Documents/research/HellsCanyon")
 library(tidyverse)
@@ -13,8 +12,16 @@ library(tidyverse)
 normalized.coverage.vector <- readRDS("dataEdited/scg_abundance/scg_normalization_vector.rds")
 
 
-#### Metadata vector ####
+#### Read in metadata ####
 metadata.df <- read.csv("metadata/metagenome_metadata.csv")
+
+
+#### Read in metabolic gene key ####
+metabolic.gene.key <- read.csv("dataEdited/metabolic_analyses/metabolic_gene_key.csv") %>%
+  mutate(scaffoldID = paste(geneID %>% strsplit("_") %>% sapply("[", 1),
+                            geneID %>% strsplit("_") %>% sapply("[", 2),
+                            sep = "_")) %>%
+  select(scaffoldID, geneName)
 
 
 #### Read in depth data ####
@@ -40,17 +47,18 @@ raw.depth.counts <- lapply(list.o.depths,
 
 
 #### Combine data into dataframe ####
-mean.df <- do.call(rbind,
-                   raw.depth.counts) %>%
+depth.df <- do.call(rbind,
+                    raw.depth.counts) %>%
   rename(metagenomeID = read.origin,
          coverage = depth)
 
 
 #### Add in metadata ####
-mean.df <- mean.df %>%
+all.data <- metabolic.gene.key %>%
+  full_join(depth.df) %>%
   left_join(metadata.df)
 
 
 #### Write out file
-saveRDS(mean.df,
+saveRDS(all.data,
         "dataEdited/metabolic_analyses/depth/metabolicProtein_depth_clean.rds")
