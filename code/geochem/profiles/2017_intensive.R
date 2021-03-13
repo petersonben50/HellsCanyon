@@ -19,7 +19,6 @@ geochem.data <- read.csv("dataEdited/waterChemistry/geochem_WC_2015_2018.csv",
 
 
 #### Read in Hg data ####
-
 MeHg.data <- read.csv("dataEdited/waterChemistry/Hg_2015_2018.csv",
                       stringsAsFactors = FALSE) %>%
   filter(year(date) == "2017") %>%
@@ -45,7 +44,6 @@ MG.depth <- MG.metadata %>%
 
 
 #### List of sites ####
-
 site.list <- sort(unique(c(geochem.data$RM,
                            MeHg.data$RM)))
 
