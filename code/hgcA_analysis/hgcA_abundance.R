@@ -13,9 +13,6 @@ cb.translator <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/co
 cb.translator <- c(cb.translator, "gray50")
 names(cb.translator)[length(cb.translator)] <- "gray50"
 
-#### Read in hgcA seq ID list ####
-hgcA.list <- readLines("dataEdited/hgcA_analysis/hgcA_repAbundance_list.txt")
-
 
 #### Read in hgcA classification ####
 tax.data <- readRDS("dataEdited/hgcA_analysis/hgcA_information.rds") %>%
@@ -30,13 +27,13 @@ names(color.vector) <- hgcA.manual.taxonomy$seqID
 
 #### Read in data ####
 hgcA.data <- read.csv("dataEdited/hgcA_analysis/depth/hgcA_coverage.csv") %>%
-  filter(seqID %in% hgcA.list) %>%
+  filter(rep) %>%
   left_join(tax.data)
 
 
 #### Function to generate plots ####
-RM.of.interest <- "RM300"
-year.of.interest <- 2018
+RM.of.interest <- 286
+year.of.interest <- 2017
 hgcA.profiling <- function(data.to.use = hgcA.data,
                            RM.of.interest,
                            year.of.interest,
@@ -68,10 +65,10 @@ hgcA.profiling <- function(data.to.use = hgcA.data,
   
 }
 
-profile.286.2018 <- hgcA.profiling(RM.of.interest = "RM286",
+profile.286.2018 <- hgcA.profiling(RM.of.interest = 286,
                                    year.of.interest = 2018,
                                    legend.position.to.use = "none")
-profile.300.2018 <- hgcA.profiling(RM.of.interest = "RM300",
+profile.300.2018 <- hgcA.profiling(RM.of.interest = 300,
                                    year.of.interest = 2018,
                                    legend.position.to.use = c(0.7, 0.8))
 
@@ -79,12 +76,12 @@ profile.286.2018 + profile.300.2018
 
 
 
-profile.286.2017 <- hgcA.profiling(RM.of.interest = "RM286",
+profile.286.2017 <- hgcA.profiling(RM.of.interest = 286,
+                                   year.of.interest = 2017,
+                                   legend.position.to.use = c(0.7, 0.6))
+profile.300.2017 <- hgcA.profiling(RM.of.interest = 300,
                                    year.of.interest = 2017,
                                    legend.position.to.use = "none")
-profile.300.2017 <- hgcA.profiling(RM.of.interest = "RM300",
-                                   year.of.interest = 2017,
-                                   legend.position.to.use = c(0.7, 0.8))
 
 profile.286.2017 + profile.300.2017
 
