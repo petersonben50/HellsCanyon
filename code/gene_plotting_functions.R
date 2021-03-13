@@ -106,8 +106,9 @@ plot.profile.of.gene.with.taxonomy <- function(data.to.use,
                                                coverage_limits = NULL,
                                                taxonomy.column.name,
                                                color.vector.to.use = color.vector,
-                                               xlab.to.use = "Gene coverage (per 100X SCG coverage)",
-                                               ylab.to.use = "Depth (m)") {
+                                               xlab.to.use = "Depth (m)",
+                                               ylab.to.use = "Gene coverage (per 100X SCG coverage)",
+                                               titleToUse = element_blank()) {
   data.to.use[, "taxonomy"] <- data.to.use[, taxonomy.column.name]
   
   graph.to.make <- data.to.use %>%
@@ -119,13 +120,7 @@ plot.profile.of.gene.with.taxonomy <- function(data.to.use,
     geom_bar(stat = "identity") +
     scale_fill_manual(values = color.vector.to.use) +
     xlim(depth_limits)+
-    theme_classic() +
-    labs(title = paste("hgcA coverage at ",
-                       RM.of.interest,
-                       " in ",
-                       year.of.interest,
-                       sep = ""))
-  
+    theme_classic()
   
   #### Constrain x-axis if defined in the call ####
   if (!is.null(coverage_limits)) {
@@ -145,16 +140,21 @@ plot.profile.of.gene.with.taxonomy <- function(data.to.use,
     
   }
   
-  
   if (legend.position.to.use[1] != "default") {
     graph.to.make <- graph.to.make +
       theme(legend.position = legend.position.to.use,
             legend.title = element_blank())
   }
   
-  graph.to.make +
+  #### Add labels and title ####
+  graph.to.make <- graph.to.make +
     labs(x = xlab.to.use,
-         y = ylab.to.use)
+         y = ylab.to.use,
+         title = titleToUse)
+  
+  graph.to.make <- graph.to.make +
+    theme(axis.text.x = element_text(colour = "black"),
+          axis.text.y = element_text(colour = "black"))
   
   graph.to.make +
     coord_flip() 
