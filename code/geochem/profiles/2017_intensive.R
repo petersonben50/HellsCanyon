@@ -418,7 +418,7 @@ for (RM.of.interest in site.list) {
          ylim = c(max.depth, 0),
          main = paste("Methylator abundance", 
                       sep = ""),
-         col = "green",
+         col = "darkgreen",
          pch = 18)
   } else {
     empty.plot("No metagenomes here")
