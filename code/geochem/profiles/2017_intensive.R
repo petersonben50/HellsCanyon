@@ -16,6 +16,9 @@ geochem.data <- read.csv("dataEdited/waterChemistry/geochem_WC_2015_2018.csv",
                          stringsAsFactors = FALSE) %>%
   filter(year(date) == "2017") %>%
   filter(month(date) == "9")
+# Replace non-detects with zeroes in sulfide column
+geochem.data$sulfide_mg.L[geochem.data$sulfide_mg.L == "nd"] <- 0
+geochem.data$sulfide_mg.L <- as.numeric(geochem.data$sulfide_mg.L)
 
 
 #### Read in Hg data ####
@@ -68,7 +71,7 @@ pdf("results/geochem/profiles/2017_summary_profiles.pdf",
     height = 15,
     width = 15)
 
-par(mfrow = c(4, 7),
+par(mfrow = c(4, 8),
     mgp=c(1.5,0.4,0),
     tck=-0.008)
 
@@ -321,6 +324,60 @@ for (RM.of.interest in site.list) {
   }
   
 
+  
+  
+  #### Fifth plot: sulfide data ####
+  if (RM.of.interest %in% geochem.data$RM) {
+    
+    geochem.data.site <- geochem.data %>%
+      filter(RM == RM.of.interest) %>%
+      replace_with_na_all(condition = ~.x == "na") %>%
+      select(c(depth, sulfide_mg.L)) %>%
+      as.data.frame() %>%
+      arrange(depth)
+    
+    sulfide.max <- max(geochem.data.site$sulfide_mg.L,
+                       na.rm = TRUE)
+    if (sulfide.max <= 0) {
+      sulfide.max <- 1
+    }
+    
+    plot(x = geochem.data.site$sulfide_mg.L,
+         y = geochem.data.site$depth,
+         xlab = "Sulfide (mg/L)",
+         ylab = "Depth (m)",
+         xlim = c(0, sulfide.max),
+         ylim = c(max.depth, 0),
+         pch = 18,
+         cex = 0,
+         main = "Sulfide concentrations")
+    
+    # Add in sulfide points
+    points(x = geochem.data.site$sulfide_mg.L,
+           y = geochem.data.site$depth,
+           col = "blue",
+           pch = 18)
+    lines(x = geochem.data.site$sulfide_mg.L,
+          y = geochem.data.site$depth,
+          col = "blue",
+          lwd = 0.8,
+          lty = 1)
+    
+    # Add legend
+    legend("topright",
+           legend = c("Sulfide"),
+           col = c("blue",
+                   "orange"),
+           pch = c(18),
+           bty = "n")
+    # Clean up
+    rm(geochem.data.site)   
+    
+  } else {
+    empty.plot("No sulfide data")
+  }
+  
+  
   #### Fifth and sixth plot: MeHg ####
   if (RM.of.interest %in% MeHg.data$RM) {
     
