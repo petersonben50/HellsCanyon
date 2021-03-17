@@ -156,3 +156,63 @@ do
     > $geneName\_derep_list.txt
   awk -v geneName="$geneName" '{ print $0","geneName }' $geneName\_derep_list.txt >> ../metabolic_gene_key.csv
 done
+
+
+############################################
+############################################
+# Classify dsrA genes
+############################################
+############################################
+
+screen -S HCC_dsrA_tree
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=""
+PERL5LIB=''
+scripts=~/HellsCanyon/code/generalUse
+# Set up directory
+cd ~/HellsCanyon/dataEdited/metabolic_analyses
+mkdir sulfur
+mkdir sulfur/dsrA
+
+# Copy over my sequences and align them
+sed 's/*//' dereplication/dsrA_derep.faa > sulfur/dsrA/dsrA.faa
+grep '>' sulfur/dsrA/dsrA.faa | \
+  sed 's/>//' \
+  > sulfur/dsrA/dsrA_list.txt
+metabolic_HMMs=~/HellsCanyon/references/metabolic_HMMs
+cd sulfur/dsrA
+hmmalign -o dsrA.sto \
+            $metabolic_HMMs/TIGR02064.HMM \
+            dsrA.faa
+$scripts/convert_stockhold_to_fasta.py dsrA.sto
+
+# Copy in reference sequences
+cp ~/references/metabolicProteins/sulfur/dsrA/dsrA_karthik_clean.afa \
+    dsrA_karthik_clean.afa
+
+# Align seqs
+muscle -profile \
+        -in1 dsrA_karthik_clean.afa \
+        -in2 dsrA.afa \
+        -out dsrA_phylogeny.afa
+# Trim alignment
+
+# Generate ML tree
+#screen -S EG_dsrA_tree
+cd ~/HellsCanyon/dataEdited/metabolic_analyses/sulfur/dsrA/
+python $scripts/cleanFASTA.py dsrA_phylogeny_masked.afa
+mv -f dsrA_phylogeny_masked.afa_temp.fasta dsrA_phylogeny_masked.afa
+FastTree dsrA_phylogeny_masked.afa \
+    > dsrA_phylogeny_masked.tree
+
+
+
+raxml=/opt/bifxapps/raxml-8.2.11/raxmlHPC-PTHREADS
+$raxml -f a \
+        -p 283976 \
+        -N autoMRE \
+        -x 2381 \
+        -T 20 \
+        -s dsrA_phylogeny_masked.afa \
+        -n dsrA
