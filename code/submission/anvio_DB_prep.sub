@@ -1,0 +1,25 @@
+#########################
+# anvio_DB_prep.sub
+# Submission script generating anvi'o
+# databases from a given assembly and
+# populating it with HMMs.
+
+# This includes the
+
+# Benjamin D. Peterson
+#########################
+
+request_cpus = 12
+request_memory = 120GB
+
+executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/anvio_DB_prep.sh
+
+environment = "assembly=$(assembly) \
+              scaffoldsLocation=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/scaffolds \
+              outputLocation=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/anvioDBs \
+              customHMMs=/home/GLBRCORG/bpeterson26/Everglades/references/hgcaAnvio"
+output = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/outs/$(assembly)_anvioDBprep.out
+error = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/errs/$(assembly)_anvioDBprep.err
+log = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/logs/$(assembly)_anvioDBprep.log
+
+queue assembly from /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/assembly_list.txt

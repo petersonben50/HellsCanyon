@@ -65,3 +65,19 @@ condor_submit submission/binning_mapping.sub
 
 cd /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists
 rm -f assembly_list.txt
+
+
+####################################################
+####################################################
+# Prepare anvi'o databases for manual binning
+####################################################
+####################################################
+mkdir /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning
+mkdir /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/anvioDBs
+
+##########################
+# Generate contig databases
+##########################
+cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
+chmod +x executables/anvio_DB_prep.sh
+condor_submit submission/anvio_DB_prep.sub
