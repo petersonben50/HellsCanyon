@@ -1,0 +1,23 @@
+##################
+# anvio_profiling.sub
+# Submission script for profiling
+# metagenomic reads mapped to an
+# assembly into an anvi'o database.
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 12
+request_memory = 120GB
+
+executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/anvio_profiling.sh
+
+environment = "assembly=$(assembly) \
+              output=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/anvioDBs \
+              mappingKey=/home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/mapping_key.tsv \
+              mappingLocation=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/mapping"
+output = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/outs/$(assembly)_anvioProfiling.out
+error = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/errs/$(assembly)_anvioProfiling.err
+log = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/logs/$(assembly)_anvioProfiling.log
+
+queue assembly from /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/assembly_list.txt

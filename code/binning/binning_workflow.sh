@@ -81,3 +81,17 @@ mkdir /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/an
 cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
 chmod +x executables/anvio_DB_prep.sh
 condor_submit submission/anvio_DB_prep.sub
+
+
+##########################
+# Generate read profiles
+##########################
+cd /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists
+awk -F ',' '{ print $1 }' assembly_key.csv > assembly_list.txt
+
+cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
+chmod +x executables/anvio_profiling.sh
+condor_submit submission/anvio_profiling.sub
+
+cd /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists
+rm -f assembly_list.txt
