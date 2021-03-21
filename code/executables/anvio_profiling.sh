@@ -64,7 +64,7 @@ if [ ! -d $assembly.merged ]; then
               -S $assembly\_merged \
               --skip-hierarchical-clustering
 else
-  echo "Merging profiles complete for" $groupName
+  echo "Merging profiles complete for" $assembly
 fi
 
 
