@@ -23,7 +23,6 @@
 screen -S HCC_binning
 mkdir ~/HellsCanyon/dataEdited/binning
 cd ~/HellsCanyon/dataEdited
-mkdir binning/binning_automatic
 mkdir binning/scaffolds
 export PATH=/home/GLBRCORG/bpeterson26/miniconda3/bin:$PATH
 source activate anvio6.2
@@ -63,9 +62,6 @@ cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
 chmod +x executables/binning_mapping.sh
 condor_submit submission/binning_mapping.sub
 
-cd /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists
-rm -f assembly_list.txt
-
 
 ####################################################
 ####################################################
@@ -86,15 +82,22 @@ condor_submit submission/anvio_DB_prep.sub
 ##########################
 # Generate read profiles
 ##########################
-cd /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists
-awk -F ',' '{ print $1 }' assembly_key.csv > assembly_list.txt
-
 cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
 chmod +x executables/anvio_profiling.sh
 condor_submit submission/anvio_profiling.sub
 
-cd /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists
-rm -f assembly_list.txt
+
+##########################
+# Run CONCOCT binning
+##########################
+cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
+chmod +x executables/generate_large_bin_clusters_anvio.sh
+condor_submit submission/generate_large_bin_clusters_anvio.sub
+
+
+
+
+
 
 
 ####################################################
@@ -107,7 +110,12 @@ screen -S HCC_auto_binning
 mkdir ~/HellsCanyon/dataEdited/binning/autoBinning
 cd ~/HellsCanyon/dataEdited/binning/autoBinning
 mkdir metabat2 maxbin2 dasTool
+cd ~/HellsCanyon/reports
+rm -f */*_autoBinning*
 
 cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
 chmod +x executables/automatic_binning.sh
 condor_submit submission/automatic_binning.sub
+
+cd /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists
+rm -f assembly_list.txt

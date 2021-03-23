@@ -1,0 +1,20 @@
+##################
+# generate_large_bin_clusters_anvio.sub
+# Submission script for running automatic
+# binning algorithms on scaffolds.
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 12
+request_memory = 120GB
+
+executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/automatic_binning.sh
+
+environment = "assembly=$(assembly) \
+              anvioFolder=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/anvioDBs"
+output = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/outs/$(assembly)_concoctBinning.out
+error = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/errs/$(assembly)_concoctBinning.err
+log = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/logs/$(assembly)_concoctBinning.log
+
+queue assembly from /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/assembly_list.txt
