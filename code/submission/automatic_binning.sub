@@ -1,0 +1,26 @@
+##################
+# automatic_binning.sub
+# Submission script for running automatic
+# binning algorithms on scaffolds.
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 12
+request_memory = 120GB
+
+executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/automatic_binning.sh
+
+environment = "assembly=$(assembly) \
+              metabatOutput=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/autoBinning/metabat2 \
+              maxbinOutput=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/autoBinning/maxbin2 \
+              dasToolOutput=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/autoBinning/dasTool \
+              mappingKey=/home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/mapping_key.tsv \
+              mappingLocation=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/mapping \
+              scaffoldsLocation=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/scaffolds \
+              scripts=/home/GLBRCORG/bpeterson26/HellsCanyon/code/generalUse"
+output = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/outs/$(assembly)_autoBinning.out
+error = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/errs/$(assembly)_autoBinning.err
+log = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/logs/$(assembly)_autoBinning.log
+
+queue assembly from /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/assembly_list.txt

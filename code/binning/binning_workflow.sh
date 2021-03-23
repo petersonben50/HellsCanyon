@@ -95,3 +95,19 @@ condor_submit submission/anvio_profiling.sub
 
 cd /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists
 rm -f assembly_list.txt
+
+
+####################################################
+####################################################
+# Run automatic binning algorithms
+####################################################
+####################################################
+
+screen -S HCC_auto_binning
+mkdir ~/HellsCanyon/dataEdited/binning/autoBinning
+cd ~/HellsCanyon/dataEdited/binning/autoBinning
+mkdir metabat2 maxbin2 dasTool
+
+cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
+chmod +x executables/automatic_binning.sh
+condor_submit submission/automatic_binning.sub

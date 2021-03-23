@@ -40,16 +40,20 @@ awk -F '\t' -v assembly="$assembly" '$2 == assembly { print $1 }' $mappingKey > 
 #########################
 cat metagenomes_for_$assembly\_mapping.txt | while read metagenome
 do
-  if [ ! -d $metagenome\_to_$assembly.profile ]; then
-    echo "Profiling reads mapped from:" $metagenome "to" $assembly
-    anvi-profile -c $assembly.db \
-                  -i $mappingLocation/$metagenome\_to_$assembly.bam \
-                  --write-buffer-size 500 \
-                  --min-contig-length 2000 \
-                  --num-threads 10 \
-                  -o $metagenome\_to_$assembly.profile
+  if [ -e $mappingLocation/$metagenome\_to_$assembly.bam ]; then
+    if [ ! -d $metagenome\_to_$assembly.profile ]; then
+      echo "Profiling reads mapped from:" $metagenome "to" $assembly
+      anvi-profile -c $assembly.db \
+                    -i $mappingLocation/$metagenome\_to_$assembly.bam \
+                    --write-buffer-size 500 \
+                    --min-contig-length 2000 \
+                    --num-threads 10 \
+                    -o $metagenome\_to_$assembly.profile
+    else
+      echo "STOP: Profiling of reads mapped to:" $assembly "from" $metagenome "is already done"
+    fi
   else
-    echo "STOP: Profiling reads mapped to:" $assembly "from" $metagenome "is already done"
+    echo $metagenome "was not mapped to" $assembly
   fi
 done
 
