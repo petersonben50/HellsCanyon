@@ -73,6 +73,7 @@ do
 done
 echo "Generating S2B file for" $assembly
 $scripts/Fasta_to_Scaffolds2Bin.sh -e fna > ../$assembly\_metabat_S2B.tsv
+rm -f metagenomes_for_$assembly\_mapping.txt
 
 
 ####################################################
@@ -81,13 +82,21 @@ $scripts/Fasta_to_Scaffolds2Bin.sh -e fna > ../$assembly\_metabat_S2B.tsv
 ####################################################
 ####################################################
 
+##########################
+# Get set up
+##########################
 cd $maxbinOutput
+mkdir $assembly\_output
+
+##########################
+# Generate list of metagenomes to include in binning
+##########################
+awk -F '\t' -v assembly="$assembly" '$2 == assembly { print $1 }' $mappingKey > metagenomes_for_$assembly\_mapping.txt
 
 ##########################
 # Prep depth files
 ##########################
 # Generate abundance file from BAM files
-mkdir $assembly\_output
 cat metagenomes_for_$assembly\_mapping.txt | while read metagenome
 do
   echo "Calculating depth of" $metagenome "over" $assembly
@@ -139,5 +148,6 @@ DAS_Tool -i $metabatOutput/$assembly\_metabat_S2B.tsv,$maxbinOutput/$assembly\_m
         -o $assembly\_output/$assembly\_bins \
         --threads 9 \
         --write_bins 1 \
+        --search_engine diamond \
         --create_plots 1 \
         --score_threshold 0.4
