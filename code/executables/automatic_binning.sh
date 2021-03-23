@@ -12,9 +12,10 @@
 # Activate conda environment
 ##########################
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
-conda activate bioinformatics
+conda activate binning
 PYTHONPATH=''
 PERL5LIB=''
+R_LIBS=''
 
 
 ####################################################
@@ -40,7 +41,7 @@ awk -F '\t' -v assembly="$assembly" '$2 == assembly { print $1 }' $mappingKey > 
 # First need to generate a depth file
 if [ ! -e $assembly\_output/depth_to_$assembly.txt ]; then
   echo "Summarizing depths for" $assembly
-  python $scripts/depth_file_generation_metabat.py $assembly\_output/metagenomes_for_$assembly\_mapping.txt \
+  python $scripts/depth_file_generation_metabat.py metagenomes_for_$assembly\_mapping.txt \
                                                     $mappingLocation \
                                                     $assembly \
                                                     $assembly\_output
@@ -57,7 +58,6 @@ if [ ! -e $assembly\_metabat* ]; then
 else
   echo "Binning of" $assembly "already done"
 fi
-rm -f metagenomes_for_$assembly\_mapping.txt
 
 ##########################
 # Rename bins from metabat2
@@ -86,7 +86,6 @@ cd $maxbinOutput
 ##########################
 # Prep depth files
 ##########################
-awk -F '\t' -v assembly="$assembly" '$2 == assembly { print $1 }' $mappingKey > metagenomes_for_$assembly\_mapping.txt
 # Generate abundance file from BAM files
 mkdir $assembly\_output
 cat metagenomes_for_$assembly\_mapping.txt | while read metagenome
@@ -138,7 +137,7 @@ DAS_Tool -i $metabatOutput/$assembly\_metabat_S2B.tsv,$maxbinOutput/$assembly\_m
         -l metabat,maxbin \
         -c $scaffoldsLocation/$assembly\_filtered_scaffolds.fna \
         -o $assembly\_output/$assembly\_bins \
-        --search_engine blast \
         --threads 9 \
         --write_bins 1 \
+        --create_plots 1 \
         --score_threshold 0.4
