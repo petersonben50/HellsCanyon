@@ -9,7 +9,7 @@
 request_cpus = 12
 request_memory = 120GB
 
-executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/automatic_binning.sh
+executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/generate_large_bin_clusters_anvio.sh
 
 environment = "assembly=$(assembly) \
               anvioFolder=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/anvioDBs"
