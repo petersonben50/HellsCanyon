@@ -74,7 +74,7 @@ done
 echo "Generating S2B file for" $assembly
 $scripts/Fasta_to_Scaffolds2Bin.sh -e fna > ../$assembly\_metabat_S2B.tsv
 rm -f metagenomes_for_$assembly\_mapping.txt
-
+conda deactivate
 
 ####################################################
 ####################################################
@@ -96,6 +96,7 @@ awk -F '\t' -v assembly="$assembly" '$2 == assembly { print $1 }' $mappingKey > 
 ##########################
 # Prep depth files
 ##########################
+conda activate bioinformatics
 # Generate abundance file from BAM files
 cat metagenomes_for_$assembly\_mapping.txt | while read metagenome
 do
@@ -109,15 +110,18 @@ do
 done
 cd $assembly\_output/
 ls *_to_$assembly.depth > abund_list.txt
+conda deactivate
 
 #################################
 # Create list of abundance files
 #################################
+conda activate maxbin2
 run_MaxBin.pl -contig $scaffoldsLocation/$assembly\_filtered_scaffolds.fna \
               -abund_list abund_list.txt \
               -out $assembly\_maxbin \
               -thread 10
 rm -f metagenomes_for_$assembly\_mapping.txt
+conda deactivate
 
 
 ##########################
@@ -140,6 +144,7 @@ $scripts/Fasta_to_Scaffolds2Bin.sh -e fna > ../$assembly\_maxbin_S2B.tsv
 # Aggregate bins using Das Tool
 ####################################################
 ####################################################
+conda activate binning
 cd $dasToolOutput
 mkdir $assembly\_output
 DAS_Tool -i $metabatOutput/$assembly\_metabat_S2B.tsv,$maxbinOutput/$assembly\_maxbin_S2B.tsv \
@@ -151,3 +156,22 @@ DAS_Tool -i $metabatOutput/$assembly\_metabat_S2B.tsv,$maxbinOutput/$assembly\_m
         --search_engine diamond \
         --create_plots 1 \
         --score_threshold 0.4
+conda deactivate
+
+
+####################################################
+####################################################
+# Rename and save out bins
+####################################################
+####################################################
+cd $dasToolOutput/$assembly\_output/$assembly\_bins_DASTool_bins
+echo -e "oldBinName\tnewBinName" > renaming_file.tsv
+i=1
+ls *.fa | while read file
+do
+  newFile="$(printf "$assembly\_bin\_%04d.fna" "$i" | sed 's/\\//g')"
+  echo "Moving" "$file" "to" $newFile
+  echo -e $file"\t"$newFile >> renaming_file.tsv
+  cp $file $finalBinsOutput/$newFile
+  i=$((i+1))
+done

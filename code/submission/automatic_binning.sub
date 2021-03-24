@@ -15,6 +15,7 @@ environment = "assembly=$(assembly) \
               metabatOutput=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/autoBinning/metabat2 \
               maxbinOutput=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/autoBinning/maxbin2 \
               dasToolOutput=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/autoBinning/dasTool \
+              finalBinsOutput=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/autoBinning/finalBins \
               mappingKey=/home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/mapping_key.tsv \
               mappingLocation=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/mapping \
               scaffoldsLocation=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/scaffolds \
