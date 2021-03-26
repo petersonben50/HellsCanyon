@@ -165,6 +165,7 @@ conda deactivate
 ####################################################
 ####################################################
 cd $dasToolOutput/$assembly\_output/$assembly\_bins_DASTool_bins
+mkdir $finalBinsOutput/$assembly\_bins
 echo -e "oldBinName\tnewBinName" > renaming_file.tsv
 i=1
 ls *.fa | while read file
@@ -172,6 +173,9 @@ do
   newFile="$(printf "$assembly\_bin\_%04d.fna" "$i" | sed 's/\\//g')"
   echo "Moving" "$file" "to" $newFile
   echo -e $file"\t"$newFile >> renaming_file.tsv
-  cp $file $finalBinsOutput/$newFile
+  cp $file $finalBinsOutput/$assembly\_bins/$newFile
   i=$((i+1))
 done
+cd $finalBinsOutput/$assembly\_bins
+echo "Generating S2B file for Das Tool bins from" $assembly
+$scripts/Fasta_to_Scaffolds2Bin.sh -e fna > ../$assembly\_dasTool_S2B.tsv
