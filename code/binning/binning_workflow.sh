@@ -147,9 +147,6 @@ cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
 chmod +x executables/automatic_binning.sh
 condor_submit submission/automatic_binning.sub
 
-cd /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists
-rm -f assembly_list.txt
-
 
 ####################################################
 ####################################################
@@ -201,3 +198,27 @@ do
                                 -i $anvioDB/S2B_files/$assembly*S2B.tsv \
                                 -o $anvioDB/binning_collections/$assembly\_collections.tsv
 done
+
+
+################################################
+################################################
+# Manually bin hgcA+ bins
+################################################
+################################################
+
+screen -S HCC_anvioDBs_binning
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate anvio6.2
+PYTHONPATH=""
+cd ~/HellsCanyon/dataEdited/binning/manualBinning/
+# Copy the database folder
+#cp -avr anvioDBs anvioDBs_modified
+#cat /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/anvioDBs/original_summaries/hgcA_search/original_hgcA_bin_list.txt
+assembly=fall2017coassembly
+bin=Bin_77
+anvi-refine -p anvioDBs_modified/$assembly.merged/PROFILE.db \
+            -c anvioDBs_modified/$assembly.db \
+            -C CONCOCT \
+            -b $bin \
+            -A anvioDBs_modified/binning_collections/$assembly\_collections.tsv \
+            --taxonomic-level "t_phylum"
