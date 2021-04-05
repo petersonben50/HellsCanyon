@@ -222,3 +222,219 @@ anvi-refine -p anvioDBs_modified/$assembly.merged/PROFILE.db \
             -b $bin \
             -A anvioDBs_modified/binning_collections/$assembly\_collections.tsv \
             --taxonomic-level "t_phylum"
+
+
+
+
+################################################
+################################################
+# Summarize/export curated bins
+################################################
+################################################
+
+##########################
+# Rename and summarize bins
+##########################
+screen -S HCC_binsPostProcessing
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate anvio6.2
+PYTHONPATH=""
+PERL5LIB=""
+cd ~/HellsCanyon/dataEdited/binning/manualBinning/anvioDBs_modified
+
+# Summarize them
+cat /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/assembly_list.txt | while read assembly
+do
+  # If old summary exists that we want to delete, uncomment
+  # the following:
+  # rm -r $assembly.summary.curated
+  if [ ! -d $assembly.curated.summary ]; then
+    echo "Summarizing bins for" $assembly
+    anvi-summarize -c $assembly.db \
+                    -p $assembly.merged/PROFILE.db \
+                    -C CONCOCT \
+                    -o $assembly.curated.summary
+  else
+    echo "We already summarized the curated bins for" $assembly
+  fi
+done
+conda deactivate
+
+
+##########################
+# Pull out DNA files from hgcA+ bins
+##########################
+# First need to set up new directory
+cd ~/HellsCanyon/dataEdited/binning/manualBinning/
+mkdir binsRaw
+mkdir binsRaw/DNA
+binsRaw=~/HellsCanyon/dataEdited/binning/manualBinning/binsRaw
+
+cat /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/assembly_list.txt | while read assembly
+do
+  binSummary=~/HellsCanyon/dataEdited/binning/manualBinning/anvioDBs_modified/$assembly.curated.summary
+  if [ -e $binSummary ]; then
+    if [ ! -e $binsRaw/DNA/$assembly* ]; then
+      cd $binSummary/bin_by_bin
+      ls | sed 's/\///' | while read bin
+      do
+        isThereHgcA=`cat $bin/$bin\-hgcaAnvio-hmm-sequences.txt | wc -l`
+        if [ ! $isThereHgcA -eq 0 ]; then
+          echo "Copying" $bin "to binsRaw folder"
+          cp $bin/$bin-contigs.fa $binsRaw/DNA/$bin.fna
+        else
+          echo "No hgcA in" $bin
+        fi
+      done
+    else
+      echo "Hey, there are some bins from" $assembly "already in here"
+      echo "You might wanna check that out before you start overwriting stuff"
+    fi
+  else
+    echo "Summarize anvioDB for" $assembly", dummy."
+  fi
+done
+
+# Generate list of hgcA+ bins
+cd $binsRaw/DNA
+ls *.fna | \
+  sed 's/.fna//' \
+  > binsRaw_hgcA_list.txt
+
+
+
+
+
+
+####################################################
+####################################################
+# Check quality of bins
+####################################################
+####################################################
+
+##########################
+# Completeness/redundancy estimates from anvio
+##########################
+binsRaw=~/HellsCanyon/dataEdited/binning/manualBinning/binsRaw
+mkdir $binsRaw/anvio_data
+mkdir $binsRaw/anvio_data/completeness_redundancy
+
+# Copy summary files into a single folder.
+cat /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/assembly_list.txt | while read assembly
+do
+  binSummary=~/HellsCanyon/dataEdited/binning/manualBinning/anvioDBs_modified/$assembly.curated.summary
+  if [ -e $binSummary/bins_summary.txt ]; then
+    cp $binSummary/bins_summary.txt $binsRaw/anvio_data/completeness_redundancy/$assembly\_bins_summary.txt
+  else
+    echo $assembly "has not been summarized."
+  fi
+done
+
+# Concatenate summaries into a single file.
+cd $binsRaw/anvio_data/completeness_redundancy
+head -n 1 fall2017cluster1_bins_summary.txt > bins_summary_all.txt
+ls *_bins_summary.txt | while read file
+do
+  tail -n +2 $file >> bins_summary_all.txt
+done
+
+# Only keep the summaries for the hgcA+ bins.
+head -n 1 bins_summary_all.txt > bins_summary_hgcA.txt
+cat $binsRaw/DNA/binsRaw_hgcA_list.txt | while read hgcA_bin
+do
+  grep $hgcA_bin bins_summary_all.txt >> bins_summary_hgcA.txt
+done
+
+head -n 1 bins_summary_hgcA.txt > bins_summary_hgcA_good.txt
+awk '{ if (($7 > 50) && ($8 < 10)) print $0 }' bins_summary_hgcA.txt >> bins_summary_hgcA_good.txt
+tail -n +2 bins_summary_hgcA_good.txt | \
+  awk '{ print $1 }' \
+  > bins_list_hgcA_good.txt
+
+
+
+
+##########################
+# Completeness/redundancy estimates from CheckM
+##########################
+
+screen -S HCC_checkM
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+PYTHONPATH=""
+conda activate bioinformatics
+binsRaw=~/HellsCanyon/dataEdited/binning/manualBinning/binsRaw
+
+cd $binsRaw
+if [ -d checkM ]; then
+  echo "Removing old checkM folder"
+  rm -rf checkM
+fi
+mkdir checkM
+checkm lineage_wf \
+      -x .fna \
+      -t 16 \
+      DNA \
+      checkM
+checkm qa checkM/lineage.ms \
+        checkM \
+        -o 2 \
+        -f checkM/checkm.out \
+        --tab_table
+awk -F '\t' \
+  -v OFS=',' \
+  '{ print $1,$6,$7,$8,$9,$11,$13,$15,$17,$19,$23 }' \
+  checkM/checkm.out \
+  > checkM/checkM_stats.csv
+
+# Download checkM/checkM_stats.csv to local computer:
+# dataEdited/2017_analysis_bins/binning/rawBins/bin_quality
+cd ~/HellsCanyon/dataEdited/binning/manualBinning
+mkdir binsGood
+mkdir binsGood/DNA
+mkdir binsGood/checkM
+awk -F ',' '{ if (($2 > 50) && ($3 < 10)) print $0 }' \
+  binsRaw/checkM/checkM_stats.csv \
+  > binsGood/checkM/good_bins_data.txt
+awk -F ',' '{ print $1 }' binsGood/checkM/good_bins_data.txt \
+  > binsGood/checkM/good_bins_list.txt
+cat binsGood/checkM/good_bins_list.txt | while read binsGood
+do
+  echo "Copying" $binsGood
+  cp binsRaw/DNA/$binsGood.fna binsGood/DNA
+done
+
+cd binsGood/DNA
+scripts=~/Everglades/code/generalUse
+ls *fna | while read fna
+do
+  echo "Cleaning" $fna
+  python $scripts/cleanFASTA.py $fna
+  mv -f $fna\_temp.fasta $fna
+done
+
+
+####################################################
+####################################################
+# Check out taxonomy of bins with GTDB
+####################################################
+####################################################
+
+screen -S HCC_GTDB
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+PYTHONPATH=""
+conda activate gtdbtk
+cd ~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
+rm -rf taxonomy
+mkdir taxonomy
+
+gtdbtk classify_wf \
+        --cpus 16 \
+        --extension fna \
+        --genome_dir ./DNA \
+        --out_dir taxonomy
+# Summarize them
+cd taxonomy
+grep -h 'anvio_hgcA' gtdbtk.*.summary.tsv \
+        | awk -F '\t' '{ print $1"\t"$2 }' \
+        > taxonomy_summary.txt
+conda deactivate
