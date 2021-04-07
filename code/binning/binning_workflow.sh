@@ -397,7 +397,18 @@ awk -F ',' '{ if (($2 > 50) && ($3 < 10)) print $0 }' \
   > binsGood/checkM/good_bins_data.txt
 awk -F ',' '{ print $1 }' binsGood/checkM/good_bins_data.txt \
   > binsGood/checkM/good_bins_list.txt
-cat binsGood/checkM/good_bins_list.txt | while read binsGood
+
+
+##########################
+# Final bin list
+##########################
+cd ~/HellsCanyon/dataEdited/binning/manualBinning
+cat binsGood/checkM/good_bins_list.txt binsRaw/anvio_data/completeness_redundancy/bins_list_hgcA_good.txt | \
+  sort | uniq \
+  > goodBins_list.txt
+
+
+cat goodBins_list.txt | while read binsGood
 do
   echo "Copying" $binsGood
   cp binsRaw/DNA/$binsGood.fna binsGood/DNA
@@ -438,3 +449,321 @@ grep -h 'anvio_hgcA' gtdbtk.*.summary.tsv \
         | awk -F '\t' '{ print $1"\t"$2 }' \
         > taxonomy_summary.txt
 conda deactivate
+
+
+
+####################################################
+####################################################
+# Pull out coverage information from anvio
+####################################################
+####################################################
+
+# Coverage data from anvio
+binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
+mkdir $binsGood/coverageAnvio
+cd $binsGood/coverageAnvio
+
+cat /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/assembly_list.txt | while read assembly
+do
+  summary=~/HellsCanyon/dataEdited/binning/manualBinning/anvioDBs_modified/$assembly.curated.summary/bins_across_samples
+  if [ -e $summary/mean_coverage_Q2Q3.txt ]; then
+    if [ ! -e $binsGood/coverageAnvio/$assembly\_coverage.txt ]; then
+      cp -f $summary/mean_coverage_Q2Q3.txt $binsGood/coverageAnvio/$assembly\_coverage.txt
+    fi
+  else
+    echo $assembly "has not been summarized."
+  fi
+done
+
+
+awk -F ',' '{ print $2 }' ~/HellsCanyon/metadata/lists/assembly_key.csv | \
+  sort | uniq | \
+  while read year
+do
+  initialAssembly=`awk -F ',' -v year="$year" '$2 == year { print $1 }' ~/HellsCanyon/metadata/lists/assembly_key.csv | head -n 1`
+  head -n 1 $initialAssembly\_coverage.txt > coverage_$year.txt
+
+  awk -F ',' -v year="$year" '$2 == year { print $1 }' ~/HellsCanyon/metadata/lists/assembly_key.csv | while read assembly
+  do
+    tail -n +2 $assembly\_coverage.txt >> coverage_$year.txt
+  done
+
+  head -n 1 coverage_$year.txt > coverage_goodBins_$year.txt
+  grep -f ~/HellsCanyon/dataEdited/binning/manualBinning/goodBins_list.txt coverage_$year.txt >> coverage_goodBins_$year.txt
+  rm -f coverage_$year.txt
+done
+rm -f *_coverage.txt
+# Download the "coverage_goodBins_201*.txt" files to my computer
+
+
+
+####################################################
+####################################################
+# Get ORFs for bins
+####################################################
+####################################################
+
+screen -S HCC_binsORFS
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=""
+scripts=/home/GLBRCORG/bpeterson26/HellsCanyon/code/generalUse
+binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
+binsGoodList=~/HellsCanyon/dataEdited/binning/manualBinning/goodBins_list.txt
+cd $binsGood
+mkdir ORFs
+
+cat $binsGoodList | while read bin
+do
+  if [ ! -e ORFs/$bin.gff ]; then
+    echo "Predicting proteins for" $bin
+    prodigal -i DNA/$bin.fna \
+              -o ORFs/$bin.gff \
+              -f gff \
+              -a ORFs/$bin.faa \
+              -d ORFs/$bin.fna \
+              -p single
+  else
+    echo $bin "already run."
+  fi
+done
+
+# Clean up the gene sequence files
+cd ORFs
+cat $binsGoodList | while read bin
+do
+  echo "Cleaning" $bin
+  python $scripts/cleanFASTA.py $bin.fna
+  mv -f $bin.fna_temp.fasta $bin.fna
+  python $scripts/cleanFASTA.py $bin.faa
+  mv -f $bin.faa_temp.fasta $bin.faa
+done
+
+# Combine gene sequence files and generate S2B/G2B files
+cd $binsGood
+$scripts/Fasta_to_Scaffolds2Bin.sh -e fna \
+                                    -i DNA \
+                                    > binsGood_S2B.tsv
+cat DNA/*.fna > DNA.fna
+$scripts/Fasta_to_Scaffolds2Bin.sh -e faa \
+                                    -i ORFs \
+                                    > binsGood_G2B.tsv
+cat ORFs/*.faa > ORFs.faa
+
+
+
+####################################################
+####################################################
+# Run ANI comparisons on good bins
+####################################################
+####################################################
+# The following workflow is the code to run
+# Sarah Stevens's ANI calculator on a
+# folder full of bins.
+# Details: https://github.com/sstevens2/ani_compare_dag
+
+
+mkdir ~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/ANI_comparison
+cd ~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/ANI_comparison
+wget https://ani.jgi-psf.org/download_files/ANIcalculator_v1.tgz
+tar -xzvf ANIcalculator_v1.tgz
+git clone https://github.com/sstevens2/ani_compare_dag.git
+mv ani_compare_dag HCC_bins_ANI
+cd HCC_bins_ANI/
+mkdir goodBins
+
+
+
+cp ~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/ORFs/*fna goodBins/
+# from GLBRC to CHTC into ANI_comparison/ani_compare_dag/
+echo 'goodBins' > groupslist.txt
+# Change path of executable and
+# transfer_input_files lines
+#executable = /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/binsGood/ANI_comparison/HCC_bins_ANI/group.sh
+#transfer_input_files = /home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_binning/binning_initial/binsGood/ANI_comparison/ANIcalculator_v1/ANIcalculator,/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_binning/binning_initial/binsGood/ANI_comparison/ANIcalculator_v1/nsimscan,$(spllist),$(totransfer)
+condor_submit_dag runAllANIcompare.dag
+# Download output file (goodBins.all.ani.out.cleaned)
+# to my computer:
+# dataEdited/2019_binning/binning_initial/binsGood/goodBins.all.ani.out.cleaned
+
+cd ~/Everglades/dataEdited/2019_binning/binning_initial
+mkdir binsFinal
+mkdir binsFinal/DNA
+mkdir binsFinal/ORFs
+cat binsFinal_list.txt | while read bin
+do
+  cp binsGood/DNA/$bin.fna binsFinal/DNA
+  cp binsGood/ORFs/$bin* binsFinal/ORFs
+done
+
+
+
+
+
+
+####################################################
+####################################################
+# Metabolic analyses
+####################################################
+####################################################
+
+##########################
+# Custom set of metabolic HMMs
+##########################
+
+screen -S HCC_metabolic_HMMs
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate batch_HMMs
+PYTHONPATH=''
+PERL5LIB=''
+binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
+scripts=~/HellsCanyon/code/generalUse
+metabolic_HMMs=~/HellsCanyon/references/metabolic_HMMs
+cd $binsGood
+mkdir metabolism
+chmod +x $scripts/batch_HMMs.py
+
+python $scripts/batch_HMMs.py --orf_file $binsGood/ORFs.faa \
+                              --g2b $binsGood/binsGood_G2B.tsv \
+                              --hmm_folder $metabolic_HMMs\
+                              --hmm_csv $metabolic_HMMs.csv \
+                              --output $binsGood/metabolism/batch_HMMs
+conda deactivate
+
+
+##########################
+# Search for MHCs
+##########################
+mkdir $binsGood/metabolism/MHCs
+cd $binsGood/metabolism/MHCs
+$scripts/Find_multiheme_protein.py $binsGood/ORFs.faa 3
+mv $binsGood/ORFs_3_heme* .
+
+echo -e "binID\tgeneID\themeCount" > heme_count_bins.tsv
+tail -n +2 ORFs_3_heme_count.txt | awk -F '\t' '{ print $1 }' | while read geneID
+do
+  binID=`awk -F '\t' -v geneID="$geneID" '{ if ($1 == geneID) print $2 }' $binsGood/binsGood_G2B.tsv`
+  hemeCount=`awk -F '\t' -v geneID="$geneID" '{ if ($1 == geneID) print $2 }' ORFs_3_heme_count.txt`
+  echo -e $binID"\t"$geneID"\t"$hemeCount
+  echo -e $binID"\t"$geneID"\t"$hemeCount >> heme_count_bins.tsv
+done
+
+##########################
+# Search for BBOMPs
+##########################
+# Pull out names of adjacent genes
+binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
+cd $binsGood/metabolism
+mkdir PCC
+mkdir PCC/list
+rm -f $binsGood/metabolism/PCC/adjacent_genes_all_list.txt
+
+cat MHCs/ORFs_3_heme_list.txt | while read gene
+do
+  echo "Working on" $gene
+  scaffold=$(echo $gene | rev | cut -d"_" -f2- | rev)
+  assembly=$(echo $gene | rev | cut -d"_" -f3- | rev)
+  ORFnumber=$(echo $gene | rev | cut -d"_" -f1 | rev)
+  preceedingORFnumber=$(expr $ORFnumber - 1)
+  followingORFnumber=$(expr $ORFnumber + 1)
+  echo $scaffold"_"$preceedingORFnumber >> PCC/list/adjacent_genes_all_list.txt
+  echo $scaffold"_"$followingORFnumber >> PCC/list/adjacent_genes_all_list.txt
+done
+
+# Find unique gene names
+cd PCC
+wc -l list/adjacent_genes_all_list.txt
+sort list/adjacent_genes_all_list.txt | \
+  uniq \
+  > list/adjacent_genes_unique_list.txt
+
+# Pull out adjacent genes
+rm -f adjacent_genes.faa
+cat list/adjacent_genes_unique_list.txt | while read geneID
+do
+  assembly=$(echo $geneID | rev | cut -d"_" -f3- | rev)
+  echo "Looking for" $geneID "in" $assembly
+  grep -A 1 -m 1 $geneID$ $binsGood/ORFs.faa >> adjacent_genes.faa
+done
+
+
+#########################
+# Search adjacent genes for BBOMPs
+#########################
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=""
+PERL5LIB=""
+cd $binsGood/metabolism/PCC
+
+# Run the PCC HMM
+pcc_omp_HMM=~/HellsCanyon/references/metabolicProteins/EET/pcc_omp.HMM
+hmmsearch --tblout pcc_omp_custom.out \
+          -T 40 \
+          $pcc_omp_HMM \
+          adjacent_genes.faa \
+          > pcc_omp_custom_output.txt
+# Pull out the sequences of interest
+scripts=~/HellsCanyon/code/generalUse/
+python $scripts/extract_protein_hitting_HMM.py \
+        pcc_omp_custom.out \
+        adjacent_genes.faa \
+        pcc_omp_custom.faa
+
+
+#########################
+# Generate a phylogeny
+#########################
+
+cd $binsGood/metabolism/PCC
+mkdir references
+
+# Find references from RefSeq
+blastp -query pcc_omp_custom.faa \
+        -db ~/references/ncbi_db/refseq/refseq_protein \
+        -evalue 0.005 \
+        -outfmt '6 sseqid sseq' \
+        -max_target_seqs 5 \
+        -num_threads 3 \
+        -out references/refseq_pcc_omp.txt
+# Pull out amino acid sequences and dereplicate them
+cd references
+awk -F '\t' '{ print ">"$1"\n"$2 }' refseq_pcc_omp.txt > refseq_pcc_omp.faa
+sed -i 's/ref|//' refseq_pcc_omp.faa
+sed -i 's/|//' refseq_pcc_omp.faa
+sed -i 's/-//g' refseq_pcc_omp.faa
+# Dereplicate refseq sequences against reference dataset
+cd-hit-2d -i ~/HellsCanyon/references/metabolicProteins/EET/pcc_omp.faa \
+          -i2 refseq_pcc_omp.faa \
+          -o blast_pcc_omp_uniq.faa \
+          -c 0.97 \
+          -n 5
+# Get final list of refseq references
+grep '>' blast_pcc_omp_uniq.faa | \
+  sed 's/>//' \
+  > blast_pcc_omp_uniq_list.txt
+# Concatenate sequences
+cd $binsGood/metabolism/PCC
+mkdir phylogeny
+cat references/blast_pcc_omp_uniq.faa \
+    ~/HellsCanyon/references/metabolicProteins/EET/pcc_omp.faa \
+    pcc_omp_custom.faa \
+    > phylogeny/bbomp_phylogeny.faa
+
+# Generate alignment
+cd phylogeny
+muscle -in bbomp_phylogeny.faa \
+        -out bbomp_phylogeny.afa
+# Trim the alignment
+trimal -in bbomp_phylogeny.afa \
+        -out bbomp_phylogeny_trimmed.afa \
+        -gt 0.5
+FastTree bbomp_phylogeny_trimmed.afa > bbomp.tree
+
+
+# Retrieve reference information on local computer
+HCC
+cd dataEdited/binning/metabolism/PCC
+epost -db protein -input blast_pcc_omp_uniq_list.txt | \
+    esummary | \
+    xtract -pattern DocumentSummary -element AccessionVersion,Organism > refseq_bbomp_metadata.tsv
