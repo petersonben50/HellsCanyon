@@ -136,4 +136,16 @@ Finally, I checked out the tree in R: `code/binning/metabolism/bbomp_tree.R`.
 Looks like this one gene is similar to ExtE.
 The corresponding MHC is KMBP009B_000000035879_3, which also has another MHC adjacent to it (KMBP009B_000000035879_2).
 I ran both of these through the CELLO localization software here (http://cello.life.nctu.edu.tw/cello2go/alignment.php).
-KMBP009B_000000035879_2 is predicted to be extracellular and KMBP009B_000000035879_3 is predicted to be periplasmic, which also support 
+KMBP009B_000000035879_2 is predicted to be extracellular and KMBP009B_000000035879_3 is predicted to be periplasmic, which also support the fact that this is a true PCC.
+
+
+*Confirm dsrA phylogeny*
+
+I wanted to confirm that the dsrA sequences we identified were reductive dsrA genes and were not the reverse dsrA sequences.
+I only had two sequences, so shouldn't be too hard.
+I aligned these two to each other, then aligned that to karthik's *dsrA* database, using MUSCLE for both.
+I then used trimal to trim up the alignment to remove residues with over 50% gaps.
+I then generated a ML tree using FastTree.
+I inspected this tree in R: `code/binning/metabolism/dsr_tree.R`.
+Both of the dsrA genes we identified are reductive *dsrA* sequences.
+We'll just leave this as is in the spreadsheet then.

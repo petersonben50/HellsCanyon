@@ -767,3 +767,50 @@ cd dataEdited/binning/metabolism/PCC
 epost -db protein -input blast_pcc_omp_uniq_list.txt | \
     esummary | \
     xtract -pattern DocumentSummary -element AccessionVersion,Organism > refseq_bbomp_metadata.tsv
+
+
+
+#########################
+# Confirm dsrA phylogeny
+#########################
+screen -S HCC_dsrA_tree
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=""
+PERL5LIB=''
+scripts=~/HellsCanyon/code/generalUse
+binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
+
+# Set up directory
+cd $binsGood/metabolism
+mkdir dsrA
+
+# Copy over my sequences and align them
+sed 's/*//' batch_HMMs/alignments/hmm_hits/dsrA.faa > dsrA/dsrA.faa
+cd dsrA
+grep '>' dsrA.faa | \
+  sed 's/>//' \
+  > dsrA_list.txt
+muscle -in dsrA.faa \
+        -out dsrA.afa
+
+# Copy in reference sequences
+cp ~/references/metabolicProteins/sulfur/dsrA/dsrA_karthik_clean.afa \
+    dsrA_karthik_clean.afa
+
+# Align seqs
+muscle -profile \
+        -in1 dsrA_karthik_clean.afa \
+        -in2 dsrA.afa \
+        -out dsrA_phylogeny.afa
+# Trim alignment
+trimal -in dsrA_phylogeny.afa \
+        -out dsrA_phylogeny_trimmed.afa \
+        -gt 0.5
+
+# Generate ML tree
+#screen -S EG_dsrA_tree
+python $scripts/cleanFASTA.py dsrA_phylogeny_trimmed.afa
+mv -f dsrA_phylogeny_trimmed.afa_temp.fasta dsrA_phylogeny_trimmed.afa
+FastTree dsrA_phylogeny_trimmed.afa \
+    > dsrA_phylogeny_trimmed.tree
