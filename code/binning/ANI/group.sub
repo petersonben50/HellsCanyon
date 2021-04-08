@@ -1,0 +1,26 @@
+# ANI calc
+universe = vanilla
+
+# create log  and error
+log = $(group)/ani-$(group)_ani.log
+error = $(group)/errs/ani-$(group)-$(Cluster).err
+output = $(group)/errs/ani-$(group)-$(Cluster).stdout
+
+# executable and arguments
+executable = /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/binsGood/ANI_comparison/HCC_bins_ANI/group.sh
+arguments = $(spllist) $(group)
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files = /home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_binning/binning_initial/binsGood/ANI_comparison/ANIcalculator_v1/ANIcalculator,/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_binning/binning_initial/binsGood/ANI_comparison/ANIcalculator_v1/nsimscan,$(spllist),$(totransfer)
+
+# Tell HTCondor what amount of compute resources
+request_cpus = 1
+request_memory = 2GB
+request_disk = 100MB
+
+# see http://chtc.cs.wisc.edu/helloworld.shtml for more info about two lines below
+# possible sending jobs to  other clusters at UW line, +WantFlocking = true
+# possible sending jobs OSG line, +WantGlideIn = true
+
+# queue jobs
+queue
