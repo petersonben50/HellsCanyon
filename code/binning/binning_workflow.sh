@@ -814,3 +814,40 @@ python $scripts/cleanFASTA.py dsrA_phylogeny_trimmed.afa
 mv -f dsrA_phylogeny_trimmed.afa_temp.fasta dsrA_phylogeny_trimmed.afa
 FastTree dsrA_phylogeny_trimmed.afa \
     > dsrA_phylogeny_trimmed.tree
+
+
+
+
+####################################################
+####################################################
+# hgcA analysis
+####################################################
+####################################################
+
+screen -S HCC_hgcA_bins
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=''
+PERL5LIB=''
+binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
+hgcaAssembly=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
+
+scripts=~/HellsCanyon/code/generalUse/
+cd $binsGood
+mkdir hgcA
+
+hmmsearch --tblout hgcA/hgcA.out \
+          --cpu 4 \
+          --cut_tc \
+          ~/references/hgcA/hgcA.hmm \
+          ORFs.faa \
+          > hgcA/hgcA_report.txt
+cd hgcA
+grep -v "#" hgcA.out | awk '{ print $1 }' > hgcA_list.txt
+
+# Get hgcA to bin file
+echo -e 'hgcA_ID\tbinID' > hgcA_to_bin.tsv
+cat hgcA_list.txt | while read hgcA
+do
+  awk -F '\t' -v hgcA="$hgcA" '$1 == hgcA { print $0 }' $binsGood/binsGood_G2B.tsv >> hgcA_to_bin.tsv
+done

@@ -161,3 +161,11 @@ I then saved this as a xlsx file and manually edited that one.
 First I made a manual taxonomy column to make this easier to follow.
 Then I went through what my workflow pulled out an assigned a metabolic function to each of these.
 Notes are included in the sheet.
+
+
+**hgcA analysis in bins**
+
+First, I'm mostly interested in linking the bins to the HgcA phylogeny.
+I searched through the bin ORFs for HgcA sequences.
+I identified 19 of them (which is good, that's what I expected) and saved out a list of them.
+I then used the G2B file to link the hgcA sequences to the bins I generated. 
