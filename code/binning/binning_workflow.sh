@@ -769,6 +769,28 @@ epost -db protein -input blast_pcc_omp_uniq_list.txt | \
     xtract -pattern DocumentSummary -element AccessionVersion,Organism > refseq_bbomp_metadata.tsv
 
 
+#########################
+# Check PCC_porin hits from batch HMMs
+#########################
+binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
+cd $binsGood/metabolism
+mkdir PCC_batchHMMs
+mkdir PCC_batchHMMs/PCC
+
+cp batch_HMMs/alignments/hmm_hits/pcc_porin.faa PCC_batchHMMs/PCC/pcc_porin.faa
+cd PCC_batchHMMs/PCC/
+
+grep '>' pcc_porin.faa | sed 's/>//' | awk '{ print $1 }' | while read gene
+do
+  #echo "Working on" $gene
+  scaffold=$(echo $gene | rev | cut -d"_" -f2- | rev)
+  assembly=$(echo $gene | rev | cut -d"_" -f3- | rev)
+  ORFnumber=$(echo $gene | rev | cut -d"_" -f1 | rev)
+  preceedingORFnumber=$(expr $ORFnumber - 1)
+  followingORFnumber=$(expr $ORFnumber + 1)
+  grep $scaffold"_"$preceedingORFnumber $binsGood/metabolism/MHCs/ORFs_3_heme_count.txt
+  grep $scaffold"_"$followingORFnumber $binsGood/metabolism/MHCs/ORFs_3_heme_count.txt
+done
 
 #########################
 # Confirm dsrA phylogeny

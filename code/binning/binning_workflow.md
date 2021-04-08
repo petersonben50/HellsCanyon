@@ -140,6 +140,14 @@ KMBP009B_000000035879_2 is predicted to be extracellular and KMBP009B_0000000358
 This is from bin anvio_hgcA_0210.
 
 
+*Check PCC_porin hits from batch HMMs*
+
+Hmm, all except one have very low scores (29-31) range, e-values around 10^-6, 10^-7.
+The one that's higher was predicted to be a PCC porin through our custom workflow.
+Let's see if there are MHCs on either side of it, but I doubt there will be.
+Yeah, none of them except for the ExtE from Geobacterales has adjacent MHCs, so these are probably not actually PCCs.
+
+
 *Confirm dsrA phylogeny*
 
 I wanted to confirm that the dsrA sequences we identified were reductive dsrA genes and were not the reverse dsrA sequences.
