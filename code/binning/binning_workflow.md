@@ -137,6 +137,7 @@ Looks like this one gene is similar to ExtE.
 The corresponding MHC is KMBP009B_000000035879_3, which also has another MHC adjacent to it (KMBP009B_000000035879_2).
 I ran both of these through the CELLO localization software here (http://cello.life.nctu.edu.tw/cello2go/alignment.php).
 KMBP009B_000000035879_2 is predicted to be extracellular and KMBP009B_000000035879_3 is predicted to be periplasmic, which also support the fact that this is a true PCC.
+This is from bin anvio_hgcA_0210.
 
 
 *Confirm dsrA phylogeny*
@@ -149,3 +150,14 @@ I then generated a ML tree using FastTree.
 I inspected this tree in R: `code/binning/metabolism/dsr_tree.R`.
 Both of the dsrA genes we identified are reductive *dsrA* sequences.
 We'll just leave this as is in the spreadsheet then.
+
+
+*Notes on metabolic assignment*
+
+Finally, I went through my metabolic gene data and manually assigned potential metabolic functions for each of the bins.
+R script to aggregate the information is here: `code/binning/metabolism/metabolism_summary.R`.
+Saved it out here: `dataEdited/binning/metabolism/metabolic_summary.csv`.
+I then saved this as a xlsx file and manually edited that one.
+First I made a manual taxonomy column to make this easier to follow.
+Then I went through what my workflow pulled out an assigned a metabolic function to each of these.
+Notes are included in the sheet.
