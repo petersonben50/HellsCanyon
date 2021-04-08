@@ -16,7 +16,7 @@ MG.metadata <- read_xlsx("metadata/metagenome_metadata.xlsx")
 
 
 #### Read in normalization table ####
-MG.metadata <- read_xlsx("metadata/metagenome_metadata.xlsx")
+metagenome.coverage <- readRDS("dataEdited/scg_abundance/scg_normalization_vector.rds")
 
 
 
@@ -39,7 +39,8 @@ depth.2017 <- read.table("dataEdited/binning/coverageAnvio/coverage_goodBins_201
          -1) %>%
   mutate(metagenomeID = metagenomeID %>% strsplit("_") %>% sapply("[", 1)) %>%
   left_join(MG.metadata %>% select(metagenomeID, RM, depth)) %>%
-  left_join(metabolic.data)
+  left_join(metabolic.data) %>%
+  mutate(coverage = coverage * metagenome.coverage[metagenomeID])
 
 depth.2017 %>%
   ggplot(aes(y = coverage,
@@ -65,7 +66,8 @@ depth.2018 <- read.table("dataEdited/binning/coverageAnvio/coverage_goodBins_201
   mutate(metagenomeID = metagenomeID %>% strsplit("_") %>% sapply("[", 1)) %>%
   left_join(MG.metadata %>% select(metagenomeID, RM, depth)) %>%
   left_join(metabolic.data) %>%
-  arrange(depth)
+  arrange(depth) %>%
+  mutate(coverage = coverage * metagenome.coverage[metagenomeID])
 
 depth.2018 %>%
   ggplot(aes(y = coverage,
@@ -92,7 +94,8 @@ depth.2019 <- read.table("dataEdited/binning/coverageAnvio/coverage_goodBins_201
   left_join(MG.metadata %>% select(metagenomeID, RM, depth)) %>%
   filter(RM %in% c(300, 310)) %>%
   left_join(metabolic.data) %>%
-  arrange(depth)
+  arrange(depth) %>%
+  mutate(coverage = coverage * metagenome.coverage[metagenomeID])
 
 depth.2019 %>%
   ggplot(aes(y = coverage,
