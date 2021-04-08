@@ -163,9 +163,17 @@ Then I went through what my workflow pulled out an assigned a metabolic function
 Notes are included in the sheet.
 
 
+**Depth analysis**
+
+I wanted to check the depth profiles of our bins and was too lazy to write up a script so I used the depth calculations from anvi'o.
+I looked at this here: `code/binning/depth_plots.R`.
+This is a pretty rough analysis, since the normalization scheme of anvi'o is pretty confusing, so I'll want to extract the depths myself at some point to make sure I've got this right.
+Nice way to see the relative abundance of these different groups though.
+
+
 **hgcA analysis in bins**
 
 First, I'm mostly interested in linking the bins to the HgcA phylogeny.
 I searched through the bin ORFs for HgcA sequences.
 I identified 19 of them (which is good, that's what I expected) and saved out a list of them.
-I then used the G2B file to link the hgcA sequences to the bins I generated. 
+I then used the G2B file to link the hgcA sequences to the bins I generated.
