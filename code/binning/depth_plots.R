@@ -4,6 +4,7 @@
 
 #### Clean up ####
 rm(list = ls())
+library(lubridate)
 library(readxl)
 library(tidyverse)
 cb.translator <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
@@ -15,11 +16,6 @@ names(cb.translator)[length(cb.translator)] <- "grey"
 MG.metadata <- read_xlsx("metadata/metagenome_metadata.xlsx")
 
 
-#### Read in normalization table ####
-metagenome.coverage <- readRDS("dataEdited/scg_abundance/scg_normalization_vector.rds")
-
-
-
 #### Read in metabolism data ####
 metabolic.data <- read_xlsx("dataEdited/binning/metabolism/metabolic_summary.xlsx") %>%
   select(HMS, binID, metabolic_assignment)
@@ -28,21 +24,19 @@ HMS.colors <- read_xlsx("dataEdited/binning/metabolism/metabolic_summary.xlsx",
   select(HMS, colorToUse)
 HMS.colors.vector <- cb.translator[HMS.colors$colorToUse]
 names(HMS.colors.vector) <- HMS.colors$HMS
+rm(HMS.colors)
 
 
 #### Read in depth data ####
-depth.2017 <- read.table("dataEdited/binning/coverageAnvio/coverage_goodBins_2017.txt",
-                         header = TRUE) %>%
-  rename(binID = bins) %>%
-  gather(key = metagenomeID,
-         value = coverage,
-         -1) %>%
-  mutate(metagenomeID = metagenomeID %>% strsplit("_") %>% sapply("[", 1)) %>%
-  left_join(MG.metadata %>% select(metagenomeID, RM, depth)) %>%
-  left_join(metabolic.data) %>%
-  mutate(coverage = coverage * metagenome.coverage[metagenomeID])
+depth.data <- readRDS("dataEdited/binning/depth/bin_depth_clean.rds") %>%
+  left_join(MG.metadata %>% select(metagenomeID, date, RM, depth)) %>%
+  left_join(metabolic.data)
+rm(metabolic.data, MG.metadata)
 
-depth.2017 %>%
+
+#### Generate plot for 2017 ####
+depth.data %>%
+  filter(year(date) == 2017) %>%
   ggplot(aes(y = coverage,
              x = depth,
              group = binID)) +
@@ -55,21 +49,9 @@ depth.2017 %>%
   theme_bw()
 
 
-
-#### Read in depth data ####
-depth.2018 <- read.table("dataEdited/binning/coverageAnvio/coverage_goodBins_2018.txt",
-                         header = TRUE) %>%
-  rename(binID = bins) %>%
-  gather(key = metagenomeID,
-         value = coverage,
-         -1) %>%
-  mutate(metagenomeID = metagenomeID %>% strsplit("_") %>% sapply("[", 1)) %>%
-  left_join(MG.metadata %>% select(metagenomeID, RM, depth)) %>%
-  left_join(metabolic.data) %>%
-  arrange(depth) %>%
-  mutate(coverage = coverage * metagenome.coverage[metagenomeID])
-
-depth.2018 %>%
+#### Generate plot for 2018 ####
+depth.data %>%
+  filter(year(date) == 2018) %>%
   ggplot(aes(y = coverage,
              x = depth,
              group = binID)) +
@@ -82,22 +64,10 @@ depth.2018 %>%
   theme_bw()
 
 
-
-#### Read in depth data ####
-depth.2019 <- read.table("dataEdited/binning/coverageAnvio/coverage_goodBins_2019.txt",
-                         header = TRUE) %>%
-  rename(binID = bins) %>%
-  gather(key = metagenomeID,
-         value = coverage,
-         -1) %>%
-  mutate(metagenomeID = metagenomeID %>% strsplit("_") %>% sapply("[", 1)) %>%
-  left_join(MG.metadata %>% select(metagenomeID, RM, depth)) %>%
+#### Generate plot for 2019 ####
+depth.data %>%
+  filter(year(date) == 2019) %>%
   filter(RM %in% c(300, 310)) %>%
-  left_join(metabolic.data) %>%
-  arrange(depth) %>%
-  mutate(coverage = coverage * metagenome.coverage[metagenomeID])
-
-depth.2019 %>%
   ggplot(aes(y = coverage,
              x = depth,
              group = binID)) +

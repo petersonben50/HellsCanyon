@@ -839,6 +839,80 @@ FastTree dsrA_phylogeny_trimmed.afa \
 
 
 
+#########################
+# Confirm dsrA phylogeny
+#########################
+cd ~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/
+mkdir metabolism/forMETABOLIC
+ls DNA/*fna | sed 's/DNA\///' | sed 's/.fna//' | while read bin
+do
+  cp DNA/$bin.fna metabolism/forMETABOLIC/$bin.fasta
+done
+
+
+
+#########################
+# Run METABOLIC
+#########################
+cd ~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/metabolism/forMETABOLIC
+condor_submit ~/HellsCanyon/code/submission/METABOLIC_processing.sub
+
+
+
+#########################
+# Run Kofamscan on ORFs
+#########################
+cp -avr ~/references/kofamscan_DBs/kofam_scan-1.3.0 ~/HellsCanyon/code/
+# Update config.yml file
+binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
+mkdir $binsGood/metabolism/KOFAM_output
+
+# Get list of bins
+cd $binsGood/ORFs
+ls *fna | sed 's/.fna//' > $binsGood/bins_list.txt
+
+# Run kofamscan on each set of bins
+screen -S kofamscan
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate kofamscan
+PYTHONPATH=""
+PERL5LIB=""
+binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
+KOFAM_output=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/binsGood/metabolism/KOFAM_output
+ORFs=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/binsGood/ORFs
+cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/kofam_scan-1.3.0
+
+rm -f $KOFAM_output/output_forDecoder.tsv
+cat $binsGood/bins_list.txt | while read binID
+do
+  if [ ! -d $KOFAM_output/$binID ]; then
+    echo "Running KOFAMscan on" $binID
+    ./exec_annotation -f detail-tsv \
+                      -o $KOFAM_output/$binID.tsv \
+                      $ORFs/$binID.faa
+
+    echo "Cleaning up results from" $binID
+    grep '*' $KOFAM_output/$binID.tsv > $KOFAM_output/$binID\_qualityHits.tsv
+    binIDclean=`echo $binID | sed 's/_//g'`
+    awk -F '\t' -v binIDclean="$binIDclean" '{ print binIDclean"_"$2"\t"$3 }' $KOFAM_output/$binID\_qualityHits.tsv >> $KOFAM_output/output_forDecoder.tsv
+  fi
+done
+conda deactivate
+
+
+#########################
+# Run KEGG-decoder on output
+#########################
+screen -S kegg_decoder
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate kegg_decoder
+PYTHONPATH=""
+PERL5LIB=""
+KOFAM_output=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/binsGood/metabolism/KOFAM_output
+KEGG-decoder --input $KOFAM_output/output_forDecoder.tsv \
+              --output $KOFAM_output/bin_metabolism_decoded_html.txt \
+              --vizoption interactive
+
 
 ####################################################
 ####################################################
@@ -873,3 +947,18 @@ cat hgcA_list.txt | while read hgcA
 do
   awk -F '\t' -v hgcA="$hgcA" '$1 == hgcA { print $0 }' $binsGood/binsGood_G2B.tsv >> hgcA_to_bin.tsv
 done
+
+
+
+####################################################
+####################################################
+# Pull out coverage information from bam files
+####################################################
+####################################################
+
+screen -S HCC_bin_coverage
+binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
+mkdir $binsGood/depth
+cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
+chmod +x executables/aggregate_depth_bins.sh
+condor_submit submission/aggregate_depth_bins.sub

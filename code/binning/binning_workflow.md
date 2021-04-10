@@ -160,6 +160,17 @@ Both of the dsrA genes we identified are reductive *dsrA* sequences.
 We'll just leave this as is in the spreadsheet then.
 
 
+*Run through METABOLIC*
+
+I set up a METABOLIC run on the GLBRC servers using a submission script that Charles had set up for me.
+
+
+*Run kofamscan on ORFs*
+
+It seems that using kofamscan and identifying the present pathways with KEGG-Decoder might be a more complete way to look at the metabolic pathways in our organisms.
+So, I went ahead and ran KOFAMscan on all of my bins, individually.
+
+
 *Notes on metabolic assignment*
 
 Finally, I went through my metabolic gene data and manually assigned potential metabolic functions for each of the bins.
