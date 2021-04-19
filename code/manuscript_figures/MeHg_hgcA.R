@@ -98,8 +98,6 @@ hgcA.MeHg.scatterplot <- all.data %>%
   ylab("Log of dissolved MeHg (ng/L)") +
   theme_classic() +
   theme(legend.position = c(0.22, 0.75),
-        # legend.box.background = element_rect(colour = "black",
-        #                                      fill = "transparent"),
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"),
         legend.key = element_rect(fill = "transparent", colour = "black"))
