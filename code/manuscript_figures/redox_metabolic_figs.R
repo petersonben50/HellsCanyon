@@ -6,6 +6,7 @@ rm(list = ls())
 setwd("~/Documents/research/HellsCanyon/")
 library(naniar)
 library(readxl)
+library(patchwork)
 library(tidyverse)
 cb.translator <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
 source("code/gene_plotting_functions.R")
@@ -575,12 +576,11 @@ EET.300.2017 + EET.300.2018
 
 #### S cycling genes ####
 color.vector <- c(cb.translator["orange"],
-                  cb.translator["reddishpurple"],
                   cb.translator["bluishgreen"],
                   cb.translator["skyblue"])
-names(color.vector) <- c("rdsrA", "soxB", "dsrA", "dsrD")
-points.vector <- c(16, 2, 17, 1)
-names(points.vector) <- c("rdsrA", "soxB", "dsrA", "dsrD")
+names(color.vector) <- c("rdsrA", "dsrA", "dsrD")
+points.vector <- c(16, 17, 1)
+names(points.vector) <- c("rdsrA", "dsrA", "dsrD")
 S.cycling.300.2017 <- plot.profile.for.multiple.genes(marker.depth.df = teap.data,
                                                       genesOfInterest = names(color.vector),
                                                       yearOfInterest = "2017",
@@ -589,7 +589,7 @@ S.cycling.300.2017 <- plot.profile.for.multiple.genes(marker.depth.df = teap.dat
                                                       depth_limits = c(60, 0),
                                                       color.vector.to.use = color.vector,
                                                       point.vector.to.use = points.vector,
-                                                      coverage_limits = c(0, 150),
+                                                      coverage_limits = c(0, 50),
                                                       titleToUse = element_blank(),
                                                       legend.position.to.use = c(0.8, 0.8))
 S.cycling.300.2018 <- plot.profile.for.multiple.genes(marker.depth.df = teap.data,
@@ -600,7 +600,7 @@ S.cycling.300.2018 <- plot.profile.for.multiple.genes(marker.depth.df = teap.dat
                                                       depth_limits = c(60, 0),
                                                       color.vector.to.use = color.vector,
                                                       point.vector.to.use = points.vector,
-                                                      coverage_limits = c(0, 150),
+                                                      coverage_limits = c(0, 50),
                                                       titleToUse = element_blank(),
                                                       legend.position.to.use = c(0.8, 0.8))
 S.cycling.300.2017 + S.cycling.300.2018
