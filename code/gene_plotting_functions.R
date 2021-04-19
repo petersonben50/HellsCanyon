@@ -9,18 +9,24 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
                                             genesOfInterest,
                                             yearOfInterest,
                                             RMofInterest,
+                                            gene.name.column = "geneName",
+                                            xlab.to.use = "Gene coverage normalized\nto SCG coverage (100X)",
                                             depth_limits = c(80, 0),
                                             coverage_limits = NULL,
                                             show.mean.coverage = TRUE,
                                             color.vector.to.use = NULL,
+                                            point.vector.to.use = NULL,
                                             legend.position.to.use = "default",
+                                            legend.title.to.use = element_blank(),
                                             titleToUse = NULL) {
+ 
+  marker.depth.df[, "gene.names.to.use.for.filtering"] <- marker.depth.df[, gene.name.column]
   
   clean.coverage <- marker.depth.df %>%
-    filter(geneName %in% genesOfInterest) %>%
+    filter(gene.names.to.use.for.filtering %in% genesOfInterest) %>%
     filter(year(ymd(date)) == yearOfInterest) %>%
     filter(RM == RMofInterest) %>%
-    group_by(geneName, depth) %>%
+    group_by(gene.names.to.use.for.filtering, depth) %>%
     summarise(coverage = sum(coverage)) %>%
     ungroup() %>%
     arrange(depth)
@@ -28,7 +34,6 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
   graph.of.interest <- clean.coverage %>%
     ggplot(aes(x = depth,
                y = coverage)) +
-    geom_point() +
     theme_classic() +
     scale_x_reverse(limits = depth_limits)  +
     theme(axis.text.x = element_text(colour="black"),
@@ -42,20 +47,30 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
   }
   graph.of.interest <- graph.of.interest +
     labs(title = titleToUse,
-         y = "Gene coverage normalized\nto SCG coverage (100X)",
-         x = "Site ID")
+         y = xlab.to.use,
+         x = "Depth (m)")
   
   #### Add colors if defined in the call ####
   if (!is.null(color.vector.to.use)) {
     graph.of.interest <- graph.of.interest +
-      geom_line(aes(group = geneName,
-                    color = geneName)) +
+      geom_line(aes(group = gene.names.to.use.for.filtering,
+                    color = gene.names.to.use.for.filtering,
+                    linetype = gene.names.to.use.for.filtering)) +
+      geom_point(aes(color = gene.names.to.use.for.filtering,
+                     shape = gene.names.to.use.for.filtering)) +
       scale_colour_manual(values=color.vector.to.use)
   } else {
     graph.of.interest <- graph.of.interest +
-      geom_line(aes(group = geneName))
+      geom_point(shape = gene.names.to.use.for.filtering) +
+      geom_line(aes(group = gene.names.to.use.for.filtering,
+                    linetype = gene.names.to.use.for.filtering))
   }
-
+  
+  #### Add point shapes if defined in the call ####
+  if (!is.null(point.vector.to.use)) {
+    graph.of.interest <- graph.of.interest +
+      scale_shape_manual(values = point.vector.to.use)
+  } 
   #### Constrain x-axis if defined in the call ####
   if (!is.null(coverage_limits)) {
     graph.of.interest <- graph.of.interest +
@@ -80,7 +95,9 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
   #### Set up legend position ####
   if (legend.position.to.use[1] != "default") {
     graph.of.interest <- graph.of.interest +
-      theme(legend.position = legend.position.to.use)
+      theme(legend.position = legend.position.to.use,
+            legend.title = legend.title.to.use,
+            legend.box.background = element_rect(colour = "black"))
   }
   
   graph.of.interest + coord_flip()
