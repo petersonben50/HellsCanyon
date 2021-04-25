@@ -15,7 +15,7 @@ library(tidyr)
 library(readxl)
 
 
-#### Read in data ####
+#### Read in data from 2018 and earlier ####
 chem.286.data <- read_xlsx("dataRaw/waterChemistry/Poulin_Hells Canyon Data for Ben Peterson_07082019.xlsx",
                            sheet = 2) %>%
   sapply(as.character) %>%
@@ -34,7 +34,7 @@ chem.318.data <- read_xlsx("dataRaw/waterChemistry/Poulin_Hells Canyon Data for 
   as.data.frame(stringsAsFactors = FALSE)
 
 
-#### Clean data ####
+#### Clean data from 2018 and earlier ####
 clean.chem.data <- chem.286.data %>%
   bind_rows(chem.300.data) %>%
   bind_rows(chem.310.data) %>%
@@ -53,6 +53,10 @@ clean.chem.data$Mn.part_ug.L[grep("<", clean.chem.data$Mn.part_ug.L)] <- NA
 
 clean.chem.data <- clean.chem.data %>%
   mutate(date = round(as.Date(date)))
+
+
+#### Replace nds with 0s ####
+clean.chem.data$sulfide_mg.L[which(clean.chem.data$sulfide_mg.L == "nd")] <- 0
 
 
 #### Clean the data ####
@@ -139,7 +143,7 @@ rm(water.chem.data.2019.whole,
    water.chem.data.2019)
 
 
-#### Order the data ####
+#### Final set of 2019 data ####
 clean.chem.data.2019 <- water.chem.data.2019.all %>%
   select(RM, depth, date,
          Fe_ug.L, Fe.part_ug.L, Mn_ug.L, Mn.part_ug.L,
@@ -152,11 +156,16 @@ clean.chem.data.2019 <- water.chem.data.2019.all %>%
 rm(water.chem.data.2019.all)
 
 
-# Write out water column dissolved data
+#### Combine and clean data ####
 clean.chem.data <- rbind(clean.chem.data.201X,
                          clean.chem.data.2019)
 rm(clean.chem.data.201X,
    clean.chem.data.2019)
+
+
+
+
+#### Write out water column dissolved data ####
 write.csv(clean.chem.data,
           "dataEdited/waterChemistry/geochem_WC.csv",
           row.names = FALSE,
