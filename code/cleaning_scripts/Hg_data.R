@@ -80,11 +80,22 @@ Hg.2019 <- Hg.data %>%
 rm(Hg.data)
 
 
-#### Combine and save out all data ####
+#### Combine data ####
 all.Hg.data <- rbind(Hg.2017.2018,
                      Hg.2019)
 rm(Hg.2017.2018,
    Hg.2019)
+
+
+#### Calculate inorganic Hg and percent MeHg ####
+all.Hg.data <- all.Hg.data %>%
+  mutate(PiHg = as.numeric(PTHG) - as.numeric(PMHG),
+         FiHg = as.numeric(FTHG) - as.numeric(FMHG)) %>%
+  mutate(PMHG_per = as.numeric(PMHG) / as.numeric(PTHG),
+         FMHG_per = as.numeric(FMHG) / as.numeric(FTHG))
+
+
+#### Save out data ####
 write.csv(all.Hg.data,
           file = "dataEdited/waterChemistry/Hg_data.csv",
           row.names = FALSE)
