@@ -944,9 +944,77 @@ cp /home/GLBRCORG/cnolmsted/FeGenie_EET_Stuff/PipelineOutput/All_EET_Proteins_bo
 #########################
 # Identify CAZymes in each bin
 #########################
+# On local computer
 cd /Users/benjaminpeterson/Documents/research/HellsCanyon/dataEdited/binning/bin_orfs
 split -l 60000 ORFs.faa ORFs_split_
 
+
+
+#########################
+# Characterize MoORs in bins
+#########################
+mkdir ~/HellsCanyon/references/custom_hmms
+cp ~/5M/references/MoORs/MoOR.HMM ~/HellsCanyon/references/custom_hmms
+cp ~/5M/references/MoORs/MoOR_final_reference.afa ~/HellsCanyon/references/custom_hmms/MoOR_reference.afa
+# Search bins for MoORs
+screen -S HCC_MoORs
+cd ~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=''
+PERL5LIB=''
+scripts=~/HellsCanyon/code/generalUse/
+
+mkdir metabolism/MoORs
+hmmsearch --tblout metabolism/MoORs/MoOR.out \
+          -T 50 \
+          ~/HellsCanyon/references/custom_hmms/MoOR.HMM \
+          ORFs.faa
+
+# Pull out the gene names, use this to find correct portion of G2B file.
+cd metabolism/MoORs/
+
+rm -f MoOR_G2B.tsv
+rm -f putative_MoORs.faa
+
+grep -v '#' MoOR.out | \
+  awk '{ print $1 }' | while read gene
+  do
+    awk -F '\t' -v gene="$gene" '$1 == gene { print $0 }' ../../binsGood_G2B.tsv >> MoOR_G2B.tsv
+    grep -A 1 $gene\$ ../../ORFs.faa >> putative_MoORs.faa
+    tail -n 1 MoOR_G2B.tsv
+  done
+sed -i 's/*//g' putative_MoORs.faa
+
+hmmalign -o putative_MoORs.sto \
+          ~/HellsCanyon/references/custom_hmms/MoOR.HMM \
+          putative_MoORs.faa
+$scripts/convert_stockhold_to_fasta.py putative_MoORs.sto
+# Edit this in Geneious
+muscle -profile \
+        -in1 putative_MoORs_cut.afa \
+        -in2 ~/HellsCanyon/references/custom_hmms/MoOR_reference.afa \
+        -out putative_MoORs_ref_1.afa
+
+python $scripts/cleanFASTA.py putative_MoORs_ref_1.afa
+mv putative_MoORs_ref_1.afa_temp.fasta putative_MoORs_ref_1.afa
+sed 's/-//g' putative_MoORs_ref_1.afa > putative_MoORs_ref_1.faa
+
+# Mask the alignment at 50% gaps
+trimal -in putative_MoORs_ref_1.afa \
+        -out putative_MoORs_ref_1_masked.afa \
+        -gt 0.5
+FastTree putative_MoORs_ref_1_masked.afa > putative_MoORs_1.tree
+
+raxml=/opt/bifxapps/raxml-8.2.11/raxmlHPC-PTHREADS
+$raxml -f a \
+        -p 283976 \
+        -m PROTGAMMAAUTO \
+        -N autoMRE \
+        -x 2381 \
+        -T 20 \
+        -s putative_MoORs_ref_1_masked.afa \
+        -n hgcA
 
 
 ####################################################

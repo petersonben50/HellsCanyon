@@ -188,6 +188,18 @@ I combined the output text into the file here: `dataEdited/binning/metabolism/GH
 I checked out the output in R (`code/binning/metabolism/GHs.R`) and saved out a csv (`dataEdited/binning/metabolism/GHs/clean_cazyme_data.csv`) with counts of each class of CAZyme within each bin.
 I then added this to a separate Excel sheet in the `metabolic_summary.xlsx` file.
 
+*Characterize MoORs in bins*
+
+Next I wanted to characterize the MoORs I found in the bins.
+I used an HMM I developed for the 5M project to identify putative MoORs in the bin ORFs.
+I then pulled out all the hits and aligned them to the HMM.
+I downloaded this alignment (`dataEdited/binning/metabolism/MoORs/putative_MoORs.afa`) and manually inspected it in Geneious.
+I cut out about 19 of them that didn't match up well.
+The rest we'll keep for now, save out new version: `dataEdited/binning/metabolism/MoORs/putative_MoORs_cut.afa`.
+I aligned this to the set of reference MoORs I gathered for the 5M project.
+I trimmed at 50% gaps using trimal, then generated a ML tree using FastTree.
+I inspected the tree here: `code/binning/metabolism/MoORs.R`.
+This doesn't look too bad actually, let's go ahead with a RAxML tree from this same alignment.
 
 
 *Notes on metabolic assignment*
