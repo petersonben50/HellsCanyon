@@ -43,6 +43,12 @@ depth.df <- do.call(rbind,
          coverage = meanCoverageBin)
 
 
+#### Remove the Planctomycetes that suspected to not be a bin ####
+depth.df <- depth.df %>%
+  filter(binID != "anvio_hgcA_0080")
+
+
+
 #### Write out file
 saveRDS(depth.df,
         "dataEdited/binning/depth/bin_depth_clean.rds")
