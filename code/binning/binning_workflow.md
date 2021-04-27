@@ -171,6 +171,12 @@ It seems that using kofamscan and identifying the present pathways with KEGG-Dec
 So, I went ahead and ran KOFAMscan on all of my bins, individually.
 
 
+*Run genomes through Charles's workflow*
+
+I sent my genomes to Charles and he ran them through his EET workflow.
+I downloaded the output from that.
+
+
 *Notes on metabolic assignment*
 
 Finally, I went through my metabolic gene data and manually assigned potential metabolic functions for each of the bins.
@@ -182,17 +188,17 @@ Then I went through what my workflow pulled out an assigned a metabolic function
 Notes are included in the sheet.
 
 
-**Depth analysis**
-
-I wanted to check the depth profiles of our bins and was too lazy to write up a script so I used the depth calculations from anvi'o.
-I looked at this here: `code/binning/depth_plots.R`.
-This is a pretty rough analysis, since the normalization scheme of anvi'o is pretty confusing, so I'll want to extract the depths myself at some point to make sure I've got this right.
-Nice way to see the relative abundance of these different groups though.
-
-
 **hgcA analysis in bins**
 
 First, I'm mostly interested in linking the bins to the HgcA phylogeny.
 I searched through the bin ORFs for HgcA sequences.
 I identified 19 of them (which is good, that's what I expected) and saved out a list of them.
 I then used the G2B file to link the hgcA sequences to the bins I generated.
+
+
+**Depth analysis**
+
+I extracted the depth of each of the bins using a submission script.
+I cleaned this data here: `/Users/benjaminpeterson/Documents/research/HellsCanyon/code/binning/bin_depth_aggregate.R`.
+I used the SCG abundance to normalize the bin coverage across metagenomes.
+I plotted the coverages of the bins here: `code/binning/depth_plots.R`.

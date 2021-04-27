@@ -649,6 +649,23 @@ do
 done
 
 ##########################
+# Search for MHCs with 10 heme-binding sites
+##########################
+mkdir $binsGood/metabolism/MHCs_10
+cd $binsGood/metabolism/MHCs_10
+$scripts/Find_multiheme_protein.py $binsGood/ORFs.faa 10
+mv $binsGood/ORFs_10_heme* .
+
+echo -e "binID\tgeneID\themeCount" > heme_count_bins_10.tsv
+tail -n +2 ORFs_10_heme_count.txt | awk -F '\t' '{ print $1 }' | while read geneID
+do
+  binID=`awk -F '\t' -v geneID="$geneID" '{ if ($1 == geneID) print $2 }' $binsGood/binsGood_G2B.tsv`
+  hemeCount=`awk -F '\t' -v geneID="$geneID" '{ if ($1 == geneID) print $2 }' ORFs_10_heme_count.txt`
+  echo -e $binID"\t"$geneID"\t"$hemeCount
+  echo -e $binID"\t"$geneID"\t"$hemeCount >> heme_count_bins.tsv
+done
+
+##########################
 # Search for BBOMPs
 ##########################
 # Pull out names of adjacent genes
@@ -912,6 +929,16 @@ KOFAM_output=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBin
 KEGG-decoder --input $KOFAM_output/output_forDecoder.tsv \
               --output $KOFAM_output/bin_metabolism_decoded_html.txt \
               --vizoption interactive
+
+
+#########################
+# Run genomes through Charles's workflow
+#########################
+
+cd ~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/metabolism
+mkdir FeGenie
+cp /home/GLBRCORG/cnolmsted/FeGenie_EET_Stuff/PipelineOutput/All_EET_Proteins_bothMethods_HellsCanyon13genomes.csv \
+    FeGenie
 
 
 ####################################################
