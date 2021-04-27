@@ -4,6 +4,7 @@
 
 #### Clean up ####
 rm(list = ls())
+setwd("~/Documents/research/HellsCanyon/")
 library(lubridate)
 library(readxl)
 library(tidyverse)
@@ -44,8 +45,7 @@ depth.data %>%
   geom_line(aes(color = HMS)) +
   scale_color_manual(values = HMS.colors.vector) +
   facet_wrap(~metabolic_assignment + RM, nrow = 4) +
-  coord_flip() +
-  scale_x_reverse(c(0, 80)) +
+  coord_flip(xlim = c(80, 0)) +
   theme_bw()
 
 
@@ -59,8 +59,7 @@ depth.data %>%
   geom_line(aes(color = HMS)) +
   scale_color_manual(values = HMS.colors.vector) +
   facet_wrap(~metabolic_assignment + RM, nrow = 3) +
-  coord_flip() +
-  scale_x_reverse(c(0, 80)) +
+  coord_flip(xlim = c(80, 0)) +
   theme_bw()
 
 
@@ -75,6 +74,5 @@ depth.data %>%
   geom_line(aes(color = HMS)) +
   scale_color_manual(values = HMS.colors.vector) +
   facet_wrap(~metabolic_assignment + RM, nrow = 2) +
-  coord_flip() +
-  scale_x_reverse(c(0, 80)) +
+  coord_flip(xlim = c(80, 0)) +
   theme_bw()
