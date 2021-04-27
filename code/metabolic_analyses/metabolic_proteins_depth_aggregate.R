@@ -59,6 +59,19 @@ all.data <- metabolic.gene.key %>%
   left_join(metadata.df)
 
 
+#### Adjust dsrA labels ####
+rdsrA.list <- readLines("dataEdited/metabolic_analyses/sulfur/dsrA_rev_list.txt")
+rdsrA.scaffolds <- paste(rdsrA.list %>% strsplit("_") %>% sapply("[", 1),
+                         rdsrA.list %>% strsplit("_") %>% sapply("[", 2),
+                         sep = "_")
+dsrA.list <- readLines("dataEdited/metabolic_analyses/sulfur/dsrA_red_list.txt")
+dsrA.scaffolds <- paste(dsrA.list %>% strsplit("_") %>% sapply("[", 1),
+                        dsrA.list %>% strsplit("_") %>% sapply("[", 2),
+                        sep = "_")
+all.data[which((all.data$scaffoldID %in% rdsrA.scaffolds) & (all.data$geneName == 'dsrA')), "geneName"] <- "rdsrA"
+all.data[which((all.data$scaffoldID %in% dsrA.scaffolds) & (all.data$geneName == 'dsrA')), "geneName"]
+
+
 #### Write out file
 saveRDS(all.data,
         "dataEdited/metabolic_analyses/depth/metabolicProtein_depth_clean.rds")
