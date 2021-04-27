@@ -183,7 +183,10 @@ I realized a lot of the bins we identified were oligate fermenters and METABOLIC
 To investigate this further, I put the genes through the [dbCAN meta server](http://bcb.unl.edu/dbCAN2/blast.php) (accessed 2021-04-26).
 I downloaded the ORFs for all the bins here: `dataEdited/binning/bin_orfs/ORFs.faa`.
 This is a little too large, so I'll split it up into two files.
-I uploaded both these files to dbCAN, and ran with HMMER (E-Value < 1e-15, coverage > 0.35). 
+I uploaded both these files to dbCAN, and ran with HMMER (E-Value < 1e-15, coverage > 0.35).
+I combined the output text into the file here: `dataEdited/binning/metabolism/GHs/cazyme_output.tsv`.
+I checked out the output in R (`code/binning/metabolism/GHs.R`) and saved out a csv (`dataEdited/binning/metabolism/GHs/clean_cazyme_data.csv`) with counts of each class of CAZyme within each bin.
+I then added this to a separate Excel sheet in the `metabolic_summary.xlsx` file.
 
 
 
