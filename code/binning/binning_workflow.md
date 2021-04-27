@@ -177,6 +177,16 @@ I sent my genomes to Charles and he ran them through his EET workflow.
 I downloaded the output from that.
 
 
+*Identify CAZymes in each bin*
+
+I realized a lot of the bins we identified were oligate fermenters and METABOLIC predicted that they had a lot of genes used in complex-C degradation.
+To investigate this further, I put the genes through the [dbCAN meta server](http://bcb.unl.edu/dbCAN2/blast.php) (accessed 2021-04-26).
+I downloaded the ORFs for all the bins here: `dataEdited/binning/bin_orfs/ORFs.faa`.
+This is a little too large, so I'll split it up into two files.
+I uploaded both these files to dbCAN, and ran with HMMER (E-Value < 1e-15, coverage > 0.35). 
+
+
+
 *Notes on metabolic assignment*
 
 Finally, I went through my metabolic gene data and manually assigned potential metabolic functions for each of the bins.

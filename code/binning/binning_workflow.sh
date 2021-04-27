@@ -941,6 +941,14 @@ cp /home/GLBRCORG/cnolmsted/FeGenie_EET_Stuff/PipelineOutput/All_EET_Proteins_bo
     FeGenie
 
 
+#########################
+# Identify CAZymes in each bin
+#########################
+cd /Users/benjaminpeterson/Documents/research/HellsCanyon/dataEdited/binning/bin_orfs
+split -l 60000 ORFs.faa ORFs_split_
+
+
+
 ####################################################
 ####################################################
 # hgcA analysis
