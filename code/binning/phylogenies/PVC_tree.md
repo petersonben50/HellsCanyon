@@ -31,6 +31,7 @@ We'll copy over the ORFs for the two PVC genes too.
 I had a bunch of them listed from the 5M paper, and the taxonomy ID's can be found here: `~/5M/dataEdited/binAnalysis/phylogeny/PVC/reference_taxonomy.tsv`.
 The ORFs are here: `~/references/genomes/ORFs`.
 Let's copy over the Kiritimatiellaeota and Lentisphaerae ORFs.
+Also include two Planctomycetes genomes, for an outgroup.
 Can't seem to find the *Victivallis vadensis* genome in here, which we know is GCA_003096415.1.
 Let's download this from NCBI as well, here: https://www.ncbi.nlm.nih.gov/genome/1349.
 Saved it by its accession ID: `GCF_003096415.1.faa`, then upload to the ORFs file: `~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/phylogeny/PVC/ORFs`.

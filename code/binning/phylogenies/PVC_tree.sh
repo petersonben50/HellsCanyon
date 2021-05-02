@@ -50,14 +50,14 @@ done
 # References selected for 5M project
 #########################
 cd ~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/phylogeny/PVC
-grep -E 'c__Kiritimatiellae|c__Lentisphaeria' ~/5M/dataEdited/binAnalysis/phylogeny/PVC/reference_taxonomy.tsv | \
+grep -E 'c__Kiritimatiellae|c__Lentisphaeria|staleyi|formosa' ~/5M/dataEdited/binAnalysis/phylogeny/PVC/reference_taxonomy.tsv | \
   awk -F '\t' '{ print $1"\t"$2 }' | \
   sed 's/GB_//' | \
   sed 's/RS_//' \
   > lists/reference_PVC_bin_list.txt
 awk -F '\t' '{ print $1 }' lists/reference_PVC_bin_list.txt | while read binID
 do
-  cp ~/references/genomes/ORFs/$binID*.faa ORFs/$binID.faa
+  cp -i ~/references/genomes/ORFs/$binID*.faa ORFs/$binID.faa
 done
 
 
