@@ -74,7 +74,7 @@ I then renamed the fasta file headers with the name of the bin so that they coul
 I then downloaded all the clean alignments to my local computer and imported them into Geneious.
 The rpS3 gene has duplicate hits in LEN_0037, so I deleted LEN_0037 2.
 I then concatenated all the alignments.
-KIR_0040 had less than 1000 ungapped residues and was clearly missing a bunch of the proteins, so I removed it from the analysis.
+KIR_0040 had less than 1000 ungapped residues and was clearly missing a bunch of the proteins, so I initially removed it from the analysis, but in later iterations kept it, due to its similarity to a few of the genomes from HCC.
 I exported this as `rp16_alignment_masked.afa` and uploaded it to the GLBRC servers: `~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/phylogeny/PVC/tree_building`.
 
 *Generate tree*
