@@ -24,7 +24,7 @@ These already had the ORFs predicted, so I was able to just snag those.
 
 I also wanted to include the PVC bins from the Jones et al 2019 paper.
 The genomes from this study are listed here `~/references/jonesGenomes`.
-We'll copy over the ORFs for the two PVC genes too.
+We'll copy over the ORFs for the three PVC genes too.
 
 *References selected for 5M project*
 
@@ -43,7 +43,7 @@ I also wanted to include the two genomes from van Vliet et al, 2019, in which th
 These are listed at ENA under these accession numbers: SAMEA5207384 and SAMEA5207385.
 I downloaded the protein fasta (the ORF annotations) from NCBI here:
 - Pontiella desulfatans: https://www.ncbi.nlm.nih.gov/assembly/GCF_900890425.1
-- Pontiella sulfatireligans: https://www.ncbi.nlm.nih.gov/assembly/GCF_900890705.1/
+- Pontiella sulfatireligans: https://www.ncbi.nlm.nih.gov/assembly/GCF_900890705.1
 
 Unzipped them to here: `/Users/benjaminpeterson/Documents/research/HellsCanyon/references/genomes/PVC/`.
 Then I renamed them to be accessionNumber.faa
@@ -52,6 +52,10 @@ Then I uploaded these to `~/HellsCanyon/dataEdited/binning/manualBinning/binsGoo
 
 *Add bins from this project*
 We'll use anvio_hgcA_0220, anvio_hgcA_0261, anvio_hgcA_0040, and anvio_hgcA_0110.
+
+*Set up dataframe for renaming tips*
+
+I manually made a tsv file with a name for the bin, the accession number, the phylum, and the name of the tip label: `dataEdited/binning/phylogeny/PVC/tip_naming.tsv`.
 
 
 
@@ -77,6 +81,17 @@ I then concatenated all the alignments.
 KIR_0040 had less than 1000 ungapped residues and was clearly missing a bunch of the proteins, so I initially removed it from the analysis, but in later iterations kept it, due to its similarity to a few of the genomes from HCC.
 I exported this as `rp16_alignment_masked.afa` and uploaded it to the GLBRC servers: `~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/phylogeny/PVC/tree_building`.
 
-*Generate tree*
+**Generate tree**
 
 I then generated a maximum likelihood tree using RAxML (v8.2.11).
+The R scripts to prepare this tree are here: `code/phylogenies/PVC_tree.R`.
+
+First I read out an unrooted tree, just to check it.
+I did a few iterations of it this way.
+Settled on using some Planctomycetes as outgroup to root this.
+
+I then renamed all the branches using this file: `dataEdited/binning/phylogeny/PVC/tip_naming.tsv`.
+I also generated a color vector to color code the bins by source.
+
+I also labeled the Lentisphaerae and Kiritimatiellaeota branches.
+I always have a hard time making these actually pretty, so I saved it out as "unedited", and manually cleaned it up in Illustrator.

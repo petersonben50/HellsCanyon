@@ -85,6 +85,13 @@ cp ORFs/anvio_hgcA_0040.faa phylogeny/PVC/ORFs
 cp ORFs/anvio_hgcA_0110.faa phylogeny/PVC/ORFs
 
 
+#########################
+# Get taxonomy for bins
+#########################
+cd ~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/phylogeny/PVC
+cat lists/reference_PVC_bin_list.txt
+
+
 ##################################################
 ##################################################
 # Search for rp16 genes
