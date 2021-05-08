@@ -73,7 +73,6 @@ depth.plots <- all.data %>%
         axis.text.y = element_text(colour = "black")) +
   xlab("Depth (m)") +
   ylab("Concentration (ng/L)\nGene coverage (per 100X SCG coverage")
-      
 
 
 #### Make MeHg vs hgcA scatterplot ####
