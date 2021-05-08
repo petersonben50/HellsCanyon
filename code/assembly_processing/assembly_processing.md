@@ -64,12 +64,16 @@ Unfortunately fastp doesn't read out how many single reads vs. paired end reads 
 I'll also save the read counts here: `~/HellsCanyon/dataEdited/metagenomes/2019_intensive_ancillary_info/metagenome_read_count.tsv`, then download it to `dataEdited/metagenomes/reports/metagenome_read_count.tsv`.
 
 
+**Count reads in metagenome pre-trimming**
+
+I counted the reads in each pre-trimmed metagenome.
+I used the linux function zgrep to count the lines that contained the "@" sign in each file ("@" should only be found at the start of each header line for a sequence in a fastq file), then read out that information to a report file.
+
 
 **Count reads in metagenome**
 
 Next I counted the number of reads in each of the trimmed files.
-I used the linux function zgrep to count the lines that contained the "@" sign in each file ("@" should only be found at the start of each header line for a sequence in a fastq file), then read out that information to a report file.
-
+I did this using the same method as with the pre-trimmed files, just now on the forward, reverse, single, and merged reads.
 
 
 **Coverage post-trimming**

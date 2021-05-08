@@ -132,6 +132,30 @@ do
 done
 
 
+
+######################
+# Count reads in metagenome pre-trimming
+######################
+
+screen -S HCC_metagenome_read_counting
+cd ~/HellsCanyon/dataRaw/metagenomes
+read_storage=~/HellsCanyon/dataRaw/metagenomes
+ancillary_info=~/HellsCanyon/dataEdited/metagenomes/reports
+
+echo -e "metagenomeID\tforwardReads\treverseReads" > $ancillary_info/metagenome_read_count_pretrim.tsv
+cat ~/HellsCanyon/metadata/lists/MG_list_all.txt | while read metagenome
+do
+  echo "Working on" $metagenome
+  forwardCount=$(zgrep -c "@" $read_storage/$metagenome*_R1_001.fastq.gz)
+  reverseCount=$(zgrep -c "@" $read_storage/$metagenome*_R2_001.fastq.gz)
+  echo -e $metagenome"\t"$forwardCount"\t"$reverseCount >> $ancillary_info/metagenome_read_count_pretrim.tsv
+done
+
+
+
+
+
+
 ######################
 # Count reads in metagenome
 ######################
