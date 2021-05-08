@@ -85,6 +85,8 @@ redox.year.vector <- c(16, 17, 2)
 names(redox.year.vector) <- c("2017", "2018", "2019")
 hgcA.MeHg.scatterplot <- all.data %>%
   filter(!is.na(hgcA_coverage)) %>%
+  mutate(redoxClassification = fct_relevel(redoxClassification,
+                                           names(redox.color.vector))) %>%
   ggplot(aes(x = log(hgcA_coverage, 10),
              y = log(FMHG, 10),
              group = redoxClassification,
