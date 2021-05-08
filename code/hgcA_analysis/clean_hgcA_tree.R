@@ -129,6 +129,17 @@ hgcA.renaming.vector <- paste(hgcA.df$seqID, " (cluster: ", hgcA.df$clstr, ")",
 names(hgcA.renaming.vector) <- hgcA.df$seqID
 
 
+#### Read in hgcA to bin info ####
+hgcA.to.bin <- read.table("dataEdited/binning/hgcA/hgcA_to_bin.tsv",
+                          sep = '\t',
+                          header = TRUE)
+hgcA.to.bin.vector <- hgcA.to.bin$binID
+names(hgcA.to.bin.vector) <- hgcA.to.bin$hgcA_ID
+binned.hgcA.index <- which(names(hgcA.renaming.vector) %in% names(hgcA.to.bin.vector))
+hgcA.renaming.vector[binned.hgcA.index] <- paste(hgcA.renaming.vector[binned.hgcA.index], " - ",
+                                                 hgcA.to.bin.vector[names(hgcA.renaming.vector)[binned.hgcA.index]])
+
+
 #### Read in tree ####
 tree.name <- "dataEdited/hgcA_analysis/phylogeny/RAxML_bipartitions.hgcA"
 hgcA.tree.unrooted <- read.newick(tree.name)
@@ -167,7 +178,7 @@ pdf("results/hgcA_analysis/hgcA_tree_RAxML_rooted.pdf",
     height = 60,
     width = 10)
 ggtree(hgcA.tree, aes(x = 0,
-                      xend = 4.5)) + 
+                      xend = 9)) + 
   geom_tiplab(size=2.5, align = TRUE, col = color.vector) + 
   geom_nodelab(aes(x = branch),
                vjust = -.3,
