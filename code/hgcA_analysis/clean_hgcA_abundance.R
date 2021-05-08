@@ -25,7 +25,7 @@ list.o.depths <- list.files(path = "dataEdited/hgcA_analysis/depth",
 
 
 #### Metadata vector ####
-metadata.df <- read.csv("metadata/metagenome_metadata.csv")
+metadata.df <- read_xlsx("metadata/metagenome_metadata.xlsx")
 
 
 #### Read in and normalize depth data ####
