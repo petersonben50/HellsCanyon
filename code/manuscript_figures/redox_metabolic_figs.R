@@ -12,33 +12,13 @@ cb.translator <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/co
 source("code/gene_plotting_functions.R")
 
 
-#### Read in geochem data ####
-geochem.data.2017.2018 <- read.csv("dataEdited/waterChemistry/geochem_WC_2015_2018.csv") %>%
-  filter(year(date) %in% c("2017", "2018")) %>%
-  filter(month(date) == "9") %>%
-  arrange(depth) %>%
-  select(date, RM, depth, Fe.part_ug.L, Mn.part_ug.L,
-         Mn_ug.L, NO3_mgN.L, sulfide_mg.L)
-# Replace non-detects with zeroes in sulfide column
-geochem.data.2017.2018$sulfide_mg.L[geochem.data.2017.2018$sulfide_mg.L == "nd"] <- 0
-geochem.data.2017.2018$sulfide_mg.L <- as.numeric(geochem.data.2017.2018$sulfide_mg.L)
-
-geochem.data.2019 <- read.csv("dataEdited/waterChemistry/geochem_WC_2019.csv") %>%
-  select(date, RM, depth, Fe.part_ug.L, Mn.part_ug.L,
-         Mn_ug.L, NO3_mgN.L)
-geochem.data.2019$sulfide_mg.L <- NA
-
-geochem.data <- rbind(geochem.data.2017.2018,
-                      geochem.data.2019)
-rm(geochem.data.2017.2018,
-   geochem.data.2019)
-
-
-#### Read in SeaBird data and combine with geochem ####
+#### Read in data ####
+geochem.data <- read.csv("dataEdited/waterChemistry/geochem_WC.csv") %>%
+  group_by(RM, depth, date, constituent) %>%
+  summarize(concentration = mean(concentration)) %>%
+  spread(key = constituent,
+         value = concentration)
 seabird.data <- readRDS("dataEdited/seabird/seabird_data.rds")
-
-
-#### Read in metabolic gene data ####
 teap.data <- readRDS("dataEdited/metabolic_analyses/depth/metabolicProtein_depth_clean.rds")
 EET.data <- readRDS("dataEdited/metabolic_analyses/BBOMP/bbomp_depth_clean.rds")
 
@@ -124,7 +104,9 @@ sonde.286.2018 <- seabird.data %>%
 
 sonde.286.2017 + sonde.286.2018
 
-#### Low redox TEAs ####
+
+
+#### TEAs ####
 color.vector <- c(cb.translator["skyblue"],
                   cb.translator["reddishpurple"],
                   cb.translator["vermillion"],
@@ -150,6 +132,8 @@ geochem.286.2017 <- geochem.data %>%
          -c(1:3)) %>%
   filter(RM == 286,
          year(date) == 2017,
+         month(date) == 9,
+         day(date) >= 20,
          constituent %in% names(color.vector)) %>%
   ggplot(aes(x = depth,
              y = concentration,
@@ -183,6 +167,8 @@ geochem.286.2018 <- geochem.data %>%
          -c(1:3)) %>%
   filter(RM == 286,
          year(date) == 2018,
+         month(date) == 9,
+         day(date) >= 20,
          constituent %in% names(color.vector)) %>%
   ggplot(aes(x = depth,
              y = concentration,
@@ -207,6 +193,8 @@ geochem.286.2018 <- geochem.data %>%
         legend.box.background = element_rect(colour = "black"),
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"))
+
+geochem.286.2017 + geochem.286.2018
 
 
 
@@ -243,47 +231,45 @@ N.cycling.286.2017 + N.cycling.286.2018
 
 
 #### EET genes ####
-color.vector <- c(cb.translator["orange"],
-                  cb.translator["yellow"],
-                  cb.translator["reddishpurple"])
-names(color.vector) <- c("cluster_1_ExtE", "cluster_2_Omb", "cluster_3")
-points.vector <- c(16, 2, 17)
-names(points.vector) <- c("cluster_1_ExtE", "cluster_2_Omb", "cluster_3")
-EET.286.2017 <- plot.profile.for.multiple.genes(marker.depth.df = EET.data,
-                                                genesOfInterest = names(color.vector),
-                                                yearOfInterest = "2017",
-                                                RMofInterest = "286",
-                                                gene.name.column = "classification",
-                                                show.mean.coverage = FALSE,
-                                                depth_limits = c(75, 0),
-                                                color.vector.to.use = color.vector,
-                                                point.vector.to.use = points.vector,
-                                                coverage_limits = c(0, 1),
-                                                titleToUse = element_blank(),
-                                                legend.position.to.use = c(0.6, 0.5))
-EET.286.2018 <- plot.profile.for.multiple.genes(marker.depth.df = EET.data,
-                                                genesOfInterest = names(color.vector),
-                                                yearOfInterest = "2018",
-                                                RMofInterest = "286",
-                                                gene.name.column = "classification",
-                                                show.mean.coverage = FALSE,
-                                                depth_limits = c(75, 0),
-                                                color.vector.to.use = color.vector,
-                                                point.vector.to.use = points.vector,
-                                                coverage_limits = c(0, 1),
-                                                titleToUse = element_blank(),
-                                                legend.position.to.use = c(0.6, 0.6))
-EET.286.2017 + EET.286.2018
+# color.vector <- c(cb.translator["orange"],
+#                   cb.translator["yellow"],
+#                   cb.translator["reddishpurple"])
+# names(color.vector) <- c("cluster_1_ExtE", "cluster_2_Omb", "cluster_3")
+# points.vector <- c(16, 2, 17)
+# names(points.vector) <- c("cluster_1_ExtE", "cluster_2_Omb", "cluster_3")
+# EET.286.2017 <- plot.profile.for.multiple.genes(marker.depth.df = EET.data,
+#                                                 genesOfInterest = names(color.vector),
+#                                                 yearOfInterest = "2017",
+#                                                 RMofInterest = "286",
+#                                                 gene.name.column = "classification",
+#                                                 show.mean.coverage = FALSE,
+#                                                 depth_limits = c(75, 0),
+#                                                 color.vector.to.use = color.vector,
+#                                                 point.vector.to.use = points.vector,
+#                                                 coverage_limits = c(0, 1),
+#                                                 titleToUse = element_blank(),
+#                                                 legend.position.to.use = c(0.6, 0.5))
+# EET.286.2018 <- plot.profile.for.multiple.genes(marker.depth.df = EET.data,
+#                                                 genesOfInterest = names(color.vector),
+#                                                 yearOfInterest = "2018",
+#                                                 RMofInterest = "286",
+#                                                 gene.name.column = "classification",
+#                                                 show.mean.coverage = FALSE,
+#                                                 depth_limits = c(75, 0),
+#                                                 color.vector.to.use = color.vector,
+#                                                 point.vector.to.use = points.vector,
+#                                                 coverage_limits = c(0, 1),
+#                                                 titleToUse = element_blank(),
+#                                                 legend.position.to.use = c(0.6, 0.6))
+# EET.286.2017 + EET.286.2018
 
 
 #### S cycling genes ####
-color.vector <- c(cb.translator["orange"],
-                  cb.translator["reddishpurple"],
-                  cb.translator["bluishgreen"],
+color.vector <- c(cb.translator["bluishgreen"],
                   cb.translator["skyblue"])
-names(color.vector) <- c("rdsrA", "soxB", "dsrA", "dsrD")
-points.vector <- c(16, 2, 17, 1)
-names(points.vector) <- c("rdsrA", "soxB", "dsrA", "dsrD")
+names(color.vector) <- c("dsrA", "dsrD")
+points.vector <- c(17, 1)
+names(points.vector) <- names(color.vector)
 S.cycling.286.2017 <- plot.profile.for.multiple.genes(marker.depth.df = teap.data,
                                                       genesOfInterest = names(color.vector),
                                                       yearOfInterest = "2017",
@@ -292,7 +278,7 @@ S.cycling.286.2017 <- plot.profile.for.multiple.genes(marker.depth.df = teap.dat
                                                       depth_limits = c(75, 0),
                                                       color.vector.to.use = color.vector,
                                                       point.vector.to.use = points.vector,
-                                                      coverage_limits = c(0, 90),
+                                                      coverage_limits = c(0, 7),
                                                       titleToUse = element_blank(),
                                                       legend.position.to.use = c(0.8, 0.8))
 S.cycling.286.2018 <- plot.profile.for.multiple.genes(marker.depth.df = teap.data,
@@ -303,19 +289,19 @@ S.cycling.286.2018 <- plot.profile.for.multiple.genes(marker.depth.df = teap.dat
                                                       depth_limits = c(75, 0),
                                                       color.vector.to.use = color.vector,
                                                       point.vector.to.use = points.vector,
-                                                      coverage_limits = c(0, 90),
+                                                      coverage_limits = c(0, 7),
                                                       titleToUse = element_blank(),
                                                       legend.position.to.use = c(0.8, 0.8))
 S.cycling.286.2017 + S.cycling.286.2018
 
 
 
-#### Arrange plots ####
+#### Arrange plots for RM286 ####
 pdf("results/manuscript_figures/geochem_teap_RM286_2017_2018.pdf",
-    width = 15,
-    height = 9)
-wrap_plots(sonde.286.2017, geochem.286.2017, N.cycling.286.2017, EET.286.2017, S.cycling.286.2017,
-           sonde.286.2018, geochem.286.2018, N.cycling.286.2018, EET.286.2018, S.cycling.286.2018,
+    width = 12,
+    height = 12)
+wrap_plots(sonde.286.2017, geochem.286.2017, N.cycling.286.2017, S.cycling.286.2017,
+           sonde.286.2018, geochem.286.2018, N.cycling.286.2018, S.cycling.286.2018,
            nrow = 2)
 dev.off()
 
@@ -362,6 +348,8 @@ sonde.300.2017 <- seabird.data %>%
          -c(1:3)) %>%
   filter(RM == 300,
          year(date) == 2017,
+         month(date) == 9,
+         day(date) >- 20,
          constituent %in% names(color.vector)) %>%
   ggplot(aes(x = depth,
              y = concentration,
@@ -393,6 +381,8 @@ sonde.300.2018 <- seabird.data %>%
          -c(1:3)) %>%
   filter(RM == 300,
          year(date) == 2018,
+         month(date) == 9,
+         day(date) >- 20,
          constituent %in% names(color.vector)) %>%
   ggplot(aes(x = depth,
              y = concentration,
@@ -446,6 +436,7 @@ geochem.300.2017 <- geochem.data %>%
          -c(1:3)) %>%
   filter(RM == 300,
          year(date) == 2017,
+         month(date) == 9,
          day(date) > 20,
          constituent %in% names(color.vector)) %>%
   ggplot(aes(x = depth,
@@ -480,6 +471,7 @@ geochem.300.2018 <- geochem.data %>%
          -c(1:3)) %>%
   filter(RM == 300,
          year(date) == 2018,
+         month(date) == 9,
          day(date) > 20,
          constituent %in% names(color.vector)) %>%
   ggplot(aes(x = depth,
@@ -540,47 +532,46 @@ N.cycling.300.2018 <- plot.profile.for.multiple.genes(marker.depth.df = teap.dat
 N.cycling.300.2017 + N.cycling.300.2018
 
 
-#### EET genes ####
-color.vector <- c(cb.translator["orange"],
-                  cb.translator["yellow"],
-                  cb.translator["reddishpurple"])
-names(color.vector) <- c("cluster_1_ExtE", "cluster_2_Omb", "cluster_3")
-points.vector <- c(16, 2, 17)
-names(points.vector) <- c("cluster_1_ExtE", "cluster_2_Omb", "cluster_3")
-EET.300.2017 <- plot.profile.for.multiple.genes(marker.depth.df = EET.data,
-                                                genesOfInterest = names(color.vector),
-                                                yearOfInterest = "2017",
-                                                RMofInterest = "300",
-                                                gene.name.column = "classification",
-                                                show.mean.coverage = FALSE,
-                                                depth_limits = c(60, 0),
-                                                color.vector.to.use = color.vector,
-                                                point.vector.to.use = points.vector,
-                                                coverage_limits = c(0, 1),
-                                                titleToUse = element_blank(),
-                                                legend.position.to.use = c(0.6, 0.5))
-EET.300.2018 <- plot.profile.for.multiple.genes(marker.depth.df = EET.data,
-                                                genesOfInterest = names(color.vector),
-                                                yearOfInterest = "2018",
-                                                RMofInterest = "300",
-                                                gene.name.column = "classification",
-                                                show.mean.coverage = FALSE,
-                                                depth_limits = c(60, 0),
-                                                color.vector.to.use = color.vector,
-                                                point.vector.to.use = points.vector,
-                                                coverage_limits = c(0, 1),
-                                                titleToUse = element_blank(),
-                                                legend.position.to.use = c(0.6, 0.6))
-EET.300.2017 + EET.300.2018
+# #### EET genes ####
+# color.vector <- c(cb.translator["orange"],
+#                   cb.translator["yellow"],
+#                   cb.translator["reddishpurple"])
+# names(color.vector) <- c("cluster_1_ExtE", "cluster_2_Omb", "cluster_3")
+# points.vector <- c(16, 2, 17)
+# names(points.vector) <- c("cluster_1_ExtE", "cluster_2_Omb", "cluster_3")
+# EET.300.2017 <- plot.profile.for.multiple.genes(marker.depth.df = EET.data,
+#                                                 genesOfInterest = names(color.vector),
+#                                                 yearOfInterest = "2017",
+#                                                 RMofInterest = "300",
+#                                                 gene.name.column = "classification",
+#                                                 show.mean.coverage = FALSE,
+#                                                 depth_limits = c(60, 0),
+#                                                 color.vector.to.use = color.vector,
+#                                                 point.vector.to.use = points.vector,
+#                                                 coverage_limits = c(0, 1),
+#                                                 titleToUse = element_blank(),
+#                                                 legend.position.to.use = c(0.6, 0.5))
+# EET.300.2018 <- plot.profile.for.multiple.genes(marker.depth.df = EET.data,
+#                                                 genesOfInterest = names(color.vector),
+#                                                 yearOfInterest = "2018",
+#                                                 RMofInterest = "300",
+#                                                 gene.name.column = "classification",
+#                                                 show.mean.coverage = FALSE,
+#                                                 depth_limits = c(60, 0),
+#                                                 color.vector.to.use = color.vector,
+#                                                 point.vector.to.use = points.vector,
+#                                                 coverage_limits = c(0, 1),
+#                                                 titleToUse = element_blank(),
+#                                                 legend.position.to.use = c(0.6, 0.6))
+# EET.300.2017 + EET.300.2018
 
 
 #### S cycling genes ####
-color.vector <- c(cb.translator["orange"],
-                  cb.translator["bluishgreen"],
+color.vector <- c(cb.translator["bluishgreen"],
                   cb.translator["skyblue"])
-names(color.vector) <- c("rdsrA", "dsrA", "dsrD")
-points.vector <- c(16, 17, 1)
-names(points.vector) <- c("rdsrA", "dsrA", "dsrD")
+names(color.vector) <- c("dsrA", "dsrD")
+points.vector <- c(17, 1)
+names(points.vector) <- names(color.vector)
 S.cycling.300.2017 <- plot.profile.for.multiple.genes(marker.depth.df = teap.data,
                                                       genesOfInterest = names(color.vector),
                                                       yearOfInterest = "2017",
@@ -589,7 +580,7 @@ S.cycling.300.2017 <- plot.profile.for.multiple.genes(marker.depth.df = teap.dat
                                                       depth_limits = c(60, 0),
                                                       color.vector.to.use = color.vector,
                                                       point.vector.to.use = points.vector,
-                                                      coverage_limits = c(0, 50),
+                                                      coverage_limits = c(0, 3),
                                                       titleToUse = element_blank(),
                                                       legend.position.to.use = c(0.8, 0.8))
 S.cycling.300.2018 <- plot.profile.for.multiple.genes(marker.depth.df = teap.data,
@@ -600,7 +591,7 @@ S.cycling.300.2018 <- plot.profile.for.multiple.genes(marker.depth.df = teap.dat
                                                       depth_limits = c(60, 0),
                                                       color.vector.to.use = color.vector,
                                                       point.vector.to.use = points.vector,
-                                                      coverage_limits = c(0, 50),
+                                                      coverage_limits = c(0, 3),
                                                       titleToUse = element_blank(),
                                                       legend.position.to.use = c(0.8, 0.8))
 S.cycling.300.2017 + S.cycling.300.2018
@@ -609,10 +600,10 @@ S.cycling.300.2017 + S.cycling.300.2018
 
 #### Arrange plots ####
 pdf("results/manuscript_figures/geochem_teap_RM300_2017_2018.pdf",
-    width = 15,
-    height = 10)
-wrap_plots(sonde.300.2017, geochem.300.2017, N.cycling.300.2017, EET.300.2017, S.cycling.300.2017,
-           sonde.300.2018, geochem.300.2018, N.cycling.300.2018, EET.300.2018, S.cycling.300.2018,
+    width = 12,
+    height = 12)
+wrap_plots(sonde.300.2017, geochem.300.2017, N.cycling.300.2017, S.cycling.300.2017,
+           sonde.300.2018, geochem.300.2018, N.cycling.300.2018, S.cycling.300.2018,
            nrow = 2)
 dev.off()
 
@@ -692,17 +683,14 @@ color.vector <- c(cb.translator["skyblue"],
                   cb.translator["vermillion"],
                   cb.translator["bluishgreen"])
 names(color.vector) <- c("NO3_mgN.L", "Mn.part_mg.L",
-                         "Mn_mg.L", "sulfide_mg.L")
+                         "Mn_mg.L")
 line.vector <- c(1, 4, 3, 2)
-names(line.vector) <- c("NO3_mgN.L", "Mn.part_mg.L",
-                        "Mn_mg.L", "sulfide_mg.L")
+names(line.vector) <- names(color.vector)
 labels.vector <- c("NO3 (mgN/L)", "Part. Mn",
                    "Diss. Mn", "Sulfide")
-names(labels.vector) <- c("NO3_mgN.L", "Mn.part_mg.L",
-                          "Mn_mg.L", "sulfide_mg.L")
+names(labels.vector) <- names(color.vector)
 points.vector <- c(16, 2, 17, 18)
-names(points.vector) <- c("NO3_mgN.L", "Mn.part_mg.L",
-                          "Mn_mg.L", "sulfide_mg.L")
+names(points.vector) <- names(color.vector)
 # Redox constituents at 300 in 2019
 geochem.300.2019 <- geochem.data %>%
   mutate(Mn_mg.L = Mn_ug.L / 1000,
@@ -789,7 +777,7 @@ N.cycling.300.2019 <- plot.profile.for.multiple.genes(marker.depth.df = teap.dat
                                                       depth_limits = c(60, 0),
                                                       color.vector.to.use = color.vector,
                                                       point.vector.to.use = points.vector,
-                                                      coverage_limits = c(0, 220),
+                                                      coverage_limits = c(0, 70),
                                                       titleToUse = element_blank(),
                                                       legend.position.to.use = c(0.7, 0.7))
 N.cycling.310.2019 <- plot.profile.for.multiple.genes(marker.depth.df = teap.data,
@@ -800,7 +788,7 @@ N.cycling.310.2019 <- plot.profile.for.multiple.genes(marker.depth.df = teap.dat
                                                       depth_limits = c(40, 0),
                                                       color.vector.to.use = color.vector,
                                                       point.vector.to.use = points.vector,
-                                                      coverage_limits = c(0, 220),
+                                                      coverage_limits = c(0, 70),
                                                       titleToUse = element_blank(),
                                                       legend.position.to.use = c(0.7, 0.7))
 N.cycling.300.2019 + N.cycling.310.2019
@@ -822,7 +810,7 @@ EET.300.2019 <- plot.profile.for.multiple.genes(marker.depth.df = EET.data,
                                                 depth_limits = c(60, 0),
                                                 color.vector.to.use = color.vector,
                                                 point.vector.to.use = points.vector,
-                                                coverage_limits = c(0, 2),
+                                                coverage_limits = c(0, 1.5),
                                                 titleToUse = element_blank(),
                                                 legend.position.to.use = c(0.7, 0.7))
 EET.310.2019 <- plot.profile.for.multiple.genes(marker.depth.df = EET.data,
@@ -834,20 +822,18 @@ EET.310.2019 <- plot.profile.for.multiple.genes(marker.depth.df = EET.data,
                                                 depth_limits = c(40, 0),
                                                 color.vector.to.use = color.vector,
                                                 point.vector.to.use = points.vector,
-                                                coverage_limits = c(0, 2),
+                                                coverage_limits = c(0, 1.5),
                                                 titleToUse = element_blank(),
                                                 legend.position.to.use = c(0.7, 0.7))
 EET.300.2019 + EET.310.2019
 
 
 #### S cycling genes ####
-color.vector <- c(cb.translator["orange"],
-                  cb.translator["reddishpurple"],
-                  cb.translator["bluishgreen"],
+color.vector <- c(cb.translator["bluishgreen"],
                   cb.translator["skyblue"])
-names(color.vector) <- c("rdsrA", "soxB", "dsrA", "dsrD")
-points.vector <- c(16, 2, 17, 1)
-names(points.vector) <- c("rdsrA", "soxB", "dsrA", "dsrD")
+names(color.vector) <- c("dsrA", "dsrD")
+points.vector <- c(17, 1)
+names(points.vector) <- names(color.vector)
 S.cycling.300.2019 <- plot.profile.for.multiple.genes(marker.depth.df = teap.data,
                                                       genesOfInterest = names(color.vector),
                                                       yearOfInterest = "2019",
@@ -856,7 +842,7 @@ S.cycling.300.2019 <- plot.profile.for.multiple.genes(marker.depth.df = teap.dat
                                                       depth_limits = c(60, 0),
                                                       color.vector.to.use = color.vector,
                                                       point.vector.to.use = points.vector,
-                                                      coverage_limits = c(0, 150),
+                                                      coverage_limits = c(0, 50),
                                                       titleToUse = element_blank(),
                                                       legend.position.to.use = c(0.7, 0.7))
 S.cycling.310.2019 <- plot.profile.for.multiple.genes(marker.depth.df = teap.data,
@@ -867,7 +853,7 @@ S.cycling.310.2019 <- plot.profile.for.multiple.genes(marker.depth.df = teap.dat
                                                       depth_limits = c(40, 0),
                                                       color.vector.to.use = color.vector,
                                                       point.vector.to.use = points.vector,
-                                                      coverage_limits = c(0, 150),
+                                                      coverage_limits = c(0, 50),
                                                       titleToUse = element_blank(),
                                                       legend.position.to.use = c(0.7, 0.7))
 S.cycling.300.2019 + S.cycling.310.2019
