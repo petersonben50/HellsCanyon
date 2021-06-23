@@ -147,10 +147,10 @@ rm(tree.name)
 
 
 #### Fix tip labels ####
-hgcA.tree.unrooted$tip.label <- paste(hgcA.tree.unrooted$tip.label %>% strsplit("_") %>% sapply("[", 1),
-                                      hgcA.tree.unrooted$tip.label %>% strsplit("_") %>% sapply("[", 2),
-                                      hgcA.tree.unrooted$tip.label %>% strsplit("_") %>% sapply("[", 3),
-                                      sep = "_")
+# hgcA.tree.unrooted$tip.label <- paste(hgcA.tree.unrooted$tip.label %>% strsplit("_") %>% sapply("[", 1),
+#                                       hgcA.tree.unrooted$tip.label %>% strsplit("_") %>% sapply("[", 2),
+#                                       hgcA.tree.unrooted$tip.label %>% strsplit("_") %>% sapply("[", 3),
+#                                       sep = "_")
 
 # Root tree
 hgcA.tree <- root(phy = hgcA.tree.unrooted,
@@ -160,17 +160,12 @@ hgcA.tree <- root(phy = hgcA.tree.unrooted,
 
 
 # Get indices
-reference.indices.mate <- which(hgcA.tree$tip.label %in% names(MATE.renaming.vector))
+# reference.indices.mate <- which(hgcA.tree$tip.label %in% names(MATE.renaming.vector))
 this.study.indices <- which(hgcA.tree$tip.label %in% hgcA.list)
-
-# Change names:
-hgcA.tree$tip.label[reference.indices.mate] <- MATE.renaming.vector[hgcA.tree$tip.label[reference.indices.mate]]
-hgcA.tree$tip.label[this.study.indices] <- hgcA.renaming.vector[hgcA.tree$tip.label[this.study.indices]]
-
 
 # Set color vector
 color.vector <- rep("grey", length(hgcA.tree$tip.label))
-color.vector[reference.indices.mate] <- colorblind.color.vector["black"]
+# color.vector[reference.indices.mate] <- colorblind.color.vector["black"]
 color.vector[this.study.indices] <- colorblind.color.vector["vermillion"]
 
 # Visualize tree
@@ -185,6 +180,9 @@ ggtree(hgcA.tree, aes(x = 0,
                size = 2)
 dev.off()
 
+# Change names:
+hgcA.tree$tip.label[reference.indices.mate] <- MATE.renaming.vector[hgcA.tree$tip.label[reference.indices.mate]]
+hgcA.tree$tip.label[this.study.indices] <- hgcA.renaming.vector[hgcA.tree$tip.label[this.study.indices]]
 
 
 
