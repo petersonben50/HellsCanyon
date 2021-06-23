@@ -436,3 +436,63 @@ $raxml -f a \
         -T 20 \
         -s hgcA_for_phylogeny_masked.afa.reduced \
         -n hgcA
+
+
+
+#########################
+# Generate good tree with subset of references using RAxML
+#########################
+
+# Done locally
+HCC
+cp /Users/benjaminpeterson/Documents/research/Hg_MATE/versions/v1.01142021/Hg-MATE-Db.v1.01142021_ISOCELMAG_Hgc.fas \
+    references
+mkdir dataEdited/hgcA_analysis/phylogeny/final
+mkdir dataEdited/hgcA_analysis/phylogeny/final/refs
+finalFolder=dataEdited/hgcA_analysis/phylogeny/final/refs
+rm -f $finalFolder/HgMate_reference_seqs_to_use.faa
+cut -d"_" -f1-3 $finalFolder/reference_names_to_use.txt | while read reference_name
+do
+  grep -A 1 \
+    $reference_name \
+    references/Hg-MATE-Db.v1.01142021_ISOCELMAG_Hgc.fas \
+    >> $finalFolder/HgMate_reference_seqs_to_use.faa
+done
+grep ">" $finalFolder/HgMate_reference_seqs_to_use.faa | \
+  sed 's/>//' | tr -d '[:blank:]' \
+  > $finalFolder/IDed_seqs.txt
+wc -l $finalFolder/*
+#cat $finalFolder/IDed_seqs.txt $finalFolder/reference_names_to_use.txt | \
+#  sort
+
+# Done on GLBRC
+screen -S HCC_hgcA_tree
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=""
+PERL5LIB=''
+mkdir ~/HellsCanyon/dataEdited/hgcA_analysis/phylogeny/final
+cd ~/HellsCanyon/dataEdited/hgcA_analysis/phylogeny/final
+# Upload needed references
+cat 5M_bin_seqs.faa \
+    HgMate_reference_seqs_to_use.faa \
+    jones_hgcA_seqs.faa \
+    ../hgcA_for_phylogeny.faa \
+    hgcA_paralogs_for_rooting.faa \
+    > hgcA_for_tree_final.faa
+
+# Generate alignment
+muscle -in hgcA_for_tree_final.faa \
+        -out hgcA_for_tree_final.afa
+
+# Upload masked alignment (50% gaps)
+# Then run RAxML to generate tree
+raxml=/opt/bifxapps/raxml-8.2.11/raxmlHPC-PTHREADS
+$raxml -f a \
+        -p 283976 \
+        -m PROTGAMMAAUTO \
+        -N autoMRE \
+        -x 2381 \
+        -T 20 \
+        -s hgcA_for_tree_final_masked.afa \
+        -n hgcA

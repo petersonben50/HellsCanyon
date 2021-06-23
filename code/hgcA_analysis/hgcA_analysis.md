@@ -122,3 +122,25 @@ I then used a custom script to pull out the sequences that I didn't want to incl
 I masked the alignment at 50% gaps in Geneious.
 I then used this alignment to generate a maximum-likelihood tree using RAxML.
 There were a few duplicated sequences, so I used the `.reduced` file that RAxML generated.
+
+
+*Generate good tree with Hg-MATE seqs using RAxML*
+
+The HgcA seqs are concentrated enough into a few clades, so I'll just manually select sequences to use for a final RAxML tree.
+I'll also include all the hgcA sequences from the 2017 Mendota study, so won't take those ones from Hg-MATE.
+Hg-MATE names of references to be used can be found here: `dataEdited/hgcA_analysis/phylogeny/reference_names_to_use.txt`.
+I used this list to pull out the sequences I needed, locally.
+Needed to do a couple of iterations, since there were a few sequences that were in the refpackage but not in the database.
+I think Caitlin had updated the refpackage separately or something.
+Either way, good to go now.
+I uploaded the references to GLBRC.
+
+I also pulled the references from my study and from Jones et al, 2019, and the paralogs Caitlin uses.
+Just snagged them from the HCC folder, and removed a few that I knew would not be relevant.
+I concatenated all these sequences and aligned them using MUSCLE.
+I downloaded the alignment and inspected it in Geneious to ensure it looks good.
+Which it does.
+I then masked the alignment at 50% gaps, which seems to work well.
+I exported it (`hgcA_for_tree_final_masked.afa`) and uploaded it to the GLBRC.
+I then ran RAxML (v8.2.11) on it to generate a ML tree.
+I used rapid bootstrapping with automatic detection of limits and autodetection of the mutation model.
