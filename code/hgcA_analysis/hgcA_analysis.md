@@ -1,17 +1,18 @@
+## Walkthrough of assembly-based hgcA analysis
 
-
+This document outlines the assembly-based analyses I conducted to analyze the *hgcA* gene in the Hells Canyon metagenomes.
+The initial data processing was done in the `code/hgcA_analysis/hgcA_analysis.sh` script.
+Further processing and data visualization was done on Geneious and in R.
 
 
 **Identify hgcA sequences**
+
 
 *Identify putative hgcA genes with HMM*
 
 I used the HMM I built for the 5M project to search through the open reading frames from the assemblies for HgcA-like sequences.
 These results were stored in folders by year.
 I then pulled out the amino acid sequences for each of the putative HgcA sequences.
-
-*Generate key for year of analysis*
-
 
 
 *Concatenate and align all hgcA seqs for curation*
@@ -46,6 +47,7 @@ I used samtools for this.
 When aggregating the depth over a scaffold, I took the mean of the coverage, not including the 150 bp at either end of the scaffold.
 Wonder if I should calculate the median instead?
 
+
 **Genomic context for hgcA**
 
 Next I pulled out the hgcA+ scaffolds and the corresponding GFF files.
@@ -70,9 +72,26 @@ I then manually checked the seven non-hgcB sequences using [MOTIF](https://www.g
 *Isolate gene neighborhoods*
 
 I extracted the region 5000 bp on either side of the hgcA sequences.
-I'll want to look at this later when I'm getting the details on the genomic context for *hgcA*.
+I loaded these scaffolds into Geneious and took a closer look at the scaffolds that didn't have a downstream hgcB.
 
 *Manually inspect scaffold for hgcB*
+
+- fall2017cluster6_000000000428_49 - There a ~350 bp gap between *hgcA* and the next predicted ORF. I copied the downstream DNA info and blasted it on NCBI using blastx (starting with ATGAAGATGC). This returned hits to a verrucomicrobial 4Fe-4S binding protein, which is likely *hgcB*, so we'll call this one hgcB+.
+
+- fall2017coassembly_000000448578_3: This one was directly downstream from *hgcA* and in the right spot. No downstream hgcB here.
+
+- fall2017coassembly_000001334838_1: The identified ORF is in the opposite direction as *hgcA*. Ran blastx on the downstream DNA...  No similarity found. No hgcB.
+
+- HC18HY300_000000013755_6 - There's a gap in the ORFs downstream of this *hgcA*, about 300 bp long. Started a few bp down, at ATGGAATGCG. Blast comes back as 4Fe-4S binding protein. Definitely *hgcB*
+
+- HC18ME02_000000018262_3 - Same *hgcA* sequences as HC18HY300_000000013755. Scaffold looks similar too, with the downstream gap. Blast also identified a 4Fe-4S binding protein downstream.
+
+- KMBP004F_000000216801_1: ORF downstream is reverse compared to *hgcA*. Not much of gap. Blasted the downstream nucleotides in all three same-strand frames. Nothing. Likely to be true non-*hgcB* containing
+
+- KMBP009B_000000084934_2: Nothing here either, tried blasting the downstream DNA, which was included in another ORF.
+
+So, to summarize, we have 4 sequences with truly no downstream *hgcB* gene: fall2017coassembly_000000448578_3, fall2017coassembly_000001334838_1, KMBP004F_000000216801_1, KMBP009B_000000084934_2.
+The other three have hgcB, they're just not predicted as such.
 
 In the `hgcA_data_aggregation.R` file, I read out a csv file (`hgcB_notes.csv`) with the *hgcA* and *hgcB* sequences linked by their scaffold IDs.
 I saved this out as an xlsx file and added a notes column with notes from my manual inspection of the gene neighborhoods.
@@ -91,7 +110,7 @@ Guppy was then used to classify the sequences and visualize the placements on a 
 Finally, I used the R script `clean_hgcA_classification.R` (also adapted from Caitlin's well-annotated workflow) to clean up the classification and save out a csv file with that information.
 
 
-**Dereplicate sequences**
+**hgcA dereplication**
 
 Okay, did an initial dereplication with CD-HIT with all the sequences, to see if there was any cross-over across different years.
 There is... now how do I account for this?
@@ -120,11 +139,14 @@ I read out a pdf of the tree and identified nodes that led to tips that were not
 I removed all the sequences under these nodes and read out a list of the sequence names that I wanted to include.
 I then used a custom script to pull out the sequences that I didn't want to include.
 I masked the alignment at 50% gaps in Geneious.
+
+*Generate tree in RAxML*
+
 I then used this alignment to generate a maximum-likelihood tree using RAxML.
 There were a few duplicated sequences, so I used the `.reduced` file that RAxML generated.
 
 
-*Generate good tree with Hg-MATE seqs using RAxML*
+*Generate good tree with subset of references using RAxML*
 
 The HgcA seqs are concentrated enough into a few clades, so I'll just manually select sequences to use for a final RAxML tree.
 I'll also include all the hgcA sequences from the 2017 Mendota study, so won't take those ones from Hg-MATE.
