@@ -62,6 +62,89 @@ chmod +x executables/binning_mapping.sh
 condor_submit submission/binning_mapping.sub
 
 
+
+####################################################
+####################################################
+# Run automatic binning algorithms
+####################################################
+####################################################
+
+screen -S HCC_auto_binning
+mkdir ~/HellsCanyon/dataEdited/binning/autoBinning
+cd ~/HellsCanyon/dataEdited/binning/autoBinning
+mkdir metabat2 maxbin2 dasTool finalBins
+cd ~/HellsCanyon/reports
+rm -f */*_autoBinning*
+
+cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
+chmod +x executables/automatic_binning.sh
+condor_submit submission/automatic_binning.sub
+
+# Move all bins from Das Tool into final bin set
+cd ~/HellsCanyon/dataEdited/binning/autoBinning
+mv finalBins dasToolOutput
+mkdir completeBinSet
+mkdir completeBinSet/DNA
+assembly_list=/home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/assembly_list.txt
+cat $assembly_list | while read assemblyID
+do
+  echo "Moving bins from" $assemblyID
+  cp dasToolOutput/$assemblyID\_bins/*fna completeBinSet/DNA/
+done
+
+
+
+####################################################
+####################################################
+# Initial bin characterization
+####################################################
+####################################################
+
+##########################
+# Get quality bins
+##########################
+
+screen -S HCC_checkM
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+PYTHONPATH=""
+conda activate bioinformatics
+binsRaw=~/HellsCanyon/dataEdited/binning/autoBinning
+
+cd $binsRaw
+if [ -d checkM ]; then
+  echo "Removing old checkM folder"
+  rm -rf checkM
+fi
+mkdir checkM
+checkm lineage_wf \
+      -x .fna \
+      -t 16 \
+      completeBinSet/DNA \
+      checkM
+checkm qa checkM/lineage.ms \
+        checkM \
+        -o 2 \
+        -f checkM/checkm.out \
+        --tab_table
+awk -F '\t' \
+  -v OFS=',' \
+  '{ print $1,$6,$7,$8,$9,$11,$13,$15,$17,$19,$23 }' \
+  checkM/checkm.out \
+  > checkM/checkM_stats.csv
+
+# Download checkM/checkM_stats.csv to local computer:
+# dataEdited/2017_analysis_bins/binning/rawBins/bin_quality
+cd ~/HellsCanyon/dataEdited/binning/autoBinning
+mkdir hqBinSet
+mkdir hqBinSet/DNA
+mkdir hqBinSet/checkM
+awk -F ',' '{ if (($2 > 50) && ($3 < 10)) print $0 }' \
+  checkM/checkM_stats.csv \
+  > binsGood/checkM/good_bins_data.txt
+awk -F ',' '{ print $1 }' binsGood/checkM/good_bins_data.txt \
+  > binsGood/checkM/good_bins_list.txt
+
+
 ####################################################
 ####################################################
 # Prepare anvi'o databases for manual binning
@@ -128,24 +211,6 @@ do
   fi
 done
 
-
-
-####################################################
-####################################################
-# Run automatic binning algorithms
-####################################################
-####################################################
-
-screen -S HCC_auto_binning
-mkdir ~/HellsCanyon/dataEdited/binning/autoBinning
-cd ~/HellsCanyon/dataEdited/binning/autoBinning
-mkdir metabat2 maxbin2 dasTool finalBins
-cd ~/HellsCanyon/reports
-rm -f */*_autoBinning*
-
-cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
-chmod +x executables/automatic_binning.sh
-condor_submit submission/automatic_binning.sub
 
 
 ####################################################

@@ -6,11 +6,33 @@ These bins will be used to investigate the metabolic potential of the methylatin
 Second, I will generate an uncurated set of bins made through automatic binning algorithms.
 I won't look at the detailed metabolic pathways of these organisms, but will use them to look at the broad taxonomic composition of the community and observe general trends in metabolic pathways.
 
+Obsidian notes: "HCC binning strategy"
 
 
+**Prepare scaffolds and mapping files**
+
+I only did the binning on scaffolds at least 2000 bp in length.
+To do this, I generated a new assembly file to only include these scaffolds, then I remapped the reads to these new assemblies.
+Mapping was done with bowtie2 with a submission file.
 
 
+**Run automatic binning algorithms**
 
+First, I automatically generated bins using Metabat2 and Maxbin2, which were then consolidated using Das Tool.
+This was all done in a submission file.
+Little messy, since I am changing a previous workflow, but the final DNA sequences of the auto-generated bins should be here: `~/HellsCanyon/dataEdited/binning/autoBinning/completeBinSet/DNA/`.
+
+
+**Initial bin characterization**
+
+I wanted to do some quick bin characterization before moving on.
+
+*Get quality bins*
+
+Das Tool generally removes super low quality bins, but I wanted to check them anyways.
+I ran the `checkm lineage_wf` workflow.
+All bins that were above 50% complete and less than 10% redundant were included in the next step of the analysis (moved to `hqBinSet`).
+This bin set will be used for the remainder of the analysis.
 
 
 
