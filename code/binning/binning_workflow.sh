@@ -140,9 +140,67 @@ mkdir hqBinSet/DNA
 mkdir hqBinSet/checkM
 awk -F ',' '{ if (($2 > 50) && ($3 < 10)) print $0 }' \
   checkM/checkM_stats.csv \
-  > binsGood/checkM/good_bins_data.txt
-awk -F ',' '{ print $1 }' binsGood/checkM/good_bins_data.txt \
-  > binsGood/checkM/good_bins_list.txt
+  > hqBinSet/checkM/good_bins_data.txt
+awk -F ',' '{ print $1 }' hqBinSet/checkM/good_bins_data.txt \
+  > hqBinSet/checkM/good_bins_list.txt
+
+scripts=~/HellsCanyon/code/generalUse
+cat hqBinSet/checkM/good_bins_list.txt | while read binID
+do
+  if [ -e completeBinSet/DNA/$binID.fna ]; then
+    if [ -e hqBinSet/DNA/$binID.fna ]; then
+      echo "Already copied" $binID
+    else
+      echo "Copying over" $binID.fna
+      cp completeBinSet/DNA/$binID.fna hqBinSet/DNA/$binID.fna
+      python $scripts/cleanFASTA.py hqBinSet/DNA/$binID.fna
+      mv -f hqBinSet/DNA/$binID.fna_temp.fasta hqBinSet/DNA/$binID.fna
+    fi
+  else
+    echo $binID "doesn't exist"
+  fi
+done
+
+
+##########################
+# Run GTDB
+##########################
+
+screen -S HCC_GTDB
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+PYTHONPATH=""
+conda activate gtdbtk
+cd ~/HellsCanyon/dataEdited/binning/autoBinning/hqBinSet
+rm -rf taxonomy
+mkdir taxonomy
+
+gtdbtk classify_wf \
+        --cpus 16 \
+        --extension fna \
+        --genome_dir ./DNA \
+        --out_dir taxonomy
+# Summarize them
+cd taxonomy
+grep -h 'anvio_hgcA' gtdbtk.*.summary.tsv \
+        | awk -F '\t' '{ print $1"\t"$2 }' \
+        > taxonomy_summary.txt
+conda deactivate
+
+
+
+
+##########################
+# Run ORF prediction on all bins
+##########################
+reports=/home/GLBRCORG/bpeterson26/HellsCanyon/reports
+mkdir $reports/outs/orfPredictionBins $reports/errs/orfPredictionBins $reports/logs/orfPredictionBins
+cd /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/autoBinning/hqBinSet
+mkdir ORFs
+
+cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
+chmod +x executables/ORF_prediction_bins.sh
+condor_submit submission/ORF_prediction_bins.sub
+
 
 
 ####################################################

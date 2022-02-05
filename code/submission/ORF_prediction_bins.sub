@@ -1,0 +1,19 @@
+##################
+# code/submission/ORF_prediction_bins.sub
+# Submission script for predicting ORF sequences
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 4
+request_memory = 10GB
+
+executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/ORF_prediction_bins.sh
+arguments = $(binID)
+
+environment = "binID=$(binID)"
+output = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/outs/orfPredictionBins/$(binID).out
+error = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/errs/orfPredictionBins/$(binID).err
+log = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/logs/orfPredictionBins/$(binID).log
+
+queue binID from /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/autoBinning/hqBinSet/checkM/good_bins_list.txt

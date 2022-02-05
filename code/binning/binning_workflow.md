@@ -32,7 +32,17 @@ I wanted to do some quick bin characterization before moving on.
 Das Tool generally removes super low quality bins, but I wanted to check them anyways.
 I ran the `checkm lineage_wf` workflow.
 All bins that were above 50% complete and less than 10% redundant were included in the next step of the analysis (moved to `hqBinSet`).
-This bin set will be used for the remainder of the analysis.
+This bin set will be used for the remainder of the initial bin characterization.
+
+*Run GTDB*
+
+I used the GTDB-TK `classify_wf` to predict the taxonomy of the bins.
+
+
+*Run ORF prediction on all bins*
+
+I used Prodigal to predict the ORFs for all the bins, done on single mode.
+The `cleanFASTA.py` was then used to clean them up.
 
 
 
