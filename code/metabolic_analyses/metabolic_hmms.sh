@@ -6,8 +6,14 @@
 #########################
 
 
-#########################
+##################################################
+##################################################
 # Identification of metabolic proteins
+##################################################
+##################################################
+
+#########################
+# Run HMMs
 #########################
 
 screen -S HCC_metabolic_HMMs
@@ -121,11 +127,9 @@ chmod +x /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/aggregate_depth
 condor_submit /home/GLBRCORG/bpeterson26/HellsCanyon/code/submission/aggregate_depth_proteins.sub
 
 
-############################################
-############################################
+#########################
 # Dereplicate sequences
-############################################
-############################################
+#########################
 
 cd ~/HellsCanyon/dataEdited/metabolic_analyses
 mkdir dereplication
@@ -156,6 +160,77 @@ do
     > $geneName\_derep_list.txt
   awk -v geneName="$geneName" '{ print $0","geneName }' $geneName\_derep_list.txt >> ../metabolic_gene_key.csv
 done
+
+
+############################################
+############################################
+# Verify and classify narG gene
+############################################
+############################################
+
+#########################
+# Prep reference dataset
+#########################
+# Locally
+cd ~/Documents/research/HellsCanyon/references/narG
+grep '>' narG_luke_database.faa | \
+  awk '{ print $1"\t"$2 }' | \
+  sed 's/>//' | \
+  sed 's/\[organism=//' | \
+  sed 's/\]//' > narG_luke_database.tsv
+grep '>' narG_vs_nxrA_1.faa narG_vs_nxrA_2.faa | \
+  awk -F '_ ' '{ print $1"\t"$2 }' | \
+  sed 's/nxrA_[1:2].faa:>//' > narG_vs_nxrA.tsv
+
+
+# On GLBRC
+screen -S HCC_narG_ref_tree
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=""
+
+cd ~/HellsCanyon/references/narG
+python ~/HellsCanyon/code/generalUse/cleanFASTA.py narG_luke_database.faa
+mv -f narG_luke_database.faa_temp.fasta narG_luke_database_clean.faa
+
+# Generate alignment
+muscle -in narG_luke_database_clean.faa \
+        -out narG_luke_database_clean.afa
+FastTree narG_luke_database_clean.afa > narG_luke_database_fastTree.tree
+
+
+#########################
+# Compare hits against narG HMM to reference dataset
+#########################
+cd ~/HellsCanyon/dataEdited/metabolic_analyses
+mkdir N
+mkdir N/narG
+cd N/narG
+
+# Generate FastTree
+cp ~/HellsCanyon/dataEdited/metabolic_analyses/dereplication/narG_derep.faa .
+cat ~/HellsCanyon/references/narG/narG_luke_database_clean.faa \
+    narG_derep.faa > narG_for_tree.faa
+muscle -in narG_for_tree.faa \
+        -out narG_for_tree.afa
+FastTree narG_for_tree.afa > narG_for_tree.tree
+
+# Generate RAxML ML tree
+trimal -in narG_for_tree.afa \
+        -out narG_for_tree_trimmed.afa \
+        -gt 0.5
+
+# RAxML tree
+# Used the reduced fasta file
+raxml=/opt/bifxapps/raxml-8.2.11/raxmlHPC-PTHREADS
+$raxml -f a \
+        -p 283976 \
+        -N autoMRE \
+        -m PROTGAMMALG \
+        -x 2381 \
+        -T 20 \
+        -s narG_for_tree_trimmed.afa.reduced \
+        -n narG
 
 
 ############################################
@@ -561,3 +636,23 @@ do
     > $geneName\_derep_list.txt
   awk -v geneName="$geneName" '{ print $0","geneName }' $geneName\_derep_list.txt >> ../FeGenie_gene_key.csv
 done
+
+
+
+
+
+
+############################################
+############################################
+# Inspection of nirS gene
+############################################
+############################################
+
+cd ~/HellsCanyon/dataEdited/metabolic_analyses/identification
+mkdir ../nirS
+grep -h -v "#" nirS/201*/*_nirS.out | sort -r -k 6 > ../nirS/nirS_scores.txt
+
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=''
+PERL5LIB=''
