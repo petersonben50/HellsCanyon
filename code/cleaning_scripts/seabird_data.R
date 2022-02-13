@@ -32,7 +32,11 @@ sonde.data.2019 <- sonde.data.2019 %>%
 
 #### Combine data ####
 sonde.data <- rbind(sonde.data.2017.2018,
-                    sonde.data.2019)
+                    sonde.data.2019) %>%
+  gather(key = constituent,
+         value = concentration,
+         -c(1:3)) %>%
+  select(RM, date, depth, constituent, concentration)
 rm(sonde.data.2017.2018,
    sonde.data.2019)
 
