@@ -1,9 +1,11 @@
 #### code/cleaning_scripts/water_chem_data.R ####
 # Benjamin D. Peterson
 
-# This file contains the code to take the geochem data
-# that Brett sents me and convert it into an easily 
-# parseable format. 
+# This file contains the code to pull out the data I
+# need from the data release and convert it into the
+# form I need.
+# It also takes the nitrite data that Brett sent me
+# and adds that to the other data.
 
 
 #### Get a haircut, and get a real job ####
