@@ -817,7 +817,9 @@ do
   awk -F ',' -v binID="$binID" '$1==binID { print $0 }' autoBinning/hqBinSet/checkM/good_bins_data.txt >> bins_hgcA/checkM_stats.csv
 done
 
+##########################
 # Run ANI comparisons on hgcA+ bins
+##########################
 mkdir ~/HellsCanyon/dataEdited/binning/bins_hgcA/ANI_comparison
 cd ~/HellsCanyon/dataEdited/binning/bins_hgcA/ANI_comparison
 wget https://ani.jgi-psf.org/download_files/ANIcalculator_v1.tgz
