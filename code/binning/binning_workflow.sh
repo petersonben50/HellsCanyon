@@ -96,7 +96,7 @@ done
 
 ####################################################
 ####################################################
-# Initial bin characterization
+# Initial bin characterization of auto-generated bins
 ####################################################
 ####################################################
 
@@ -279,7 +279,6 @@ cd HCC_auto_bins_ANI/
 mkdir hqBins
 
 cp $hqBinSet/ORFs/*fna hqBins/
-# from GLBRC to CHTC into ANI_comparison/ani_compare_dag/
 echo 'hqBins' > groupslist.txt
 # Change path of executable and
 # transfer_input_files lines
@@ -522,7 +521,7 @@ ls *.fna | \
 
 ####################################################
 ####################################################
-# Check quality of bins
+# Initial bin characterization of auto-generated bins
 ####################################################
 ####################################################
 
@@ -638,12 +637,9 @@ do
 done
 
 
-####################################################
-####################################################
+##########################
 # Check out taxonomy of bins with GTDB
-####################################################
-####################################################
-
+##########################
 screen -S HCC_GTDB
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
 PYTHONPATH=""
@@ -666,11 +662,9 @@ conda deactivate
 
 
 
-####################################################
-####################################################
+##########################
 # Pull out coverage information from anvio
-####################################################
-####################################################
+##########################
 
 # Coverage data from anvio
 binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
@@ -711,11 +705,9 @@ rm -f *_coverage.txt
 
 
 
-####################################################
-####################################################
+##########################
 # Get ORFs for bins
-####################################################
-####################################################
+##########################
 
 screen -S HCC_binsORFS
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
@@ -766,11 +758,9 @@ cat ORFs/*.faa > ORFs.faa
 
 
 
-####################################################
-####################################################
+##########################
 # Run ANI comparisons on good bins
-####################################################
-####################################################
+##########################
 # The following workflow is the code to run
 # Sarah Stevens's ANI calculator on a
 # folder full of bins.
@@ -843,6 +833,6 @@ echo 'binsHgcA' > groupslist.txt
 sed -i "s/executable = group.sh/executable = \/home\/GLBRCORG\/bpeterson26\/HellsCanyon\/dataEdited\/binning\/bins_hgcA\/ANI_comparison\/HCC_hgcA_bins_ANI\/group.sh/" group.sub
 sed -i "s/transfer_input_files = \/home\/sstevens2\/ANIcalculator_v1\/ANIcalculator,\/home\/sstevens2\/ANIcalculator_v1\/nsimscan,\$(spllist),\$(totransfer)/transfer_input_files = \/home\/GLBRCORG\/bpeterson26\/HellsCanyon\/dataEdited\/binning\/bins_hgcA\/ANI_comparison\/ANIcalculator_v1\/ANIcalculator,\/home\/GLBRCORG\/bpeterson26\/HellsCanyon\/dataEdited\/binning\/bins_hgcA\/ANI_comparison\/ANIcalculator_v1\/nsimscan,\$(spllist),\$(totransfer)/" group.sub
 condor_submit_dag runAllANIcompare.dag
-# Download output file (goodBins.all.ani.out.cleaned)
+# Download output file (binsHgcA.all.ani.out.cleaned)
 # to my computer:
-# dataEdited/2019_binning/binning_initial/binsGood/goodBins.all.ani.out.cleaned
+# dataEdited/binning/binning

@@ -1,4 +1,4 @@
-#### code/binning/aggregate_bin_data.R ####
+#### code/binning/aggregate_hgcA_bin_data.R ####
 # Benjamin D. Peterson
 
 
@@ -13,7 +13,7 @@ library(vegan)
 
 #### Calculate HMSs ####
 
-ANI.values <- read.table(file = "dataEdited/binning/ANI/goodBins.all.ani.out.cleaned",
+ANI.values <- read.table(file = "dataEdited/bins/binning/bins_hgcA/binsHgcA.all.ani.out.cleaned",
                          sep = "\t",
                          header = TRUE,
                          stringsAsFactors = FALSE) %>%
@@ -40,10 +40,10 @@ cov.cutoff <- 0.5
 
 # Generate edgelist
 edgelist <- ANI.values %>%
-  filter(ANI_1 > ANI.cutoff &
-           ANI_2 > ANI.cutoff &
-           AF_1 > cov.cutoff &
-           AF_2 > cov.cutoff) %>%
+  filter((ANI_1 > ANI.cutoff |
+           ANI_2 > ANI.cutoff) &
+           (AF_1 > cov.cutoff |
+           AF_2 > cov.cutoff)) %>%
   select(GENOME1, GENOME2)
 # Generate the graph from the edgelist
 adjacency.graph <- graph_from_data_frame(edgelist)
@@ -70,38 +70,42 @@ lone.bins <- data.frame(bin.list[!(bin.list %in% HMS.ID$bin)],
                         stringsAsFactors = FALSE)
 names(lone.bins) <- c("HMS", "binID")
 # Add loner bins to list
-HMS.bin.info <- do.call("rbind",
-                        list(HMS.ID, lone.bins))
+allData <- do.call("rbind",
+                   list(HMS.ID, lone.bins))
 rm(ANI.cutoff, cov.cutoff, HMS.ID, lone.bins,
    edgelist, ANI.values, adjacency.graph,
    bin.list)
 
 
 
-
 #### Add in assembly and year information to each bin ####
-
-binAssemblyInfo <- read.table("dataEdited/binning/manualBinning/notes/bin_to_assembly.tsv",
-                              col.names = c("assemblyID", "binID"))
+autoBins <- grep(pattern = "hgcA",
+                 x = allData$binID,
+                 invert = TRUE,
+                 value = TRUE)
+temp.binAssemblyInfo <- data.frame(strsplit(autoBins, "_") %>% sapply("[", 1),
+                                   autoBins)
+names(temp.binAssemblyInfo) <- c("assemblyID", "binID")
+binAssemblyInfo <- rbind(read.table("dataEdited/bins/binning/manualBinning/notes/bin_to_assembly.tsv",
+                                    col.names = c("assemblyID", "binID")),
+                         temp.binAssemblyInfo)
+rm(autoBins, temp.binAssemblyInfo)
 yearData <- read.csv("metadata/lists/assembly_key.csv",
                      col.names = c("assemblyID", "year"))
-allData <- left_join(HMS.bin.info,
+
+allData <- left_join(allData,
                      binAssemblyInfo) %>%
   left_join(yearData)
 rm(binAssemblyInfo,
-   yearData,
-   HMS.bin.info)
+   yearData)
 
 
 #### Read in taxonomy data ####
-
-taxonomy.data <- read.table("dataEdited/binning/taxonomy/gtdbtk.bac120.summary.tsv",
+taxonomy.data <- read.table("dataEdited/bins/binning/bins_hgcA/taxonomy_summary.txt",
                             sep = "\t",
-                            header = TRUE,
-                            stringsAsFactors = FALSE) %>%
-  rename(binID = user_genome,
-         gtdb_tax = classification) %>%
-  select(binID, gtdb_tax)
+                            header = FALSE,
+                            col.names = c("binID", "gtdb_tax"),
+                            stringsAsFactors = FALSE)
 allData <- allData %>%
   left_join(taxonomy.data)
 rm(taxonomy.data)
@@ -109,7 +113,7 @@ rm(taxonomy.data)
 
 #### CheckM data ####
 
-checkm.data <- read.csv("dataEdited/binning/quality/checkM_stats.csv",
+checkm.data <- read.csv("dataEdited/bins/binning/bins_hgcA/checkM_stats.csv",
                         stringsAsFactors = FALSE)
 names(checkm.data) <- c("binID",
                         paste("checkM_",
@@ -122,25 +126,9 @@ allData <- allData %>%
 rm(checkm.data)
 
 
-#### anvi'o completeness/redundancy ####
-
-anvio.quality <- read.table("dataEdited/binning/quality/bins_summary_hgcA.txt",
-                            sep = "\t",
-                            stringsAsFactors = FALSE,
-                            header = TRUE)
-names(anvio.quality) <- paste("anvio_",
-                              names(anvio.quality),
-                              sep = "")
-anvio.quality <- anvio.quality %>%
-  rename(binID = anvio_bins)
-allData <- allData %>%
-  left_join(anvio.quality)
-rm(anvio.quality)
-
 
 #### Save out data ####
-
 write.csv(allData,
-          "dataEdited/binning/bin_data.csv",
+          "dataEdited/bins/binning/bins_hgcA/bin_dereplication_data.csv",
           row.names = FALSE,
           quote = FALSE)

@@ -23,7 +23,7 @@ This was all done in a submission file.
 Little messy, since I am changing a previous workflow, but the final DNA sequences of the auto-generated bins should be here: `~/HellsCanyon/dataEdited/binning/autoBinning/completeBinSet/DNA/`.
 
 
-**Initial bin characterization**
+**Initial bin characterization of auto-generated bins**
 
 I wanted to do some quick bin characterization before moving on.
 
@@ -55,15 +55,15 @@ All bins were from 2017 and 2018.
 
 Then I compared the final set of bins using Sarah Stevens's ANI calculation workflow (written as a DAG script), which is done using JGI's ANI Calculator.
 This resulted in the `hqBins.all.ani.out.cleaned`.
+*Will not be used in final analysis for this paper*
 
+**Dereplicate bins**:
 
-**Dereplicate bins**
+*Not used in final analysis. Keeping this here for legacy purposes but I switched to dereplicating across both methods*.
 
 I then dereplicated the auto-generated bins.
-First I downloaded the ANI, checkM, GTDB, and *hgcA* presence data to `dataEdited/binning/autoBinning/original_bin_data`.
-These were combined in an R script: `code/binning/aggregate_bin_data_autoBinning.R`.
-This saves out a `bin_data_auto.csv` file that has all the hgcA+ bins and their info on that.
-Uploaded that GLBRC as well.
+First I downloaded the ANI, checkM, GTDB, and *hgcA* presence data to `dataEdited/binning/autoBinning`.
+These were combined in an R script: `code/binning/sandbox/aggregate_bin_data_autoBinning.R`.
 
 
 **Prepare anvi'o databases for manual binning**
@@ -104,22 +104,19 @@ I used the list of the bins that met the 50% C, 10% R criteria for either CheckM
 I'll sort out later which of these we actually want to use, but for now I'll include them in all the analyses.
 I pulled out the scaffolds for these bins and cleaned them.
 
-
-**Check out taxonomy of bins with GTDB**
+*Check out taxonomy of bins with GTDB*
 
 I then ran the classify_wf workflow in GTDB-TK to generate a taxonomic classification for each of the high qualified bins we identified.
 I downloaded this information here: `dataEdited/binning/taxonomy/gtdbtk.bac120.summary.tsv`.
 
-
-**Pull out coverage information from anvio**
+*Pull out coverage information from anvio*
 
 I then pulled out the coverage information from anvi'o for use in the differential coverage analysis, making sure that the bins in our HMSs have a similar distribution.
 I pulled out that coverage information then concatenated it all together.
 These are split up by year, since the mapping was split out by year.
 I downloaded the `coverage_goodBins.txt` file to my local computer.
 
-
-**Get ORFs for bins**
+*Get ORFs for bins*
 
 I used Prodigal to predict the open reading frames for each of the genomes.
 We saved out the nucleic acid and amino acid sequences of all the genes.
@@ -128,18 +125,19 @@ I then cleaned up each of these files and the scaffold files.
 I concatenated them and generated a scaffold to bin and gene to bin file, and concatenated the sequence files.
 
 
-**Run ANI comparisons on good bins**
+*Run ANI comparisons on good bins*
 
 I needed to dereplicate across the years and the different assemblies.
 I used Sarah's DAGman ANI workflow for this.
 I downloaded the `group.sub` file to my computer to edit it: `/Users/benjaminpeterson/Documents/research/HellsCanyon/code/binning/ANI`
 I then ran the script to compare all these bins to each other.
 I then downloaded `goodBins.all.ani.out.cleaned` here: `dataEdited/binning/ANI/goodBins.all.ani.out.cleaned`
-
+*Will not be used in the final analysis of this paper*
 
 **Aggregate bin data**
 
-The code for this can be found here: `code/binning/aggregate_bin_data.R`
+*This is not going to be used in the final manuscript, but leaving it here for... well, in case it's needed for some reason.*
+The code for this can be found here: `code/binning/sandbox/aggregate_bin_data_manualBinning.R`
 First I took at look at the ANI values.
 Looks like we can use 97% ANI and 50% coverage and capture the bins that are close together, so let's go with that.
 I got 4 HMSs, two with three bins and two with two bins.
@@ -155,3 +153,12 @@ I was going to look at the differential coverage and ordinate the bins by that, 
 Next I combined the hgcA+ bins from the manual and automatic methods.
 Moved them all into `~/HellsCanyon/dataEdited/binning/bins_hgcA`.
 I took the DNA, ORFs, taxonomy, and checkM files.
+
+**Run ANI comparisons on hgcA+ bins**
+
+I used Sarah Steven's workflow to check the ANI between all the hgcA+ bins that were generated through this study.
+The `binsHgcA.all.ani.out.cleaned` was downloaded to my computer: (`dataEdited/bins/binning/bins_hgcA`).
+Also downloaded the checkM and GTDB files.
+Aggregated everything here: `code/binning/aggregate_hgcA_bin_data.R`
+Save out a data file here: `dataEdited/bins/binning/bins_hgcA/bin_dereplication_data.csv`.
+Convert this to a xlsx file, do the dereplication right in that.
