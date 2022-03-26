@@ -838,3 +838,67 @@ condor_submit_dag runAllANIcompare.dag
 # Download output file (binsHgcA.all.ani.out.cleaned)
 # to my computer:
 # dataEdited/binning/binning
+
+##########################
+# Concatenate all ORFs
+##########################
+cd ~/HellsCanyon/dataEdited/binning
+mkdir bins_hgcA_keepers
+# upload bins_hgcA_keepers_list here
+mkdir bins_hgcA_keepers/DNA bins_hgcA_keepers/ORFs
+cat bins_hgcA_keepers/bins_hgcA_keepers_list.txt | while read binID
+do
+  echo "Moving" $binID
+  cp bins_hgcA/DNA/$binID.fna bins_hgcA_keepers/DNA
+  cp bins_hgcA/ORFs/$binID.* bins_hgcA_keepers/ORFs
+  awk -F '\t' -v binID="$binID" '$1==binID { print $0 }' bins_hgcA/taxonomy_summary.txt >> bins_hgcA_keepers/taxonomy_summary.txt
+  awk -F ',' -v binID="$binID" '$1==binID { print $0 }' bins_hgcA/checkM_stats.csv >> bins_hgcA_keepers/checkM_stats.csv
+done
+
+~/HellsCanyon/code/generalUse/Fasta_to_Scaffolds2Bin.sh -e faa \
+                                                        -i ORFs \
+                                                        > ORFs_G2B.tsv
+cat ORFs/*.faa > ORFs.faa
+
+
+####################################################
+####################################################
+# hgcA analysis
+####################################################
+####################################################
+
+screen -S HCC_hgcA_bins
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=''
+PERL5LIB=''
+hgcA_bins=~/HellsCanyon/dataEdited/binning/bins_hgcA_keepers
+scripts=~/HellsCanyon/code/generalUse/
+cd $hgcA_bins
+mkdir hgcA
+
+hmmsearch --tblout hgcA/hgcA.out \
+          --cpu 4 \
+          --cut_tc \
+          ~/references/hgcA/hgcA.hmm \
+          ORFs.faa \
+          > hgcA/hgcA_report.txt
+cd hgcA
+grep -v "#" hgcA.out | awk '{ print $1 }' > hgcA_bin_list.txt
+
+# Get hgcA to bin file
+echo -e 'hgcA_ID\tbinID' > hgcA_to_bin.tsv
+cat hgcA_bin_list.txt | while read hgcA
+do
+  awk -F '\t' -v hgcA="$hgcA" '$1 == hgcA { print $0 }' $hgcA_bins/ORFs_G2B.tsv >> hgcA_to_bin.tsv
+done
+
+# Link the bin hgcA seqs to the hgcA representatives
+# from the assembly-based analyses
+echo -e 'bin_hgcA_ID\trep_hgcA_ID' > binHgcA_to_repHgcA.tsv
+cat hgcA_bin_list.txt | while read hgcA
+do
+  cluster_ID=$(awk -F '\t' -v hgcA="$hgcA" '$1 == hgcA { print $2 }' ~/HellsCanyon/dataEdited/hgcA_analysis/dereplication/hgcA_good_acrossYear.tsv)
+  rep_ID=$(awk -F '\t' -v cluster_ID="$cluster_ID" '($2 == cluster_ID) && ($5 == 1) { print $1 }' ~/HellsCanyon/dataEdited/hgcA_analysis/dereplication/hgcA_good_acrossYear.tsv)
+  echo -e $hgcA'\t'$rep_ID >> binHgcA_to_repHgcA.tsv
+done

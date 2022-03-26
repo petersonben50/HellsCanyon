@@ -148,17 +148,34 @@ No HMSs including bins from multiple years.
 I was going to look at the differential coverage and ordinate the bins by that, but didn't think we had enough HMSs to warrant it.
 
 
-#### Aggregate all hgcA+ bins
+**Aggregate all hgcA+ bins**
 
 Next I combined the hgcA+ bins from the manual and automatic methods.
 Moved them all into `~/HellsCanyon/dataEdited/binning/bins_hgcA`.
 I took the DNA, ORFs, taxonomy, and checkM files.
 
-**Run ANI comparisons on hgcA+ bins**
+*Run ANI comparisons on hgcA+ bins*
 
 I used Sarah Steven's workflow to check the ANI between all the hgcA+ bins that were generated through this study.
 The `binsHgcA.all.ani.out.cleaned` was downloaded to my computer: (`dataEdited/bins/binning/bins_hgcA`).
 Also downloaded the checkM and GTDB files.
 Aggregated everything here: `code/binning/aggregate_hgcA_bin_data.R`
 Save out a data file here: `dataEdited/bins/binning/bins_hgcA/bin_dereplication_data.csv`.
-Convert this to a xlsx file, do the dereplication right in that.
+Convert this to a xlsx file for easier viewing.
+We are going to want to avoid having duplicate genomes (like, both manual and autobinned from the same assembly).
+Made a list of the ones to keep: `bins_hgcA_keepers_list.txt`.
+Uploaded that to GLBRC
+
+*Concatenate all ORFs*
+
+We'll run subsequent analyses on all of these bins, so let's just concatenate all the ORFs.
+Generate a G2B file as well.
+
+
+**hgcA analysis in bins**
+
+Lastly, I wanted to do a deeper dive on the *hgcA* genes from these bins.
+I searched through the concatenated ORFs for HgcA sequences.
+Wow, they all look good, scores over 320.
+Put together tsv files that link the binID to the *hgcA* ORF ID, and the *hgcA* ORF ID to the representative *hgcA* ORF ID for the assembly-based anlayses.
+ 
