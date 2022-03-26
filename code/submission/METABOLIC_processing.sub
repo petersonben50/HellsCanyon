@@ -1,0 +1,40 @@
+##########
+#Specify the HTCondor docker universe and the repo link to the sppider docker image
+##########
+universe = docker
+docker_image = repo.glbrc.org/htcondor/metabolic_docker_htcondor
+
+##########
+#Redirect the standard output and error streams to files, as well the htcondor log
+##########
+output = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/outs/metabolic_docker_htcondor_out.txt
+error = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/errs/metabolic_docker_htcondor_err.txt
+log = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/logs/metabolic_docker_htcondor_log.txt
+
+
+##########
+#Instruct HTCondor to transfer input files into the docker container and output files back.
+#"transfer_input_files" can contain one or multiple FASTA files, separated by commas
+#"transfer_output_files" must be "metabolic_output.zip" - the archive will contain all the output from the program in one file.
+##########
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files = /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0010.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0020.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0040.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0041.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0050.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0070.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0110.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0130.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0141.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0180.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0210.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0220.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0240.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0250.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0260.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/anvio_hgcA_0261.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/fall2017cluster6_bin_0077.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/fall2017cluster6_bin_0093.fasta,/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/METABOLIC_bins/HC18HY300_bin_0028.fasta
+
+transfer_output_files = /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/metabolic_output.zip
+
+
+##########
+#Arguments/parameters work in the same way as when running the standalone version of METABOLIC
+##########
+arguments = $(request_cpus)
+
+
+#####
+#Make sure to adjust the memory and disk requirements tp the size of all the files that you are analyzing
+#####
+request_memory = 60G
+request_cpus = 6
+request_disk = 64GB
+
+queue
