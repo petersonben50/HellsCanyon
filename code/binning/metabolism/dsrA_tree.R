@@ -14,16 +14,16 @@ library(treeio)
 
 
 #### Read in tree ####
-dsrA.tree.unrooted <- read.newick(file = "dataEdited/binning/metabolism/dsrA/dsrA_phylogeny_trimmed.tree")
+dsrA.tree.unrooted <- read.newick(file = "dataEdited/bins/binAnalysis/metabolism/batch_HMMS/dsrA/dsrA_phylogeny_trimmed.tree")
 dsrA.tree.unrooted$tip.label[grep("ˆ", dsrA.tree.unrooted$tip.label)] <- gsub("ˆ",
                                                                               "u",
                                                                               dsrA.tree.unrooted$tip.label[grep("ˆ", dsrA.tree.unrooted$tip.label)])
 
 
 #### Visualize unrooted tree ####
-pdf("dataEdited/binning/metabolism/dsrA/dsrA_tree_original_unrooted.pdf",
+pdf("dataEdited/bins/binAnalysis/metabolism/batch_HMMS/dsrA/dsrA_tree_original_unrooted.pdf",
     width = 12,
-    height = 120)
+    height = 80)
 ggtree(dsrA.tree.unrooted) +
   geom_tiplab(size = 2) +
   geom_text2(aes(subset=!isTip, label=node))
@@ -32,21 +32,25 @@ dev.off()
 
 #### Root tree ####
 dsrA.tree <- root(dsrA.tree.unrooted,
-                  node = 557)
+                  node = 771)
 
+
+#### Get list of dsrA genes, color bin genes in red ####
+dsrA.list <- readLines("dataEdited/bins/binAnalysis/metabolism/batch_HMMS/dsrA/dsrA_list.txt") %>%
+  strsplit(" ") %>% sapply("[", 1)
+tip.label.color <- rep("black",
+                       length(dsrA.tree$tip.label))
+tip.label.color[dsrA.tree$tip.label %in% dsrA.list] <- 'red'
 
 #### Visualize rooted tree ####
-pdf("dataEdited/binning/metabolism/dsrA/dsrA_tree_original.pdf",
+pdf("dataEdited/bins/binAnalysis/metabolism/batch_HMMS/dsrA/dsrA_tree_original.pdf",
     width = 12,
     height = 120)
 ggtree(dsrA.tree) +
-  geom_tiplab(size = 2) +
-  geom_text2(aes(subset=!isTip, label=node))
+  geom_tiplab(size = 2,
+              colour = tip.label.color) +
+  geom_text2(aes(subset=!isTip, label = node))
 dev.off()
-
-#### Get list of dsrA genes ####
-dsrA.list <- readLines("dataEdited/binning/metabolism/dsrA/dsrA_list.txt") %>%
-  strsplit(" ") %>% sapply("[", 1)
 
 
 #### Get list of rdsr genes ####
@@ -63,16 +67,5 @@ ggtree(rdsr.tree) +
 
 
 #### Find reverse dsrA genes ####
-rdsr.list <- rdsr.tree$tip.label[rdsr.tree$tip.label %in% dsrA.list]
-
-
-#### Find reductive dsrA genes ####
-red.dsrA <- dsrA.list[which(!(dsrA.list %in% rdsr.list))]
-
-
-#### Read out list of reductive dsrA genes ####
-
-writeLines(red.dsrA,
-           "dataEdited/binning/metabolism/dsrA/dsrA_red_list.txt")
-
-
+rdsr.tree$tip.label[rdsr.tree$tip.label %in% dsrA.list]
+# They're all reductive

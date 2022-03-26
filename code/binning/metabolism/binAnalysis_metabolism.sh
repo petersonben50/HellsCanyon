@@ -36,69 +36,94 @@ ls -d /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/metabolism/M
 condor_submit ~/HellsCanyon/code/submission/METABOLIC_processing.sub
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ####################################################
 ####################################################
-# Metabolic analyses
-####################################################
-####################################################
-
-##########################
 # Custom set of metabolic HMMs
-##########################
+####################################################
+####################################################
 
 screen -S HCC_metabolic_HMMs
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
 conda activate batch_HMMs
 PYTHONPATH=''
 PERL5LIB=''
-binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
+binAnalysis=~/HellsCanyon/dataEdited/binAnalysis
 scripts=~/HellsCanyon/code/generalUse
 metabolic_HMMs=~/HellsCanyon/references/metabolic_HMMs
-cd $binsGood
-mkdir metabolism
-chmod +x $scripts/batch_HMMs.py
+cd $binAnalysis
 
-python $scripts/batch_HMMs.py --orf_file $binsGood/ORFs.faa \
-                              --g2b $binsGood/binsGood_G2B.tsv \
+#chmod +x $scripts/batch_HMMs.py
+python $scripts/batch_HMMs.py --orf_file $binAnalysis/ORFs.faa \
+                              --g2b $binAnalysis/ORFs_G2B.tsv \
                               --hmm_folder $metabolic_HMMs\
                               --hmm_csv $metabolic_HMMs.csv \
-                              --output $binsGood/metabolism/batch_HMMs
+                              --output $binAnalysis/metabolism/batch_HMMs
 conda deactivate
+
+
+
+
+#########################
+# Confirm dsrA phylogeny
+#########################
+screen -S HCC_dsrA_tree
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=""
+PERL5LIB=''
+scripts=~/HellsCanyon/code/generalUse
+binAnalysis=~/HellsCanyon/dataEdited/binAnalysis
+
+# Set up directory
+cd $binAnalysis/metabolism/batch_HMMs
+mkdir dsrA
+
+# Copy over my sequences and align them
+sed 's/*//' alignments/hmm_hits/dsrA.faa > dsrA/dsrA.faa
+cd dsrA
+grep '>' dsrA.faa | \
+  sed 's/>//' \
+  > dsrA_list.txt
+muscle -in dsrA.faa \
+        -out dsrA.afa
+
+# Copy in reference sequences
+cp ~/references/metabolicProteins/sulfur/dsrA/dsrA_karthik_clean.afa \
+    dsrA_karthik_clean.afa
+
+# Align seqs
+muscle -profile \
+        -in1 dsrA_karthik_clean.afa \
+        -in2 dsrA.afa \
+        -out dsrA_phylogeny.afa
+# Trim alignment
+trimal -in dsrA_phylogeny.afa \
+        -out dsrA_phylogeny_trimmed.afa \
+        -gt 0.5
+
+# Generate ML tree
+#screen -S EG_dsrA_tree
+python $scripts/cleanFASTA.py dsrA_phylogeny_trimmed.afa
+mv -f dsrA_phylogeny_trimmed.afa_temp.fasta dsrA_phylogeny_trimmed.afa
+FastTree dsrA_phylogeny_trimmed.afa \
+    > dsrA_phylogeny_trimmed.tree
 
 
 ##########################
 # Search for MHCs
 ##########################
-mkdir $binsGood/metabolism/MHCs
-cd $binsGood/metabolism/MHCs
-$scripts/Find_multiheme_protein.py $binsGood/ORFs.faa 3
-mv $binsGood/ORFs_3_heme* .
+
+binAnalysis=~/HellsCanyon/dataEdited/binAnalysis
+scripts=~/HellsCanyon/code/generalUse
+mkdir $binAnalysis/metabolism/MHCs
+cd $binAnalysis/metabolism/MHCs
+$scripts/Find_multiheme_protein.py $binAnalysis/ORFs.faa 3
+mv $binAnalysis/ORFs_3_heme* .
 
 echo -e "binID\tgeneID\themeCount" > heme_count_bins.tsv
 tail -n +2 ORFs_3_heme_count.txt | awk -F '\t' '{ print $1 }' | while read geneID
 do
-  binID=`awk -F '\t' -v geneID="$geneID" '{ if ($1 == geneID) print $2 }' $binsGood/binsGood_G2B.tsv`
+  binID=`awk -F '\t' -v geneID="$geneID" '{ if ($1 == geneID) print $2 }' $binAnalysis/ORFs_G2B.tsv`
   hemeCount=`awk -F '\t' -v geneID="$geneID" '{ if ($1 == geneID) print $2 }' ORFs_3_heme_count.txt`
   echo -e $binID"\t"$geneID"\t"$hemeCount
   echo -e $binID"\t"$geneID"\t"$hemeCount >> heme_count_bins.tsv
@@ -264,71 +289,6 @@ do
   grep $scaffold"_"$preceedingORFnumber $binsGood/metabolism/MHCs/ORFs_3_heme_count.txt
   grep $scaffold"_"$followingORFnumber $binsGood/metabolism/MHCs/ORFs_3_heme_count.txt
 done
-
-#########################
-# Confirm dsrA phylogeny
-#########################
-screen -S HCC_dsrA_tree
-source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
-conda activate bioinformatics
-PYTHONPATH=""
-PERL5LIB=''
-scripts=~/HellsCanyon/code/generalUse
-binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
-
-# Set up directory
-cd $binsGood/metabolism
-mkdir dsrA
-
-# Copy over my sequences and align them
-sed 's/*//' batch_HMMs/alignments/hmm_hits/dsrA.faa > dsrA/dsrA.faa
-cd dsrA
-grep '>' dsrA.faa | \
-  sed 's/>//' \
-  > dsrA_list.txt
-muscle -in dsrA.faa \
-        -out dsrA.afa
-
-# Copy in reference sequences
-cp ~/references/metabolicProteins/sulfur/dsrA/dsrA_karthik_clean.afa \
-    dsrA_karthik_clean.afa
-
-# Align seqs
-muscle -profile \
-        -in1 dsrA_karthik_clean.afa \
-        -in2 dsrA.afa \
-        -out dsrA_phylogeny.afa
-# Trim alignment
-trimal -in dsrA_phylogeny.afa \
-        -out dsrA_phylogeny_trimmed.afa \
-        -gt 0.5
-
-# Generate ML tree
-#screen -S EG_dsrA_tree
-python $scripts/cleanFASTA.py dsrA_phylogeny_trimmed.afa
-mv -f dsrA_phylogeny_trimmed.afa_temp.fasta dsrA_phylogeny_trimmed.afa
-FastTree dsrA_phylogeny_trimmed.afa \
-    > dsrA_phylogeny_trimmed.tree
-
-
-
-#########################
-# Confirm dsrA phylogeny
-#########################
-cd ~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/
-mkdir metabolism/forMETABOLIC
-ls DNA/*fna | sed 's/DNA\///' | sed 's/.fna//' | while read bin
-do
-  cp DNA/$bin.fna metabolism/forMETABOLIC/$bin.fasta
-done
-
-
-
-#########################
-# Run METABOLIC
-#########################
-cd ~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/metabolism/forMETABOLIC
-condor_submit ~/HellsCanyon/code/submission/METABOLIC_processing.sub
 
 
 

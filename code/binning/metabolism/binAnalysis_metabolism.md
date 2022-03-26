@@ -1,49 +1,47 @@
+#### Bin analysis - metabolism
+
+This is the protocol file for the various methods I'll use to analyze the hgcA+ bins I previously generated.
+
+
 **Run METABOLIC**
 
 I wanted to run the METABOLIC pipeline on the hgcA+ bins I collected.
 First I transferred the files for the bins that we wanted to use and renamed them to use fasta as the file extension.
 Ran METABOLIC using the docker image that Patricia generated with a submission file.
+Github page here: https://github.com/AnantharamanLab/METABOLIC
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-**Metabolic analyses**
-
-However, the focus will be on the abundances in the assembly, so the binning will just be used for metabolic pathway analysis and taxonomy/phylogeny.
-Meaning, I want to just use the bins to inform the assembly-based analysis.
-Thus, I ran the metabolic analyses on all the bins to assign a general metabolic strategy to the high matching sets.
-I did the same thing with taxonomy.
-
-*Custom set of metabolic HMMs*
+**Custom set of metabolic HMMs**
 
 I have a custom set of HMMs that I used to search through my bins to examine the metabolic potential of these organisms.
+This was done with a custom script I generated to run multiple HMMs at once.
 
-*Search for MHCs*
+*Confirm dsrA phylogeny*
+
+Most likely, all the *dsrA* genes that were identified were reductive *dsrA* genes, but I did want to confirm this.
+I used the data from Karthik, from his sulfate-reduction paper, to generate a ML tree using FastTree.
+I downloaded the `dsrA_phylogeny_trimmed.tree` file to my local computer (`dataEdited/bins/binAnalysis/metabolism/batch_HMMS/dsrA`), and analyzed that in R (`code/binning/metabolism/dsrA_tree.R`).
+I used the Nitrospirae_bacterium_RBG_19FT_COMBO_42_15 and RBG_16_scaffold_151951 tip labels as markers for the branch leading to reverse *dsrA*.
+None of the *dsrA* that we identified were reverse *dsrA* sequences, so we'll just stick with the lists of genes that we have.
+
+**Search for MHCs**
 
 I was also specifically interested in searching for multiheme cytochrome c proteins.
 These seem to be good markers for respiratory vs. obligatory bins.
 I used Shaomei's python script to identify the CXXCH motif in the ORF amino acid sequences.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 *Search for BBOMPs*
 
@@ -75,23 +73,6 @@ Hmm, all except one have very low scores (29-31) range, e-values around 10^-6, 1
 The one that's higher was predicted to be a PCC porin through our custom workflow.
 Let's see if there are MHCs on either side of it, but I doubt there will be.
 Yeah, none of them except for the ExtE from Geobacterales has adjacent MHCs, so these are probably not actually PCCs.
-
-
-*Confirm dsrA phylogeny*
-
-I wanted to confirm that the dsrA sequences we identified were reductive dsrA genes and were not the reverse dsrA sequences.
-I only had two sequences, so shouldn't be too hard.
-I aligned these two to each other, then aligned that to karthik's *dsrA* database, using MUSCLE for both.
-I then used trimal to trim up the alignment to remove residues with over 50% gaps.
-I then generated a ML tree using FastTree.
-I inspected this tree in R: `code/binning/metabolism/dsr_tree.R`.
-Both of the dsrA genes we identified are reductive *dsrA* sequences.
-We'll just leave this as is in the spreadsheet then.
-
-
-*Run through METABOLIC*
-
-I set up a METABOLIC run on the GLBRC servers using a submission script that Charles had set up for me.
 
 
 *Run kofamscan on ORFs*
@@ -131,10 +112,11 @@ I inspected the tree here: `code/binning/metabolism/MoORs.R`.
 This doesn't look too bad actually, let's go ahead with a RAxML tree from this same alignment.
 
 
-*Notes on metabolic assignment*
+**Aggregate bin metabolism data**
+
+R script to aggregate the information is here: `code/binning/metabolism/metabolism_summary.R`.
 
 Finally, I went through my metabolic gene data and manually assigned potential metabolic functions for each of the bins.
-R script to aggregate the information is here: `code/binning/metabolism/metabolism_summary.R`.
 Saved it out here: `dataEdited/binning/metabolism/metabolic_summary.csv`.
 I then saved this as a xlsx file and manually edited that one.
 First I made a manual taxonomy column to make this easier to follow.
