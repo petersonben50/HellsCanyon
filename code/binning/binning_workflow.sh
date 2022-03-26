@@ -886,6 +886,20 @@ hmmsearch --tblout hgcA/hgcA.out \
 cd hgcA
 grep -v "#" hgcA.out | awk '{ print $1 }' > hgcA_bin_list.txt
 
+# Pull out hgcA sequences
+rm -f hgcA_bins.faa
+cat hgcA_bin_list.txt | while read hgcA_ID
+do
+  grep -A 1 $hgcA_ID$ $hgcA_bins/ORFs.faa >> hgcA_bins.faa
+done
+grep "*" hgcA_bins.faa | wc -l
+# 19 complete genes, strong suggestion that these are all going
+# to be complete hgcA seqs.
+
+# Align hgcA sequences
+muscle -in hgcA_bins.faa \
+        -out hgcA_bins.afa
+
 # Get hgcA to bin file
 echo -e 'hgcA_ID\tbinID' > hgcA_to_bin.tsv
 cat hgcA_bin_list.txt | while read hgcA

@@ -177,5 +177,7 @@ Generate a G2B file as well.
 Lastly, I wanted to do a deeper dive on the *hgcA* genes from these bins.
 I searched through the concatenated ORFs for HgcA sequences.
 Wow, they all look good, scores over 320.
+I pulled out all of the HgcA amino acid sequences, then aligned them.
+Checked the alignment out in UGENE, and they all have the conserved cap-helix domain.
+Think we're all set to go with that.
 Put together tsv files that link the binID to the *hgcA* ORF ID, and the *hgcA* ORF ID to the representative *hgcA* ORF ID for the assembly-based anlayses.
- 
