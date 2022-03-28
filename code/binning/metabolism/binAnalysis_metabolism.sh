@@ -149,19 +149,6 @@ do
 done
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 ####################################################
 ####################################################
 # Search for BB-OMPs
@@ -292,27 +279,13 @@ epost -db protein -input blast_pcc_omp_uniq_list.txt | \
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#########################
+####################################################
+####################################################
 # Check PCC_porin hits from batch HMMs
-#########################
-binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
-cd $binsGood/metabolism
+####################################################
+####################################################
+binAnalysis=~/HellsCanyon/dataEdited/binAnalysis
+cd $binAnalysis/metabolism
 mkdir PCC_batchHMMs
 mkdir PCC_batchHMMs/PCC
 
@@ -327,8 +300,8 @@ do
   ORFnumber=$(echo $gene | rev | cut -d"_" -f1 | rev)
   preceedingORFnumber=$(expr $ORFnumber - 1)
   followingORFnumber=$(expr $ORFnumber + 1)
-  grep $scaffold"_"$preceedingORFnumber $binsGood/metabolism/MHCs/ORFs_3_heme_count.txt
-  grep $scaffold"_"$followingORFnumber $binsGood/metabolism/MHCs/ORFs_3_heme_count.txt
+  grep $scaffold"_"$preceedingORFnumber $binAnalysis/metabolism/MHCs/ORFs_3_heme_count.txt
+  grep $scaffold"_"$followingORFnumber $binAnalysis/metabolism/MHCs/ORFs_3_heme_count.txt
 done
 
 
