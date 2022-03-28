@@ -37,7 +37,7 @@ rm(ref.key, refseq.metadata)
 # 
 
 #### Read in tree file ####
-BBOMP.tree.unrooted <- read.newick("dataEdited/binning/metabolism/PCC/bbomp.tree")
+BBOMP.tree.unrooted <- read.newick("dataEdited/bins/binAnalysis/metabolism/PCC/bbomp.tree")
 BBOMP.tree <- midpoint(BBOMP.tree.unrooted,
                        node.labels = "support")
 
@@ -64,8 +64,8 @@ BBOMP.tree.viz <- ggtree(BBOMP.tree,
                          aes(x = 0,
                              xend = 6)) +
   geom_tiplab(col = tree.color.vector)
-pdf("dataEdited/binning/metabolism/PCC/bbomp_original_tree.pdf",
-    height = 16,
-    width = 6)
+pdf("dataEdited/bins/binAnalysis/metabolism/PCC/bbomp_original_tree.pdf",
+    height = 8,
+    width = 4)
 BBOMP.tree.viz
 dev.off()
