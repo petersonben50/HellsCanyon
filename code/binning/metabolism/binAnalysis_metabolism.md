@@ -31,22 +31,13 @@ These seem to be good markers for respiratory vs. obligatory bins.
 I used Shaomei's python script to identify the CXXCH motif in the ORF amino acid sequences.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-*Search for BBOMPs*
+**Search for BB-OMPs**
 
 I was also interested in seeing if any of these were part of a porin cytochrome c complex (PCC) that might be used for Mn reduction in the system.
 These PCCs have a beta-barrel outer membrane protein (BBOMP) next to a MHC.
+
+*Pull out genes adjacent to MHCs*
+
 I pulled out all the sequences that were adjacent to the MHCs, then searched them with a custom BOMP HMM.
 Looks like I only had one substantial hit, from that Geobacterales in KMBP009B.
 
@@ -61,6 +52,7 @@ I downloaded this tree and the refseq protein list to my local computer.
 I used Entrez to pull out the taxonomic information associated with the reference sequences.
 Finally, I checked out the tree in R: `code/binning/metabolism/bbomp_tree.R`.
 Looks like this one gene is similar to ExtE.
+
 The corresponding MHC is KMBP009B_000000035879_3, which also has another MHC adjacent to it (KMBP009B_000000035879_2).
 I ran both of these through the CELLO localization software here (http://cello.life.nctu.edu.tw/cello2go/alignment.php).
 KMBP009B_000000035879_2 is predicted to be extracellular and KMBP009B_000000035879_3 is predicted to be periplasmic, which also support the fact that this is a true PCC.
@@ -117,24 +109,8 @@ This doesn't look too bad actually, let's go ahead with a RAxML tree from this s
 R script to aggregate the information is here: `code/binning/metabolism/metabolism_summary.R`.
 
 Finally, I went through my metabolic gene data and manually assigned potential metabolic functions for each of the bins.
-Saved it out here: `dataEdited/binning/metabolism/metabolic_summary.csv`.
+Saved it out here: `dataEdited/binning/metabolism/metabolism_summary.csv`.
 I then saved this as a xlsx file and manually edited that one.
 First I made a manual taxonomy column to make this easier to follow.
 Then I went through what my workflow pulled out an assigned a metabolic function to each of these.
 Notes are included in the sheet.
-
-
-**hgcA analysis in bins**
-
-First, I'm mostly interested in linking the bins to the HgcA phylogeny.
-I searched through the bin ORFs for HgcA sequences.
-I identified 19 of them (which is good, that's what I expected) and saved out a list of them.
-I then used the G2B file to link the hgcA sequences to the bins I generated.
-
-
-**Depth analysis**
-
-I extracted the depth of each of the bins using a submission script.
-I cleaned this data here: `/Users/benjaminpeterson/Documents/research/HellsCanyon/code/binning/bin_depth_aggregate.R`.
-I used the SCG abundance to normalize the bin coverage across metagenomes.
-I plotted the coverages of the bins here: `code/binning/depth_plots.R`.

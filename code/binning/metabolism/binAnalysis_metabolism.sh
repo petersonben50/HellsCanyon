@@ -109,9 +109,11 @@ FastTree dsrA_phylogeny_trimmed.afa \
     > dsrA_phylogeny_trimmed.tree
 
 
-##########################
+####################################################
+####################################################
 # Search for MHCs
-##########################
+####################################################
+####################################################
 
 binAnalysis=~/HellsCanyon/dataEdited/binAnalysis
 scripts=~/HellsCanyon/code/generalUse
@@ -146,15 +148,36 @@ do
   echo -e $binID"\t"$geneID"\t"$hemeCount >> heme_count_bins.tsv
 done
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####################################################
+####################################################
+# Search for BB-OMPs
+####################################################
+####################################################
+
 ##########################
-# Search for BBOMPs
+# Pull out genes adjacent to MHCs
 ##########################
+
 # Pull out names of adjacent genes
-binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
-cd $binsGood/metabolism
+binAnalysis=~/HellsCanyon/dataEdited/binAnalysis
+cd $binAnalysis/metabolism
 mkdir PCC
 mkdir PCC/list
-rm -f $binsGood/metabolism/PCC/adjacent_genes_all_list.txt
+rm -f $binAnalysis/metabolism/PCC/adjacent_genes_all_list.txt
 
 cat MHCs/ORFs_3_heme_list.txt | while read gene
 do
@@ -181,7 +204,7 @@ cat list/adjacent_genes_unique_list.txt | while read geneID
 do
   assembly=$(echo $geneID | rev | cut -d"_" -f3- | rev)
   echo "Looking for" $geneID "in" $assembly
-  grep -A 1 -m 1 $geneID$ $binsGood/ORFs.faa >> adjacent_genes.faa
+  grep -A 1 -m 1 $geneID$ $binAnalysis/ORFs.faa >> adjacent_genes.faa
 done
 
 
@@ -192,7 +215,7 @@ source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
 conda activate bioinformatics
 PYTHONPATH=""
 PERL5LIB=""
-cd $binsGood/metabolism/PCC
+cd $binAnalysis/metabolism/PCC
 
 # Run the PCC HMM
 pcc_omp_HMM=~/HellsCanyon/references/metabolicProteins/EET/pcc_omp.HMM
@@ -213,7 +236,7 @@ python $scripts/extract_protein_hitting_HMM.py \
 # Generate a phylogeny
 #########################
 
-cd $binsGood/metabolism/PCC
+cd $binAnalysis/metabolism/PCC
 mkdir references
 
 # Find references from RefSeq
@@ -225,6 +248,7 @@ blastp -query pcc_omp_custom.faa \
         -num_threads 3 \
         -out references/refseq_pcc_omp.txt
 # Pull out amino acid sequences and dereplicate them
+
 cd references
 awk -F '\t' '{ print ">"$1"\n"$2 }' refseq_pcc_omp.txt > refseq_pcc_omp.faa
 sed -i 's/ref|//' refseq_pcc_omp.faa
@@ -241,7 +265,7 @@ grep '>' blast_pcc_omp_uniq.faa | \
   sed 's/>//' \
   > blast_pcc_omp_uniq_list.txt
 # Concatenate sequences
-cd $binsGood/metabolism/PCC
+cd $binAnalysis/metabolism/PCC
 mkdir phylogeny
 cat references/blast_pcc_omp_uniq.faa \
     ~/HellsCanyon/references/metabolicProteins/EET/pcc_omp.faa \
@@ -261,10 +285,27 @@ FastTree bbomp_phylogeny_trimmed.afa > bbomp.tree
 
 # Retrieve reference information on local computer
 HCC
-cd dataEdited/binning/metabolism/PCC
+cd dataEdited/bins/binAnalysis/metabolism/PCC
 epost -db protein -input blast_pcc_omp_uniq_list.txt | \
     esummary | \
     xtract -pattern DocumentSummary -element AccessionVersion,Organism > refseq_bbomp_metadata.tsv
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #########################

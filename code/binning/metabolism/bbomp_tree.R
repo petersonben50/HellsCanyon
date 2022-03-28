@@ -11,11 +11,11 @@ library(phangorn)
 library(readxl)
 library(tidyverse)
 library(treeio)
-cb.translator <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
+cb.translator <- readRDS("references/colorblind_friendly_colors.rds")
 
 
 #### Read in reference data ####
-ref.key <- read_xlsx("/Users/benjaminpeterson/Box/references/proteins/EET/PCC/pcc_omp_key.xlsx")
+ref.key <- read_xlsx("references/EET/pcc_omp_key.xlsx")
 rename.vector <- ref.key$organismName
 rename.vector[which(!is.na(ref.key$geneName))] <- paste(rename.vector[which(!is.na(ref.key$geneName))],
                                                         " - ",
@@ -23,7 +23,7 @@ rename.vector[which(!is.na(ref.key$geneName))] <- paste(rename.vector[which(!is.
                                                         sep = "")
 names(rename.vector) <- ref.key$accessionID
 # Refseq references
-refseq.metadata <- read.table("dataEdited/binning/metabolism/PCC/refseq_bbomp_metadata.tsv",
+refseq.metadata <- read.table("dataEdited/bins/binAnalysis/metabolism/PCC/refseq_bbomp_metadata.tsv",
                               sep = '\t',
                               stringsAsFactors = FALSE)
 refseq.metadata.vector <- refseq.metadata$V2
