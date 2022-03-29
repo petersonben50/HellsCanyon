@@ -108,12 +108,6 @@ Let's check this in UGENE before generating a tree.
 The alignment looks solid, let's go forward with the tree.
 
 
-*Run kofamscan on ORFs*
-
-It seems that using kofamscan and identifying the present pathways with KEGG-Decoder might be a more complete way to look at the metabolic pathways in our organisms.
-So, I went ahead and ran KOFAMscan on all of my bins, individually.
-
-
 **Aggregate bin metabolism data**
 
 R script to aggregate the information is here: `code/binning/metabolism/metabolism_summary.R`.
