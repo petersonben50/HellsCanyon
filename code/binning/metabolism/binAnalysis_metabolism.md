@@ -67,41 +67,51 @@ Let's see if there are MHCs on either side of it, but I doubt there will be.
 Yeah, none of them except for the ExtE from Geobacterales has adjacent MHCs, so these are probably not actually PCCs, except for the one identified above.
 
 
+
+**Identify CAZymes in each bin**
+
+I realized a lot of the bins we identified were oligate fermenters and METABOLIC predicted that they had a lot of genes used in complex-C degradation.
+To investigate this further, I put the genes through the [dbCAN meta server](http://bcb.unl.edu/dbCAN2/blast.php) (accessed 2021-04-26).
+I downloaded the ORFs for all the bins here: `dataEdited/bins/binAnalysis/bin_ORFs/ORFs.faa`.
+This is a little too large, so I'll split it up into two files.
+I uploaded both these files to dbCAN, and ran with HMMER (E-Value < 1e-15, coverage > 0.35).
+I combined the output text into the file here: `dataEdited/binning/metabolism/GHs/cazyme_output.tsv`.
+I checked out the output in R (`code/binning/metabolism/GHs.R`) and saved out a csv (`dataEdited/bins/binAnalysis/metabolism/GHs/clean_cazyme_data.csv`) with counts of each class of CAZyme within each bin.
+
+
+
+**Characterize MoORs in bins**
+
+Next I wanted to characterize the MoORs I found in the bins.
+I used an HMM I developed for the 5M project to identify putative MoORs in the bin ORFs.
+I then pulled out all the hits and aligned them using MUSCLE.
+I downloaded this alignment (`dataEdited/binning/metabolism/MoORs/putative_MoORs.afa`) and manually inspected it in UGENE.
+Looked decent, so we'll stick with them for now.
+Might need to cut some out later though.
+I aligned this to the set of reference MoORs I gathered for the 5M project.
+I trimmed at 50% gaps using trimal.
+I inspected this in UGENE too, and it also looked good for now.
+I then generated a ML tree using FastTree.
+I inspected the tree here: `code/binning/metabolism/MoORs.R`.
+There are a number of sequences from the metagenome in this tree that are not closely related to the reference sequences.
+I think I want to remove them, but I'd like to see how they did on the HMM first (if they did really well, it might be worth keeping them).
+This is leading me down a rabbit hole of writing packages, since the `rhmmer` library seems to be breaking my libraries, and I should really be writing some functions to read in specific datasets.
+Okay, I generated a stand-in function for this.
+There's one branch that leads to sequences with low scores and doesn't include any reference sequences.
+This one will be removed, since we cannot garner any additional info from these seqs without more extensive analysis.
+I generated a list of the IDs for the sequences to save and uploaded that to GLBRC.
+
+*MoOR tree take 2*
+
+Run through the same process as before: align the seqs from this study, align that to the references gathered previously, and clean/trim the final alignment (trim at 50% gaps).
+Let's check this in UGENE before generating a tree.
+The alignment looks solid, let's go forward with the tree.
+
+
 *Run kofamscan on ORFs*
 
 It seems that using kofamscan and identifying the present pathways with KEGG-Decoder might be a more complete way to look at the metabolic pathways in our organisms.
 So, I went ahead and ran KOFAMscan on all of my bins, individually.
-
-
-*Run genomes through Charles's workflow*
-
-I sent my genomes to Charles and he ran them through his EET workflow.
-I downloaded the output from that.
-
-
-*Identify CAZymes in each bin*
-
-I realized a lot of the bins we identified were oligate fermenters and METABOLIC predicted that they had a lot of genes used in complex-C degradation.
-To investigate this further, I put the genes through the [dbCAN meta server](http://bcb.unl.edu/dbCAN2/blast.php) (accessed 2021-04-26).
-I downloaded the ORFs for all the bins here: `dataEdited/binning/bin_orfs/ORFs.faa`.
-This is a little too large, so I'll split it up into two files.
-I uploaded both these files to dbCAN, and ran with HMMER (E-Value < 1e-15, coverage > 0.35).
-I combined the output text into the file here: `dataEdited/binning/metabolism/GHs/cazyme_output.tsv`.
-I checked out the output in R (`code/binning/metabolism/GHs.R`) and saved out a csv (`dataEdited/binning/metabolism/GHs/clean_cazyme_data.csv`) with counts of each class of CAZyme within each bin.
-I then added this to a separate Excel sheet in the `metabolic_summary.xlsx` file.
-
-*Characterize MoORs in bins*
-
-Next I wanted to characterize the MoORs I found in the bins.
-I used an HMM I developed for the 5M project to identify putative MoORs in the bin ORFs.
-I then pulled out all the hits and aligned them to the HMM.
-I downloaded this alignment (`dataEdited/binning/metabolism/MoORs/putative_MoORs.afa`) and manually inspected it in Geneious.
-I cut out about 19 of them that didn't match up well.
-The rest we'll keep for now, save out new version: `dataEdited/binning/metabolism/MoORs/putative_MoORs_cut.afa`.
-I aligned this to the set of reference MoORs I gathered for the 5M project.
-I trimmed at 50% gaps using trimal, then generated a ML tree using FastTree.
-I inspected the tree here: `code/binning/metabolism/MoORs.R`.
-This doesn't look too bad actually, let's go ahead with a RAxML tree from this same alignment.
 
 
 **Aggregate bin metabolism data**

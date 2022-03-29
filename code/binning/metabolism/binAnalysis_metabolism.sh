@@ -306,129 +306,71 @@ done
 
 
 
-#########################
-# Run Kofamscan on ORFs
-#########################
-cp -avr ~/references/kofamscan_DBs/kofam_scan-1.3.0 ~/HellsCanyon/code/
-# Update config.yml file
-binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
-mkdir $binsGood/metabolism/KOFAM_output
-
-# Get list of bins
-cd $binsGood/ORFs
-ls *fna | sed 's/.fna//' > $binsGood/bins_list.txt
-
-# Run kofamscan on each set of bins
-screen -S kofamscan
-source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
-conda activate kofamscan
-PYTHONPATH=""
-PERL5LIB=""
-binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
-KOFAM_output=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/binsGood/metabolism/KOFAM_output
-ORFs=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/binsGood/ORFs
-cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/kofam_scan-1.3.0
-
-rm -f $KOFAM_output/output_forDecoder.tsv
-cat $binsGood/bins_list.txt | while read binID
-do
-  if [ ! -d $KOFAM_output/$binID ]; then
-    echo "Running KOFAMscan on" $binID
-    ./exec_annotation -f detail-tsv \
-                      -o $KOFAM_output/$binID.tsv \
-                      $ORFs/$binID.faa
-
-    echo "Cleaning up results from" $binID
-    grep '*' $KOFAM_output/$binID.tsv > $KOFAM_output/$binID\_qualityHits.tsv
-    binIDclean=`echo $binID | sed 's/_//g'`
-    awk -F '\t' -v binIDclean="$binIDclean" '{ print binIDclean"_"$2"\t"$3 }' $KOFAM_output/$binID\_qualityHits.tsv >> $KOFAM_output/output_forDecoder.tsv
-  fi
-done
-conda deactivate
-
-
-#########################
-# Run KEGG-decoder on output
-#########################
-screen -S kegg_decoder
-source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
-conda activate kegg_decoder
-PYTHONPATH=""
-PERL5LIB=""
-KOFAM_output=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/manualBinning/binsGood/metabolism/KOFAM_output
-KEGG-decoder --input $KOFAM_output/output_forDecoder.tsv \
-              --output $KOFAM_output/bin_metabolism_decoded_html.txt \
-              --vizoption interactive
-
-
-#########################
-# Run genomes through Charles's workflow
-#########################
-
-cd ~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/metabolism
-mkdir FeGenie
-cp /home/GLBRCORG/cnolmsted/FeGenie_EET_Stuff/PipelineOutput/All_EET_Proteins_bothMethods_HellsCanyon13genomes.csv \
-    FeGenie
-
-
-#########################
+####################################################
+####################################################
 # Identify CAZymes in each bin
-#########################
+####################################################
+####################################################
 # On local computer
-cd /Users/benjaminpeterson/Documents/research/HellsCanyon/dataEdited/binning/bin_orfs
+cd /Users/benjaminpeterson/Documents/research/HellsCanyon/dataEdited/bins/binAnalysis/bin_ORFs
 split -l 60000 ORFs.faa ORFs_split_
 
 
 
-#########################
+####################################################
+####################################################
 # Characterize MoORs in bins
-#########################
-mkdir ~/HellsCanyon/references/custom_hmms
-cp ~/5M/references/MoORs/MoOR.HMM ~/HellsCanyon/references/custom_hmms
-cp ~/5M/references/MoORs/MoOR_final_reference.afa ~/HellsCanyon/references/custom_hmms/MoOR_reference.afa
+####################################################
+####################################################
+#mkdir ~/HellsCanyon/references/custom_hmms
+#cp ~/5M/references/MoORs/MoOR.HMM ~/HellsCanyon/references/custom_hmms
+#cp ~/5M/references/MoORs/MoOR_final_reference.afa ~/HellsCanyon/references/custom_hmms/MoOR_reference.afa
+
 # Search bins for MoORs
 screen -S HCC_MoORs
-cd ~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
 conda activate bioinformatics
 PYTHONPATH=''
 PERL5LIB=''
 scripts=~/HellsCanyon/code/generalUse/
+binAnalysis=~/HellsCanyon/dataEdited/binAnalysis
 
+cd $binAnalysis
 mkdir metabolism/MoORs
 hmmsearch --tblout metabolism/MoORs/MoOR.out \
           -T 50 \
           ~/HellsCanyon/references/custom_hmms/MoOR.HMM \
-          ORFs.faa
+          ORFs.faa \
+          > metabolism/MoORs/MoOR_log.txt
 
 # Pull out the gene names, use this to find correct portion of G2B file.
 cd metabolism/MoORs/
-
 rm -f MoOR_G2B.tsv
 rm -f putative_MoORs.faa
-
 grep -v '#' MoOR.out | \
   awk '{ print $1 }' | while read gene
   do
-    awk -F '\t' -v gene="$gene" '$1 == gene { print $0 }' ../../binsGood_G2B.tsv >> MoOR_G2B.tsv
+    awk -F '\t' -v gene="$gene" '$1 == gene { print $0 }' ../../ORFs_G2B.tsv >> MoOR_G2B.tsv
     grep -A 1 $gene\$ ../../ORFs.faa >> putative_MoORs.faa
     tail -n 1 MoOR_G2B.tsv
   done
 sed -i 's/*//g' putative_MoORs.faa
+grep ">" putative_MoORs.faa | \
+  sed 's/>//' > putative_MoORs_list.txt
 
-hmmalign -o putative_MoORs.sto \
-          ~/HellsCanyon/references/custom_hmms/MoOR.HMM \
-          putative_MoORs.faa
-$scripts/convert_stockhold_to_fasta.py putative_MoORs.sto
-# Edit this in Geneious
+# Generate alignment
+muscle -in putative_MoORs.faa \
+        -out putative_MoORs.afa
+
+# Consensus alignment between study proteins and references
 muscle -profile \
-        -in1 putative_MoORs_cut.afa \
+        -in1 putative_MoORs.afa \
         -in2 ~/HellsCanyon/references/custom_hmms/MoOR_reference.afa \
         -out putative_MoORs_ref_1.afa
 
+# Clean it up
 python $scripts/cleanFASTA.py putative_MoORs_ref_1.afa
-mv putative_MoORs_ref_1.afa_temp.fasta putative_MoORs_ref_1.afa
-sed 's/-//g' putative_MoORs_ref_1.afa > putative_MoORs_ref_1.faa
+mv -f putative_MoORs_ref_1.afa_temp.fasta putative_MoORs_ref_1.afa
 
 # Mask the alignment at 50% gaps
 trimal -in putative_MoORs_ref_1.afa \
@@ -436,6 +378,38 @@ trimal -in putative_MoORs_ref_1.afa \
         -gt 0.5
 FastTree putative_MoORs_ref_1_masked.afa > putative_MoORs_1.tree
 
+
+#########################
+# MoOR tree take 2
+#########################
+
+cd ~/HellsCanyon/dataEdited/binAnalysis/metabolism/MoORs
+mkdir tree_take_2
+rm -f tree_take_2/MoORs.faa
+cat MoORs_list.txt | while read MoOR
+do
+  grep -A 1 $MoOR$ putative_MoORs.faa >> tree_take_2/MoORs.faa
+done
+cd tree_take_2
+# Generate alignment of my sequences
+muscle -in MoORs.faa \
+        -out MoORs.afa
+# Consensus alignment between study proteins and references
+muscle -profile \
+        -in1 MoORs.afa \
+        -in2 ~/HellsCanyon/references/custom_hmms/MoOR_reference.afa \
+        -out MoORs_ref.afa
+
+# Clean it up
+python $scripts/cleanFASTA.py MoORs_ref.afa
+mv -f MoORs_ref.afa_temp.fasta MoORs_ref.afa
+
+# Mask the alignment at 50% gaps
+trimal -in MoORs_ref.afa \
+        -out MoORs_ref_masked.afa \
+        -gt 0.5
+
+# Generate tree using RAxML
 raxml=/opt/bifxapps/raxml-8.2.11/raxmlHPC-PTHREADS
 $raxml -f a \
         -p 283976 \
@@ -443,34 +417,5 @@ $raxml -f a \
         -N autoMRE \
         -x 2381 \
         -T 20 \
-        -s putative_MoORs_ref_1_masked.afa \
-        -n hgcA
-
-
-
-
-
-####################################################
-####################################################
-# Pull out coverage information from bam files
-####################################################
-####################################################
-
-screen -S HCC_bin_coverage
-binsGood=~/HellsCanyon/dataEdited/binning/manualBinning/binsGood
-mkdir $binsGood/depth
-cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
-chmod +x executables/aggregate_depth_bins.sh
-condor_submit submission/aggregate_depth_bins.sub
-
-
-
-####################################################
-####################################################
-# Pull out coverage information from bam files of HQ bins
-####################################################
-####################################################
-cd /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/autoBinning/hqBinSet/
-mkdir depth
-cd /home/GLBRCORG/bpeterson26/HellsCanyon/code/
-condor_submit submission/aggregate_depth_bins_hqBins.sub
+        -s MoORs_ref_masked.afa \
+        -n MoORs
