@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ######################
-# code/binning/binning_analysis.sh
+# code/binning/binAnalysis_metabolism.sh
 # Benjamin D. Peterson
 
 # This set of scripts will contain the bash
