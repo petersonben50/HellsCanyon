@@ -1,0 +1,25 @@
+##################
+# code/submission/aggregate_depth_proteins_hqBins.sub
+# Submission script for calculating the depth
+# of a given set of scaffolds in a given set
+# of metagenomes
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 12
+request_memory = 120GB
+
+executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/aggregate_depth_bins.sh
+
+environment = "metagenome=$(metagenome) \
+              depthDirectory=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/autoBinning/hqBinSet/depth \
+              S2B_file=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/autoBinning/hqBinSet/DNA_S2B.tsv \
+              mappingFolder=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/mapping \
+              scripts=/home/GLBRCORG/bpeterson26/HellsCanyon/code/generalUse"
+
+output = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/outs/$(metagenome)_aggregate_depth_bins_hqBins.out
+error = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/errs/$(metagenome)_aggregate_depth_bins_hqBins.err
+log = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/logs/$(metagenome)_aggregate_depth_bins_hqBins.log
+
+queue metagenome from /home/GLBRCORG/bpeterson26/HellsCanyon/metadata/lists/MG_list_all.txt
