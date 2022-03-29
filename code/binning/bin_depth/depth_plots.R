@@ -18,7 +18,8 @@ MG.metadata <- read_xlsx("metadata/metagenome_metadata.xlsx")
 
 
 #### Read in metabolism data ####
-metabolic.data <- read_xlsx("dataEdited/binning/metabolism/metabolic_summary.xlsx") %>%
+metabolic.data <- read_xlsx("dataEdited/binning/metabolism/metabolic_summary.xlsx",
+                            sheet = "batch_HMMs") %>%
   select(HMS, binID, metabolic_assignment)
 HMS.colors <- read_xlsx("dataEdited/binning/metabolism/metabolic_summary.xlsx",
                         sheet = "HMS_colors") %>%
@@ -74,5 +75,6 @@ depth.data %>%
   geom_line(aes(color = HMS)) +
   scale_color_manual(values = HMS.colors.vector) +
   facet_wrap(~metabolic_assignment + RM, nrow = 2) +
-  coord_flip(xlim = c(80, 0)) +
+  coord_flip(xlim = c(60, 0)) +
   theme_bw()
+
