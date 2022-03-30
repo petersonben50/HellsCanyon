@@ -14,7 +14,7 @@ executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/aggregate_d
 
 environment = "metagenome=$(metagenome) \
               depthDirectory=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/depth \
-              S2B_file=/home/glbrc.org/bpeterson26/HellsCanyon/dataEdited/binAnalysis/ORFs_G2B.tsv \
+              S2B_file=/home/glbrc.org/bpeterson26/HellsCanyon/dataEdited/binning/bins_hgcA_keepers/DNA_S2B.tsv \
               mappingFolder=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/mapping \
               scripts=/home/GLBRCORG/bpeterson26/HellsCanyon/code/generalUse"
 
