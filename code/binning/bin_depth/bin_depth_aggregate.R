@@ -17,7 +17,7 @@ metadata.df <- read.csv("metadata/metagenome_metadata.csv")
 
 
 #### Read in depth data ####
-list.o.depths <- list.files(path = "dataEdited/binning/depth",
+list.o.depths <- list.files(path = "dataEdited/bins/binAnalysis/depth",
                             pattern = "depth.tsv",
                             full.names = TRUE)
 
@@ -25,7 +25,7 @@ raw.depth.counts <- lapply(list.o.depths,
                            function(fileName) {
                              
                              metagenomeID = fileName %>%
-                               gsub("dataEdited/binning/depth/", "", .) %>%
+                               gsub("dataEdited/bins/binAnalysis/depth/", "", .) %>%
                                gsub("_depth.tsv", "", .)
                              
                              read.csv(fileName,
@@ -43,12 +43,26 @@ depth.df <- do.call(rbind,
          coverage = meanCoverageBin)
 
 
-#### Remove the Planctomycetes that suspected to not be a bin ####
-depth.df <- depth.df %>%
-  filter(binID != "anvio_hgcA_0080")
+# See what percent of microbial community from assembly was
+# binned as hgcA+ bins
 
+#### Read in taxonomy data ####
+bin.data <- read_xlsx("dataEdited/bins/binning/bins_hgcA/bin_dereplication_data_edits.xlsx",
+                      sheet = "bin_dereplication_data_trimmed") %>%
+  select(binID, HMS, gtdb_tax)
+
+depth.df.tax <- depth.df %>%
+  left_join(bin.data) %>%
+  group_by(metagenomeID, HMS, gtdb_tax) %>%
+  summarize(coverage = mean(coverage)) %>%
+  left_join(metadata.df)
+
+test <- depth.df.tax %>%
+  group_by(metagenomeID) %>%
+  summarise(total_coverage = sum(coverage)) %>%
+  left_join(metadata.df)
 
 
 #### Write out file
 saveRDS(depth.df,
-        "dataEdited/binning/depth/bin_depth_clean.rds")
+        "dataEdited/bins/binAnalysis/depth/bin_depth_clean.rds")
