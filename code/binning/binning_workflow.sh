@@ -844,6 +844,7 @@ condor_submit_dag runAllANIcompare.dag
 ##########################
 cd ~/HellsCanyon/dataEdited/binning
 mkdir bins_hgcA_keepers
+cd bins_hgcA_keepers
 # upload bins_hgcA_keepers_list here
 mkdir bins_hgcA_keepers/DNA bins_hgcA_keepers/ORFs
 cat bins_hgcA_keepers/bins_hgcA_keepers_list.txt | while read binID
@@ -859,6 +860,11 @@ done
                                                         -i ORFs \
                                                         > ORFs_G2B.tsv
 cat ORFs/*.faa > ORFs.faa
+
+~/HellsCanyon/code/generalUse/Fasta_to_Scaffolds2Bin.sh -e fna \
+                                                        -i DNA \
+                                                        > DNA_S2B.tsv
+cat DNA/*.fna > DNA.fna
 
 
 ####################################################
