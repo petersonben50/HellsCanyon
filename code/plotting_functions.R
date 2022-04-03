@@ -3,13 +3,14 @@
 
 
 
-#### Set redox plotting function for TEAP figure ####
+#### Set redox plotting function for TEA figure ####
 plot.DO.nitrate.Mn.sulfide.profile <- function(geochem.data.of.interest = geochem.data,
                                                RM.of.interest,
                                                date.of.interest,
                                                depth.range.of.interest,
                                                concentration.of.interest,
                                                legend.location.of.interest,
+                                               remove.depth.label = TRUE,
                                                scaling.vector.to.use = NULL) {
   geochem.data.of.interest <- geochem.data.of.interest %>%
     filter(RM == RM.of.interest,
@@ -29,15 +30,16 @@ plot.DO.nitrate.Mn.sulfide.profile <- function(geochem.data.of.interest = geoche
     }
   }
 
-  geochem.data.of.interest %>%
+  making.a.plot <- geochem.data.of.interest %>%
     ggplot(aes(x = depth,
                y = concentration,
                color = constituent,
                linetype = constituent,
                shape = constituent)) +
     geom_point(aes(color = constituent),
-               size = 2) +
-    geom_line(aes(color = constituent)) +
+               size = 2.5) +
+    geom_line(aes(color = constituent),
+              size = 1) +
     scale_colour_manual(values = color.vector,
                         labels = labels.vector) +
     scale_shape_manual(values = points.vector,
@@ -55,6 +57,14 @@ plot.DO.nitrate.Mn.sulfide.profile <- function(geochem.data.of.interest = geoche
           legend.key.size = unit(1.75, 'lines'),
           axis.text.x = element_text(colour = "black"),
           axis.text.y = element_text(colour = "black"))
+  
+  if (remove.depth.label == TRUE) {
+    making.a.plot <- making.a.plot +
+      theme(axis.title.y = element_blank())
+  }
+  
+  
+  making.a.plot
 }
 
 
@@ -71,9 +81,12 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
                                             show.mean.coverage = TRUE,
                                             color.vector.to.use = NULL,
                                             point.vector.to.use = NULL,
+                                            line.vector.to.use = NULL,
                                             legend.position.to.use = "default",
                                             legend.title.to.use = element_blank(),
-                                            titleToUse = NULL) {
+                                            titleToUse = NULL,
+                                            DL = NULL,
+                                            remove.depth.label = TRUE) {
 
   marker.depth.df[, "gene.names.to.use.for.filtering"] <- marker.depth.df[, gene.name.column]
 
@@ -85,6 +98,17 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
     summarise(coverage = sum(coverage)) %>%
     ungroup() %>%
     arrange(depth)
+  
+  if (!is.null(DL)) {
+    clean.coverage <- clean.coverage %>%
+      spread(key = gene.names.to.use.for.filtering,
+             value = coverage) %>%
+      gather(key = gene.names.to.use.for.filtering,
+             value = coverage,
+             -depth)
+    clean.coverage[clean.coverage$coverage < 0.01, "coverage"] <- 0.010001
+    
+  }
 
   graph.of.interest <- clean.coverage %>%
     ggplot(aes(x = depth,
@@ -95,31 +119,37 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
           axis.text.y = element_text(colour="black"))
 
   #### Add labels and title ####
-  if (is.null(titleToUse)) {
-    titleToUse = paste("Coverage of",
-                       paste(genesOfInterest, collapse = ","))
-
+  if (!is.null(titleToUse)) {
+    graph.of.interest <- graph.of.interest +
+      labs(title = titleToUse,
+           y = xlab.to.use,
+           x = "Depth (m)")
+    
+  } else {
+    graph.of.interest <- graph.of.interest +
+      labs(y = xlab.to.use,
+           x = "Depth (m)")
   }
-  graph.of.interest <- graph.of.interest +
-    labs(title = titleToUse,
-         y = xlab.to.use,
-         x = "Depth (m)")
 
   #### Add colors if defined in the call ####
   if (!is.null(color.vector.to.use)) {
     graph.of.interest <- graph.of.interest +
       geom_line(aes(group = gene.names.to.use.for.filtering,
                     color = gene.names.to.use.for.filtering,
-                    linetype = gene.names.to.use.for.filtering)) +
+                    linetype = gene.names.to.use.for.filtering),
+                size = 1) +
       geom_point(aes(group = gene.names.to.use.for.filtering,
                      color = gene.names.to.use.for.filtering,
-                     shape = gene.names.to.use.for.filtering)) +
+                     shape = gene.names.to.use.for.filtering),
+                 size = 2.5) +
       scale_colour_manual(values=color.vector.to.use)
   } else {
     graph.of.interest <- graph.of.interest +
-      geom_point(shape = gene.names.to.use.for.filtering) +
+      geom_point(shape = gene.names.to.use.for.filtering,
+                 size = 2.5) +
       geom_line(aes(group = gene.names.to.use.for.filtering,
-                    linetype = gene.names.to.use.for.filtering))
+                    linetype = gene.names.to.use.for.filtering),
+                size = 1)
   }
 
   #### Add point shapes if defined in the call ####
@@ -127,17 +157,24 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
     graph.of.interest <- graph.of.interest +
       scale_shape_manual(values = point.vector.to.use)
   }
+  #### Add line types if defined in the call ####
+  if (!is.null(line.vector.to.use)) {
+    graph.of.interest <- graph.of.interest +
+      scale_linetype_manual(values = line.vector.to.use)
+  }
   #### Constrain x-axis if defined in the call ####
   if (!is.null(coverage_limits)) {
     graph.of.interest <- graph.of.interest +
-      scale_y_continuous(limits = coverage_limits)
+      scale_y_continuous(trans = 'log10',
+                         limits = coverage_limits)
   } else {
     max.coverage <- clean.coverage %>%
       select(coverage) %>%
       unlist() %>%
       max()
     graph.of.interest <- graph.of.interest +
-      scale_y_continuous(limits = c(0, max.coverage))
+      scale_y_continuous(trans = 'log10',
+                         limits = c(0.01, max.coverage))
 
   }
 
@@ -152,10 +189,18 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
   if (legend.position.to.use[1] != "default") {
     graph.of.interest <- graph.of.interest +
       theme(legend.position = legend.position.to.use,
-            legend.title = legend.title.to.use,
-            legend.box.background = element_rect(colour = "black"))
+            legend.title = element_blank(),
+            legend.key = element_rect(fill = "transparent", colour = "black"),
+            legend.key.size = unit(1.75, 'lines'),
+            axis.text.x = element_text(colour = "black"),
+            axis.text.y = element_text(colour = "black"))
   }
 
+  if (remove.depth.label == TRUE) {
+    graph.of.interest <- graph.of.interest +
+      theme(axis.title.y = element_blank())
+  }
+  
   graph.of.interest + coord_flip()
 
 }
@@ -164,6 +209,62 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
 
 
 
+
+
+
+
+
+
+
+
+#### Define function to plot hgcA and MeHg ####
+
+plot.hgcA.and.MeHg <- function(data.to.use,
+                               date.of.interest,
+                               RM.of.interest,
+                               xlab.to.use = "hgcA abundance (%), MeHg (ng/L)",
+                               depth.range.of.interest,
+                               legend.location.of.interest,
+                               remove.depth.label = TRUE,
+                               abundance.limits) {
+  graph.of.interest <- data.to.use %>%
+    filter(date == date.of.interest,
+           RM == RM.of.interest) %>%
+    ggplot(aes(x = depth,
+               y = amount,
+               color = constituent,
+               linetype = constituent,
+               shape = constituent)) +
+    geom_point(aes(color = constituent),
+               size = 2) +
+    geom_line(aes(color = constituent),
+              size = 1) +
+    scale_colour_manual(values = color.vector,
+                        labels = labels.vector) +
+    scale_shape_manual(values = points.vector,
+                       labels = labels.vector) +
+    scale_linetype_manual(values = line.vector,
+                          labels = labels.vector) +
+    scale_y_continuous(trans = 'log10',
+                       limits = abundance.limits) +
+    coord_flip(xlim = depth.range.of.interest) +
+    theme_classic()  +
+    ylab(xlab.to.use) +
+    theme(legend.position = legend.location.of.interest,
+          legend.title = element_blank(),
+          legend.key = element_rect(fill = "transparent", colour = "black"),
+          legend.key.size = unit(1.75, 'lines'),
+          axis.text.x = element_text(colour = "black"),
+          axis.text.y = element_text(colour = "black"))
+  
+  if (remove.depth.label == TRUE) {
+    graph.of.interest <- graph.of.interest +
+      theme(axis.title.y = element_blank())
+  }
+  
+  graph.of.interest
+  
+  }
 
 
 
