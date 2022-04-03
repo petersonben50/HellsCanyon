@@ -40,7 +40,7 @@ hgcA.tree$node.label[as.numeric(hgcA.tree$node.label) < 50] <- ""
 
 
 #### Visualize tree ####
-pdf("results/manuscript_figures/geochem_figs_for_supp_text/hgcA_tree.pdf",
+pdf("results/manuscript_figures/hgcA_tree.pdf",
     height = 60,
     width = 15)
 ggtree(hgcA.tree, aes(x = 0,
@@ -54,3 +54,7 @@ ggtree(hgcA.tree, aes(x = 0,
                  width = 1)
 dev.off()
 
+
+
+
+#### Add abundance values to tree ####

@@ -62,8 +62,8 @@ seabird.data <- readRDS("dataEdited/seabird/seabird_data.rds") %>%
 #### Set up PDF with plots ####
 pdf("results/manuscript_figures/supplemental_redox/RM286.pdf",
     height = 5,
-    width = 10)
-par(mfrow = c(2, 8),
+    width = 9)
+par(mfrow = c(2, 7),
     mgp=c(1.5,0.4,0),
     tck=-0.008,
     mar = c(3, 1.75, 2, .25))
@@ -206,12 +206,12 @@ legend(x = 10, y = 50,
        pch = c(18, 5),
        bty = "n")
 
-
-#### Sixth plot: EET genes 2017 ####
-plot(x = geochem.data.2017$NO3_mgN.L,
-     y = geochem.data.2017$depth,
-     cex = 0)
-
+# 
+# #### Sixth plot: EET genes 2017 ####
+# plot(x = geochem.data.2017$NO3_mgN.L,
+#      y = geochem.data.2017$depth,
+#      cex = 0)
+# 
 
 #### Seventh plot: Sulfide ####
 plot(x = geochem.data.2017$sulfide_mg.L,
@@ -396,10 +396,10 @@ legend(x = 10, y = 50,
        pch = c(18, 5),
        bty = "n")
 
-#### 14th plot: EET genes 2018 ####
-plot(x = geochem.data.2018$NO3_mgN.L,
-     y = geochem.data.2018$depth,
-     cex = 0)
+# #### 14th plot: EET genes 2018 ####
+# plot(x = geochem.data.2018$NO3_mgN.L,
+#      y = geochem.data.2018$depth,
+#      cex = 0)
 
 
 #### 15th plot: Sulfide ####

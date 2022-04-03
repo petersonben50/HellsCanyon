@@ -62,9 +62,9 @@ empty.plot <- function(title = "") {
 
 #### Set up PDF with plots ####
 pdf("results/manuscript_figures/supplemental_redox/RM300.pdf",
-    height = 7.5,
-    width = 10)
-par(mfrow = c(3, 8),
+    height = 5,
+    width = 9)
+par(mfrow = c(2, 7),
     mgp=c(1.5,0.4,0),
     tck=-0.008,
     mar = c(3, 1.75, 2, .25))
@@ -208,12 +208,6 @@ legend(x = 30, y = 0,
        bty = "n")
 
 
-#### Sixth plot: EET genes 2017 ####
-plot(x = geochem.data.2017$NO3_mgN.L,
-     y = geochem.data.2017$depth,
-     cex = 0)
-
-
 #### Seventh plot: Sulfide ####
 plot(x = geochem.data.2017$sulfide_mg.L,
      y = geochem.data.2017$depth,
@@ -246,6 +240,7 @@ lines(x = teap.data.2017$dsrA,
       y = teap.data.2017$depth,
       col = cb.translator["blue"],
       lwd = 0.8)
+
 # Add dsrD
 points(x = teap.data.2017$dsrD,
        y = teap.data.2017$depth,
@@ -396,11 +391,6 @@ legend(x = 30, y = 0,
        pch = c(18, 5),
        bty = "n")
 
-#### 14th plot: EET genes 2018 ####
-plot(x = geochem.data.2018$NO3_mgN.L,
-     y = geochem.data.2018$depth,
-     cex = 0)
-
 
 #### 15th plot: Sulfide ####
 plot(x = geochem.data.2018$sulfide_mg.L,
@@ -454,174 +444,168 @@ legend("topright",
 
 
 
-
-#### 2019 data prep ####
-geochem.data.2019 <- geochem.data %>%
-  filter(year(date) == "2019") %>%
-  replace_with_na_all(condition = ~.x == "na")
-teap.data.2019 <- teap.data %>%
-  filter(year(date) == "2019")
-seabird.data.2019 <- seabird.data %>%
-  filter(year(date) == "2019")
-
-
-#### 17th plot: Sonde data ####
-empty.plot()
-text(x = 1,
-     y = 0,
-     cex = 1.2,
-     "No sonde\ndata for\nRM300 in\n2019")
-
-
-
-
-#### 18th plot: Nitrate 2019 ####
-plot(x = geochem.data.2019$NO3_mgN.L,
-     y = geochem.data.2019$depth,
-     xlab = "Nitrate (mgN/L)",
-     ylab = "",
-     xlim = c(0, 1.6),
-     ylim = c(max.depth, 0),
-     col = cb.translator["vermillion"],
-     pch = 18,
-     cex = 1.2,
-     main = "Nitrate")
-lines(x = geochem.data.2019$NO3_mgN.L,
-      y = geochem.data.2019$depth,
-      col = cb.translator["vermillion"],
-      lwd = 0.8)
-
-
-#### 19th plot: N reductases 2019 ####
-plot(x = teap.data.2019$narG,
-     y = teap.data.2019$depth,
-     xlab = "Gene abundance",
-     ylab = "",
-     xlim = c(0, 60),
-     ylim = c(max.depth, 0),
-     col = cb.translator["vermillion"],
-     pch = 18,
-     cex = 1.2,
-     main = "narG")
-lines(x = teap.data.2019$narG,
-      y = teap.data.2019$depth,
-      col = cb.translator["vermillion"],
-      lwd = 0.8)
-
-
-#### 20th plot: Mn 2019 ####
-# Plot dissolved Mn
-plot(x = geochem.data.2019$Mn_ug.L,
-     y = geochem.data.2019$depth,
-     xlab = "Mn (ug/L)",
-     ylab = "",
-     xlim = c(0, 1600),
-     ylim = c(max.depth, 0),
-     col = "purple",
-     pch = 18,
-     cex = 1.2,
-     main = "Mn")
-lines(x = geochem.data.2019$Mn_ug.L,
-      y = geochem.data.2019$depth,
-      col = "purple",
-      lwd = 0.8)
-# Add particulate Mn
-points(x = geochem.data.2019$Mn.part_ug.L,
-       y = geochem.data.2019$depth,
-       col = "purple",
-       pch = 5)
-lines(x = geochem.data.2019$Mn.part_ug.L,
-      y = geochem.data.2019$depth,
-      col = "purple",
-      lwd = 0.8)
-# Add legend
-legend("topright",
-       legend = c("Mn (diss.)",
-                  "Mn (part.)"),
-       col = "purple",
-       pch = c(18, 5),
-       bty = "n")
-
-#### 21th plot: Fe 2019 ####
-# Plot dissolved Fe
-plot(x = geochem.data.2019$Fe_ug.L,
-     y = geochem.data.2019$depth,
-     xlab = "Fe (ug/L)",
-     ylab = "",
-     xlim = c(0, 280),
-     ylim = c(max.depth, 0),
-     col = cb.translator["orange"],
-     pch = 18,
-     cex = 1.2,
-     main = "Fe")
-lines(x = geochem.data.2019$Fe_ug.L,
-      y = geochem.data.2019$depth,
-      col = cb.translator["orange"],
-      lwd = 0.8)
-# Add particulate Fe
-points(x = geochem.data.2019$Fe.part_ug.L,
-       y = geochem.data.2019$depth,
-       col = cb.translator["orange"],
-       pch = 5)
-lines(x = geochem.data.2019$Fe.part_ug.L,
-      y = geochem.data.2019$depth,
-      col = cb.translator["orange"],
-      lwd = 0.8)
-# Add legend
-legend(x = 30, y = 0,
-       legend = c("Fe (diss.)",
-                  "Fe (part.)"),
-       col = cb.translator["orange"],
-       pch = c(18, 5),
-       bty = "n")
-
-#### 22th plot: EET genes 2019 ####
-plot(x = geochem.data.2019$NO3_mgN.L,
-     y = geochem.data.2019$depth,
-     cex = 0)
-
-
-#### 23th plot: Sulfide ####
-empty.plot()
-text(x = 1,
-     y = 0,
-     cex = 1.2,
-     "No sulfide\ndata for\nRM300 in\n2019")
-
-
-####  24th plot: dsrA and dsrD, 2019 ####
-plot(x = teap.data.2019$dsrA,
-     y = teap.data.2019$depth,
-     xlab = "Gene abundance",
-     ylab = "",
-     xlim = c(0, 1),
-     ylim = c(max.depth, 0),
-     col = cb.translator["blue"],
-     pch = 18,
-     cex = 1.2,
-     main = "Reductive dsr")
-lines(x = teap.data.2019$dsrA,
-      y = teap.data.2019$depth,
-      col = cb.translator["blue"],
-      lwd = 0.8)
-# Add dsrD
-points(x = teap.data.2019$dsrD,
-       y = teap.data.2019$depth,
-       col = cb.translator["bluishgreen"],
-       pch = 17)
-lines(x = teap.data.2019$dsrD,
-      y = teap.data.2019$depth,
-      col = cb.translator["bluishgreen"],
-      lwd = 0.8)
-# Add legend
-legend("topright",
-       legend = c("dsrA",
-                  "dsrD"),
-       col = c(cb.translator["blue"],
-               cb.translator["bluishgreen"]),
-       pch = c(18, 17),
-       bty = "n")
-
+# 
+# #### 2019 data prep ####
+# geochem.data.2019 <- geochem.data %>%
+#   filter(year(date) == "2019") %>%
+#   replace_with_na_all(condition = ~.x == "na")
+# teap.data.2019 <- teap.data %>%
+#   filter(year(date) == "2019")
+# seabird.data.2019 <- seabird.data %>%
+#   filter(year(date) == "2019")
+# 
+# 
+# #### 17th plot: Sonde data ####
+# empty.plot()
+# text(x = 1,
+#      y = 0,
+#      cex = 1.2,
+#      "No sonde\ndata for\nRM300 in\n2019")
+# 
+# 
+# 
+# 
+# #### 18th plot: Nitrate 2019 ####
+# plot(x = geochem.data.2019$NO3_mgN.L,
+#      y = geochem.data.2019$depth,
+#      xlab = "Nitrate (mgN/L)",
+#      ylab = "",
+#      xlim = c(0, 1.6),
+#      ylim = c(max.depth, 0),
+#      col = cb.translator["vermillion"],
+#      pch = 18,
+#      cex = 1.2,
+#      main = "Nitrate")
+# lines(x = geochem.data.2019$NO3_mgN.L,
+#       y = geochem.data.2019$depth,
+#       col = cb.translator["vermillion"],
+#       lwd = 0.8)
+# 
+# 
+# #### 19th plot: N reductases 2019 ####
+# plot(x = teap.data.2019$narG,
+#      y = teap.data.2019$depth,
+#      xlab = "Gene abundance",
+#      ylab = "",
+#      xlim = c(0, 60),
+#      ylim = c(max.depth, 0),
+#      col = cb.translator["vermillion"],
+#      pch = 18,
+#      cex = 1.2,
+#      main = "narG")
+# lines(x = teap.data.2019$narG,
+#       y = teap.data.2019$depth,
+#       col = cb.translator["vermillion"],
+#       lwd = 0.8)
+# 
+# 
+# #### 20th plot: Mn 2019 ####
+# # Plot dissolved Mn
+# plot(x = geochem.data.2019$Mn_ug.L,
+#      y = geochem.data.2019$depth,
+#      xlab = "Mn (ug/L)",
+#      ylab = "",
+#      xlim = c(0, 1600),
+#      ylim = c(max.depth, 0),
+#      col = "purple",
+#      pch = 18,
+#      cex = 1.2,
+#      main = "Mn")
+# lines(x = geochem.data.2019$Mn_ug.L,
+#       y = geochem.data.2019$depth,
+#       col = "purple",
+#       lwd = 0.8)
+# # Add particulate Mn
+# points(x = geochem.data.2019$Mn.part_ug.L,
+#        y = geochem.data.2019$depth,
+#        col = "purple",
+#        pch = 5)
+# lines(x = geochem.data.2019$Mn.part_ug.L,
+#       y = geochem.data.2019$depth,
+#       col = "purple",
+#       lwd = 0.8)
+# # Add legend
+# legend("topright",
+#        legend = c("Mn (diss.)",
+#                   "Mn (part.)"),
+#        col = "purple",
+#        pch = c(18, 5),
+#        bty = "n")
+# 
+# #### 21th plot: Fe 2019 ####
+# # Plot dissolved Fe
+# plot(x = geochem.data.2019$Fe_ug.L,
+#      y = geochem.data.2019$depth,
+#      xlab = "Fe (ug/L)",
+#      ylab = "",
+#      xlim = c(0, 280),
+#      ylim = c(max.depth, 0),
+#      col = cb.translator["orange"],
+#      pch = 18,
+#      cex = 1.2,
+#      main = "Fe")
+# lines(x = geochem.data.2019$Fe_ug.L,
+#       y = geochem.data.2019$depth,
+#       col = cb.translator["orange"],
+#       lwd = 0.8)
+# # Add particulate Fe
+# points(x = geochem.data.2019$Fe.part_ug.L,
+#        y = geochem.data.2019$depth,
+#        col = cb.translator["orange"],
+#        pch = 5)
+# lines(x = geochem.data.2019$Fe.part_ug.L,
+#       y = geochem.data.2019$depth,
+#       col = cb.translator["orange"],
+#       lwd = 0.8)
+# # Add legend
+# legend(x = 30, y = 0,
+#        legend = c("Fe (diss.)",
+#                   "Fe (part.)"),
+#        col = cb.translator["orange"],
+#        pch = c(18, 5),
+#        bty = "n")
+# 
+# #### 23th plot: Sulfide ####
+# empty.plot()
+# text(x = 1,
+#      y = 0,
+#      cex = 1.2,
+#      "No sulfide\ndata for\nRM300 in\n2019")
+# 
+# 
+# ####  24th plot: dsrA and dsrD, 2019 ####
+# plot(x = teap.data.2019$dsrA,
+#      y = teap.data.2019$depth,
+#      xlab = "Gene abundance",
+#      ylab = "",
+#      xlim = c(0, 1),
+#      ylim = c(max.depth, 0),
+#      col = cb.translator["blue"],
+#      pch = 18,
+#      cex = 1.2,
+#      main = "Reductive dsr")
+# lines(x = teap.data.2019$dsrA,
+#       y = teap.data.2019$depth,
+#       col = cb.translator["blue"],
+#       lwd = 0.8)
+# # Add dsrD
+# points(x = teap.data.2019$dsrD,
+#        y = teap.data.2019$depth,
+#        col = cb.translator["bluishgreen"],
+#        pch = 17)
+# lines(x = teap.data.2019$dsrD,
+#       y = teap.data.2019$depth,
+#       col = cb.translator["bluishgreen"],
+#       lwd = 0.8)
+# # Add legend
+# legend("topright",
+#        legend = c("dsrA",
+#                   "dsrD"),
+#        col = c(cb.translator["blue"],
+#                cb.translator["bluishgreen"]),
+#        pch = c(18, 17),
+#        bty = "n")
+# 
 
 
 

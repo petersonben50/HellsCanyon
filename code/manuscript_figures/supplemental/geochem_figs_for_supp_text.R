@@ -5,6 +5,7 @@
 #### Set the table ####
 rm(list = ls())
 setwd("~/Documents/research/HellsCanyon/")
+library(lubridate)
 library(naniar)
 library(readxl)
 library(patchwork)
@@ -73,6 +74,9 @@ names(labels.vector) <- c("temp", "DO")
 
 
 #### Generate sonde profiles ####
+# Sonde profiles at 286 in 2019
+sonde.286.2019 <- ggplot() + theme_void()
+
 # Sonde profiles at 300 in 2019
 sonde.300.2019 <- ggplot() + theme_void()
 
@@ -153,6 +157,10 @@ names(points.vector) <- c("NO3_mgN.L", "Mn_mg.L", "sulfide_mg.L")
 
 
 #### Generate geochem profiles ####
+# Geochem profiles at 286 in 2019
+geochem.286.2019 <- geochem.profile(286, 2019,
+                                    c(80, 0), c(0, 2),
+                                    "none")
 # Geochem profiles at 300 in 2019
 geochem.300.2019 <- geochem.profile(300, 2019,
                                     c(60, 0), c(0, 2),
@@ -244,6 +252,12 @@ names(points.vector) <- names(color.vector)
 
 
 #### Generate Hg profiles ####
+# Hg profiles at 286 in 2019
+Hg.2019.286 <- Hg.profile(286, 2019,
+                          depth.range.of.interest = c(80, 0),
+                          concentration.of.interest = c(0, 2),
+                          legend.location.of.interest = "none")
+
 # Hg profiles at 300 in 2019
 Hg.2019.300 <- Hg.profile(300, 2019,
                           depth.range.of.interest = c(60, 0),
@@ -260,12 +274,18 @@ Hg.legend <- Hg.profile(310, 2019,
                         concentration.of.interest = c(0, 2),
                         c(0.8, 0.8))
 # Check out plots
-Hg.2019.300 + Hg.2019.310
+Hg.2019.286 + Hg.2019.300 + Hg.2019.310
 
 
 
 
 #### Save out needed plots ####
+# RM 286 in 2019
+pdf("results/manuscript_figures/geochem_figs_for_supp_text/RM286_2019.pdf",
+    width = 5,
+    height = 3.5)
+sonde.286.2019 + geochem.286.2019 + Hg.2019.286
+dev.off()
 # RM 300 in 2019
 pdf("results/manuscript_figures/geochem_figs_for_supp_text/RM300_2019.pdf",
     width = 5,

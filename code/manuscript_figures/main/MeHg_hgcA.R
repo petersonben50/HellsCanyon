@@ -7,7 +7,7 @@ rm(list = ls())
 setwd("~/Documents/research/HellsCanyon/")
 library(lubridate)
 library(tidyverse)
-cb.translator <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
+cb.translator <- readRDS("references/colorblind_friendly_colors.rds")
 
 
 #### Read in data ####
@@ -127,6 +127,9 @@ summary(mehg.hgcA.model)
 # Get p-value
 f <- summary(mehg.hgcA.model)$fstatistic
 p.value <- pf(f[1],f[2],f[3],lower.tail=F) %>% round(4)
+
+summary(mehg.hgcA.model)$coefficients[2, 1]
+
 
 #### Generate scatterplot ####
 hgcA.MeHg.scatterplot <- MeHg.hgcA.scatterplot.data %>%
