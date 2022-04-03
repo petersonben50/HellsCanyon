@@ -3,15 +3,71 @@
 
 
 
-#### Set redox plotting function for TEA figure ####
-plot.DO.nitrate.Mn.sulfide.profile <- function(geochem.data.of.interest = geochem.data,
-                                               RM.of.interest,
-                                               date.of.interest,
-                                               depth.range.of.interest,
-                                               concentration.of.interest,
-                                               legend.location.of.interest,
-                                               remove.depth.label = TRUE,
-                                               scaling.vector.to.use = NULL) {
+#### Sonde profile function ####
+sonde.profile <- function(seabird.data.of.interest,
+                          RM.of.interest,
+                          year.of.interest,
+                          depth.range.of.interest,
+                          concentration.of.interest,
+                          legend.location.of.interest,
+                          scaling.vector.to.use = NULL,
+                          color.vector.to.use) {
+  
+  if (!is.null(scaling.vector.to.use)) {
+    for (modification.position in 1:length(scaling.vector.to.use)) {
+      modifications.to.keep <- seabird.data.of.interest %>%
+        filter(constituent == names(scaling.vector.to.use)[modification.position]) %>%
+        mutate(concentration = concentration * scaling.vector.to.use[modification.position])
+      seabird.data.of.interest <- seabird.data.of.interest %>%
+        filter(constituent != names(scaling.vector.to.use)[modification.position]) %>%
+        rbind(modifications.to.keep)
+    }
+  }
+
+  plot.to.plot <- seabird.data.of.interest %>%
+    filter(RM == RM.of.interest,
+           year(date) == year.of.interest,
+           constituent %in% names(color.vector.to.use)) %>%
+    ggplot(aes(x = depth,
+               y = concentration,
+               color = constituent)) +
+    geom_point(aes(color = constituent),
+               size = 1) +
+    geom_line(aes(color = constituent,
+                  linetype = constituent)) +
+    scale_colour_manual(values = color.vector.to.use,
+                        labels = labels.vector) +
+    scale_linetype_manual(values = line.vector,
+                          labels = labels.vector) +
+    coord_flip(xlim = depth.range.of.interest,
+               ylim = concentration.of.interest) +
+    ylab("Constituent") +
+    xlab("Depth (m)") +
+    theme_classic() +
+    theme(legend.position = legend.location.of.interest,
+          legend.title = element_blank(),
+          legend.key = element_rect(fill = "transparent", colour = "black"),
+          legend.key.size = unit(1.75, 'lines'),
+          axis.text.x = element_text(colour = "black"),
+          axis.text.y = element_text(colour = "black")) #+ 
+    # scale_y_continuous(sec.axis = sec_axis(~ . * scaling.vector.to.use[1],
+    #                                        name = labels.vector[names(scaling.vector.to.use)[1]]))
+  
+  plot.to.plot
+  
+}
+
+
+
+#### Set plotting function to generate nitrate, Mn, sulfide plot ####
+plot.redox.profile <- function(geochem.data.of.interest = geochem.data,
+                               RM.of.interest,
+                               date.of.interest,
+                               depth.range.of.interest,
+                               concentration.of.interest,
+                               legend.location.of.interest,
+                               remove.depth.label = TRUE,
+                               scaling.vector.to.use = NULL) {
   geochem.data.of.interest <- geochem.data.of.interest %>%
     filter(RM == RM.of.interest,
            date == as.Date(date.of.interest)) %>%
