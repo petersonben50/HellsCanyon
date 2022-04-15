@@ -8,10 +8,11 @@ setwd("/Users/benjaminpeterson/Documents/research/HellsCanyon/")
 # library(ape)
 library(dplyr)
 library(ggtree)
-# library(phangorn)
+library(phangorn)
 library(readxl)
 library(treeio)
 source("/Users/benjaminpeterson/Documents/programs/R/functions/reading_HMM_output.R")
+
 
 #### Generate bin/gene conversion vectors ####
 G2B <- read.table("dataEdited/bins/binAnalysis/bin_ORFs/ORFs_G2B.tsv",
@@ -146,14 +147,14 @@ writeLines(text = to.keep.list,
 
 
 #### Read in RAxML tree ####
-MoOR.tree <- read.newick("dataEdited/binning/metabolism/MoORs/RAxML_bipartitions.hgcA")
+MoOR.tree.unrooted <- read.newick("dataEdited/bins/binAnalysis/metabolism/MoORs/tree_take_2/RAxML_bipartitions.MoORs")
+MoOR.tree <- midpoint(MoOR.tree.unrooted)
 MoOR.tree.for.printing <- MoOR.tree
 MoOR.tree.for.printing$tip.label <- renaming.vector[MoOR.tree$tip.label]
 
 
 #### Make bin index ####
-my.bin.index <- grep("anvio_hgcA",
-                     MoOR.tree.for.printing$tip.label)
+my.bin.index <- which(renaming.vector %in% bin.to.gene.vector)
 
 
 
@@ -163,7 +164,7 @@ color.vector[my.bin.index] <- "red"
 
 
 # Check it out in Geneious 
-pdf("dataEdited/binning/metabolism/MoORs/MoOR_RAxML_tree.pdf",
+pdf("dataEdited/bins/binAnalysis/metabolism/MoORs/tree_take_2/MoOR_RAxML_tree.pdf",
     height = 30,
     width = 8)
 ggtree(MoOR.tree.for.printing,
