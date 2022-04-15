@@ -1,4 +1,4 @@
-#### code/phylogenies/bacteroidetes_tree.R ####
+#### code/binning/phylogenies/bacteroidetes_tree.R ####
 # Benjamin D. Peterson
 
 # This script will generate images of
@@ -13,14 +13,12 @@ library(phangorn)
 library(readxl)
 library(tidyverse)
 library(treeio)
-cb.translator <- readRDS("~/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
+cb.translator <- readRDS("references/colorblind_friendly_colors.rds")
 
 
 
 #### Read in naming info ####
-naming.df <- read.table("dataEdited/binning/phylogeny/bacteroidetes/tip_naming.tsv",
-                        sep = '\t',
-                        header = TRUE)
+naming.df <- read_xlsx("dataEdited/bins/binAnalysis/phylogeny/bacteroidetes/tip_naming.xlsx")
 naming.vector <- paste(naming.df$binName,
                        " (", naming.df$accessionNumber, ")",
                        sep = "")
@@ -36,10 +34,13 @@ names(naming.vector) <- naming.df$tipLabel
 #### FastTree ####
 
 # Read in tree
-tree.name <- "dataEdited/binning/phylogeny/bacteroidetes/rp16.tree"
+tree.name <- "dataEdited/bins/binAnalysis/phylogeny/bacteroidetes/rp16.tree"
 hgcA.tree.unrooted <- read.newick(tree.name)
 rm(tree.name)
-
+ggtree(hgcA.tree.unrooted,
+       aes(x = 0,
+           xend = 2)) + 
+  geom_tiplab(size=2.5, align = TRUE)
 
 #### Root tree ####
 mrca.flavo <- getMRCA(hgcA.tree.unrooted,
@@ -57,30 +58,22 @@ hgcA.tree$tip.label[hgcA.tree$tip.label %in% names(naming.vector)] <- naming.vec
 
 
 
-# Check out unrooted tree
-pdf("dataEdited/binning/phylogeny/bacteroidetes/bacteroidetes_tree_FastTree_unrooted.pdf",
+# Check out rooted tree
+pdf("dataEdited/bins/binAnalysis/phylogeny/bacteroidetes/bacteroidetes_tree_FastTree_rooted.pdf",
     height = 10,
     width = 5)
 ggtree(hgcA.tree,
        aes(x = 0,
-           xend = 2)) + 
+           xend = 1)) + 
   geom_tiplab(size=2.5, align = TRUE)
 dev.off()
-
 rm(hgcA.tree)
-
-
-
-
-
-
-
 
 
 
 #### Read in RAxML tree ####
 # Read in tree
-tree.name <- "dataEdited/binning/phylogeny/bacteroidetes/RAxML_bipartitions.Bacteroidetes_rp16"
+tree.name <- "dataEdited/bins/binAnalysis/phylogeny/bacteroidetes/RAxML_bipartitions.Bacteroidetes_rp16"
 hgcA.tree.unrooted <- read.newick(tree.name)
 rm(tree.name)
 
@@ -95,7 +88,7 @@ rm(mrca.flavo)
 
 
 #### Add hgcA info to renaming vector ####
-hgcA.bin.vector <- readLines("dataEdited/binning/phylogeny/bacteroidetes/hgcA/hgcA_bin_list.txt")
+hgcA.bin.vector <- readLines("dataEdited/bins/binAnalysis/phylogeny/bacteroidetes/hgcA/hgcA_bin_list.txt")
 naming.vector[which(names(naming.vector) %in% hgcA.bin.vector)] <- paste(naming.vector[which(names(naming.vector) %in% hgcA.bin.vector)],
                                                                          "**",
                                                                          sep = "")
@@ -121,20 +114,21 @@ hgcA.tree$node.label[hgcA.tree$node.label < 50] <- ""
 
 
 #### Generate tree ####
-bin.tree <- ggtree(hgcA.tree, aes(x = 0, xend = 1)) + 
+bin.tree <- ggtree(hgcA.tree, aes(x = 0, xend = 1.25)) + 
   geom_tiplab(size=2.5,
               align = TRUE,
-              col = color.vector) + 
+              colour = color.vector) + 
   geom_nodelab(aes(x = branch),
-               vjust = -.3,
+               vjust = -.4,
+               hjust = 0.6,
                size = 2) +
   geom_treescale(x = 0.05,
                  y = 30,
                  width = 0.2)
 
 #### Save out tree ###
-pdf("results/binning/phylogeny/bacteroidetes_tree.pdf",
+pdf("results/bins/binAnalysis/phylogeny/bacteroidetes_tree.pdf",
     height = 6,
-    width = 3)
+    width = 5)
 bin.tree
 dev.off()

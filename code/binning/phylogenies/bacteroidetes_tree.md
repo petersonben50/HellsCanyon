@@ -46,7 +46,7 @@ Only anvio_hgcA_0130 to be included here.
 
 *Set up dataframe for renaming tips*
 
-I manually made a tsv file with a name for the bin, the accession number, the phylum, and the name of the tip label: `dataEdited/binning/phylogeny/bacteroidetes/tip_naming.tsv`.
+I manually made a tsv file with a name for the bin, the accession number, the phylum, and the name of the tip label: `dataEdited/bins/binAnalysis/phylogeny/bacteroidetes/tip_naming.tsv`.
 
 
 
