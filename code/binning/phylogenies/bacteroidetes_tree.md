@@ -108,3 +108,8 @@ I added the hgcA information to this vector (hgcA+ bins get two asterisks).
 I also generated a color vector to color code the bins by source.
 Doing this, I realized the Rhodothermia shouldn't be in there, they're far from my bins and kinda messing with the tree.
 I removed these two: GCA_003557245.1 and GCA_003566645.1.
+
+
+**Run references through GTDB database**
+
+I ran GTDB on the references, to check the classification of our bin.

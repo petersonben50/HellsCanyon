@@ -297,3 +297,40 @@ $raxml -f a \
         -T 20 \
         -s rp16_alignment_masked.afa \
         -n Bacteroidetes_rp16
+
+
+
+##################################################
+##################################################
+# Run references through GTDB database
+##################################################
+##################################################
+
+
+screen -S HCC_bacteroidetes_GTDB
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+PYTHONPATH=""
+conda activate gtdbtk
+cd $binAnalysisFolder/phylogeny/Bacteroidetes
+
+awk -F '\t' '{ print $1 }' lists/reference_bacteroidetes_bin_list.txt | while read binID
+do
+  cp -i ~/references/genomes/bins/$binID*.fna scaffolds/$binID.fna
+  #ls ~/references/genomes/bins/$binID*.fna
+done
+
+
+
+rm -rf taxonomy
+mkdir taxonomy
+
+gtdbtk classify_wf \
+        --cpus 16 \
+        --extension fna \
+        --genome_dir ./scaffolds \
+        --out_dir taxonomy
+# Summarize them
+cd taxonomy
+awk -F '\t' '{ print $1"\t"$2 }' gtdbtk.*.summary.tsv \
+        > taxonomy_summary.txt
+conda deactivate
