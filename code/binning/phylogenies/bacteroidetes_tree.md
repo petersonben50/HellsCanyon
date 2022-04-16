@@ -43,6 +43,18 @@ Once in GLBRC, I predicted the ORFs.
 
 Only anvio_hgcA_0130 to be included here.
 
+*Add reference bins identified from NCBI*
+
+After this tree was generated the first time, I went back looking for closer references to solidify where the bin was within Prolixibacteraceae (`code/binning/phylogenies/prolixibacter_tree.md`).
+I found a few additional reference genomes to use (GCF_009617855.1, GCF_009617915.1, GCF_009617875.1, GCF_009617895.1).
+There were two other ones (GCF_000621705.1 and GCF_003014495.1) that were already in the tree, but not accounted for in this document.
+So, we'll include those too, for posterity.
+I downloaded these six genomes using Batch Entrez: https://www.ncbi.nlm.nih.gov/sites/batchentrez.
+File name list here: `references/genomes/bacteroidetes/NCBI/GTDB_Prolix_gene_list.txt`.
+Hmm, Batch Entrez not working for this, will need to manually download them.
+Downloaded them here: `references/genomes/bacteroidetes/NCBI/`.
+
+
 
 *Set up dataframe for renaming tips*
 
@@ -56,6 +68,9 @@ I manually made a tsv file with a name for the bin, the accession number, the ph
 
 First I concatenated all the bins into a single ORF faa file.
 Then I generated a gene to bin file that linked each gene ID to its respective bin.
+
+*Search for all genes*
+
 I searched the concatenated ORF file for each of the rp16 genes using HMMs with hmmsearch (v3.3.1).
 I then pulled out the amino acid sequences for the rp16 genes and aligned them.
 
@@ -63,12 +78,12 @@ I then pulled out the amino acid sequences for the rp16 genes and aligned them.
 
 I then renamed the fasta file headers with the name of the bin so that they could be concatenated later in Geneious.
 
-*Generate alignment*
+*Generate total alignment*
 
 I then downloaded all the clean alignments to my local computer and imported them into Geneious.
 The rpL5 gene has duplicate hits in GCA_004526055.1.
 They seem to be two halves one sequence, so I just concatenated them.
-I then concatenated all the alignments.
+I then concatenated all the alignments and masked them at 50% gaps.
 I exported this as `rp16_alignment_masked.afa` and uploaded it to the GLBRC servers: `~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/phylogeny/Bacteroidetes/tree_building`.
 
 
