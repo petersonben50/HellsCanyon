@@ -17,7 +17,7 @@ cb.translator <- readRDS("references/colorblind_friendly_colors.rds")
 
 
 #### Investigate GTDB tree ####
-GTDB.tree <- read.newick("dataEdited/bins/binAnalysis/phylogeny/bacteroidetes/prolixibacter/gtdbtk.bac120.classify.tree")
+GTDB.tree <- read.newick("dataEdited/bins/binAnalysis/phylogeny/gtdbtk.bac120.classify.tree")
 
 # Subset tree
 prolix.tree <- tree_subset(GTDB.tree,
