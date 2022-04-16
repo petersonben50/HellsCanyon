@@ -18,7 +18,7 @@ cb.translator <- readRDS("references/colorblind_friendly_colors.rds")
 
 
 #### Read in naming info ####
-naming.df <- read_xlsx("dataEdited/bins/binAnalysis/phylogeny/bacteroidetes/tip_naming.xlsx")
+naming.df <- read_xlsx("dataEdited/bins/binAnalysis/phylogeny/bacteroidetes/genome_notes.xlsx")
 naming.vector <- paste(naming.df$binName,
                        " (", naming.df$accessionNumber, ")",
                        sep = "")
