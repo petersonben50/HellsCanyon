@@ -24,4 +24,47 @@ Others to include:
 - Prolixibacter sp. NT017: GCF_009617875.1
 - Prolixibacter sp. SD074: GCF_009617895.1
 
-This is a small enough number that we should just go back to the Bacteroidetes tree and incorporate them into there. 
+This is a small enough number that we should just go back to the Bacteroidetes tree and incorporate them into there.
+
+
+
+**Tree generation**
+
+Notes on rp16 alignment.
+
+There were duplicate sequences in all of the rp16 gene alignments. I manually fixed this in Geneious:
+- rpL2: GCA_020719265.1 was duplicated, deleted one. GCA_021740345.1 was also duplicated, deleted one.
+- rpL3: GCA_002749385.1 was duplicated, deleted one. GCA_016788725.1 was also duplicated, deleted one.
+- rpL4: GCA_016788725.1 was duplicated, deleted one.
+- rpL5: GCA_021740345.1 duplicated, deleted second one.
+- rpL6: GCA_021740345.1 duplicated, deleted second one.
+- rpl14: GCA_021740345.1 duplicated, deleted second one.
+- rpL15: GCA_021740345.1 duplicated, deleted second truncated one. GCA_913063105.1 also duplicated, deleted second one.
+- rpL16: GCA_016937755.1 is split. Combined the two sequences. GCA_021740345.1 is duplicated, deleted second truncated one.
+- rpL18: GCA_021740345.1 duplicated, deleted second one.
+- rpL22: GCA_020719265.1 duplicated, deleted second one. GCA_021740345.1 also duplicated, deleted second truncated one.
+- rpL24: GCA_021740345.1 duplicated, deleted second one.
+- rpS3: GCA_021740345.1 duplicated, deleted second one.
+- rpS8: GCA_021740345.1 duplicated, deleted second one.
+- rpS10: GCA_002749385.1 duplicated, deleted second one. GCA_016788725.1 also duplicated, deleted second one.
+- rpS17: GCA_021740345.1 duplicated, deleted second one.
+- rpS19: GCA_020719265.1 duplicated, deleted second one. GCA_021740345.1 also duplicated, deleted second one.
+
+Alignment had 148 sequences in it, so a lot of the reference bin didn't have any of the rp16 genes.
+Removed alignments that had less than 1000 residues in the alignment:
+GCA_016936715.1
+GCA_003486765.1
+GCA_002749305.1
+GCA_007116765.1
+GCA_013139955.1
+GCA_903933215.1
+GCA_913063265.1
+GCA_003537645.1
+GCA_021648495.1
+GCA_003250655.1
+GCA_903903255.1
+GCA_913061395.1
+GCA_016938055.1
+GCA_903854615.1
+
+Left with 134 sequences. Mask at 50%.
