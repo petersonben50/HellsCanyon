@@ -30,7 +30,39 @@ This is a small enough number that we should just go back to the Bacteroidetes t
 
 **Tree generation**
 
-Notes on rp16 alignment.
+Notes on rp16 alignment. Had to redo this, and on the first time, there were several bins with duplicate hits that were pains to fix, so I removed them from analysis (they weren't relevant seqs anyways, based on the first tree):
+- GCA_021740345.1
+- GCA_020719265.1
+- GCA_016788725.1
+- GCA_002749385.1
+- GCA_016937755.1
+
+These ones didn't have enough hits to make it into the final alignment, so I removed them ahead of time on round two as well:
+GCA_016936715.1
+GCA_003486765.1
+GCA_002749305.1
+GCA_007116765.1
+GCA_013139955.1
+GCA_903933215.1
+GCA_913063265.1
+GCA_003537645.1
+GCA_021648495.1
+GCA_003250655.1
+GCA_903903255.1
+GCA_913061395.1
+GCA_016938055.1
+GCA_903854615.1
+
+*Notes from second run*
+
+fall2017cluster6_bin_0136 had a duplicate at some point, so after concatenating the proteins I had to remove the duplicate.
+List of them: `prolix_bins_to_remove.txt`.
+GCA_913063105.1 also had one duplicate that I missed.
+fall2017coassembly_bin_0181 only had one of the rp16 genes, despite being 61% complete according to checkM.
+I removed this one.
+
+
+*Notes from the first run on this*
 
 There were duplicate sequences in all of the rp16 gene alignments. I manually fixed this in Geneious:
 - rpL2: GCA_020719265.1 was duplicated, deleted one. GCA_021740345.1 was also duplicated, deleted one.
@@ -52,19 +84,5 @@ There were duplicate sequences in all of the rp16 gene alignments. I manually fi
 
 Alignment had 148 sequences in it, so a lot of the reference bin didn't have any of the rp16 genes.
 Removed alignments that had less than 1000 residues in the alignment:
-GCA_016936715.1
-GCA_003486765.1
-GCA_002749305.1
-GCA_007116765.1
-GCA_013139955.1
-GCA_903933215.1
-GCA_913063265.1
-GCA_003537645.1
-GCA_021648495.1
-GCA_003250655.1
-GCA_903903255.1
-GCA_913061395.1
-GCA_016938055.1
-GCA_903854615.1
 
 Left with 134 sequences. Mask at 50%.

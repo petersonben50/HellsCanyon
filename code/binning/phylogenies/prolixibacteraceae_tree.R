@@ -30,6 +30,9 @@ ggtree(prolix.tree,
 prolix.tree$tip.label
 
 
+
+
+
 #### Read in FastTree ####
 fastTree.tree.unrooted <- read.newick("dataEdited/bins/binAnalysis/phylogeny/prolixibacteraceae/rp16.tree")
 
@@ -40,11 +43,26 @@ mrca.flavo <- getMRCA(fastTree.tree.unrooted,
                         "GCF_000194605.1"))
 fastTree.tree <- root(fastTree.tree.unrooted,
                       node = mrca.flavo)
+
+
+#### Set up color vector ####
+color.vector <- rep(cb.translator["bluishgreen"], length(fastTree.tree$tip.label))
+color.vector[grep("GCF_", fastTree.tree$tip.label)] <- "black"
+color.vector[grep("GCA_", fastTree.tree$tip.label)] <- "grey50"
+color.vector[grep("\\*\\*", fastTree.tree$tip.label)] <- cb.translator["reddishpurple"]
+color.vector[grep("anvio", fastTree.tree$tip.label)] <- cb.translator["skyblue"]
+
+
+
+
 ggtree(fastTree.tree,
        aes(x = 0,
            xend = 0.4)) +
   geom_tiplab(size = 2,
               colour = color.vector)
+
+
+
 
 
 #### Read in RAxML tree ####

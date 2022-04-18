@@ -75,6 +75,23 @@ cp Bacteroidetes/ORFs/GCF_000194605.1.faa prolixibacteraceae/ORFs/GCF_000194605.
 cp Bacteroidetes/ORFs/GCF_000236705.1.faa prolixibacteraceae/ORFs/GCF_000236705.1.faa
 
 
+
+##################################################
+##################################################
+# Add in hgcA- Prolixibacteraceae bins
+##################################################
+##################################################
+screen -S HCC_Prolixibacteraceae
+phylogeny=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/phylogeny
+hgcA_minus_bins=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binning/autoBinning/hqBinSet/ORFs
+cd $phylogeny/prolixibacteraceae
+
+cat hgcA_minus_bins_to_use_for_phylogeny.txt | while read accessionID
+do
+  echo "Copying over" $accessionID
+  cp $hgcA_minus_bins/$accessionID.faa ORFs
+done
+
 ##################################################
 ##################################################
 # Search for rp16 genes
@@ -86,7 +103,12 @@ cp Bacteroidetes/ORFs/GCF_000236705.1.faa prolixibacteraceae/ORFs/GCF_000236705.
 #########################
 phylogeny=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/phylogeny
 scripts=~/HellsCanyon/code/generalUse/
-cd $phylogeny/prolixibacteraceae/ORFs
+cd $phylogeny/prolixibacteraceae
+cat prolix_bins_to_remove.txt | while read accessionID
+do
+   rm -f ORFs/$accessionID*
+done
+cd ORFs
 cat *faa > ../ORFs.faa
 $scripts/Fasta_to_Scaffolds2Bin.sh -e faa > ../ORFs_G2B.tsv
 
