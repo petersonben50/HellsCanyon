@@ -7,12 +7,12 @@
 # from Github that are needed to run this workflow.
 
 cd ~/HellsCanyon/code
-git clone https://github.com/petersonben50/homemade_bioinformatic_scripts.git
+git clone https://github.com/petersonben50/HomeBio.git
 cd ~/HellsCanyon/code
 
 
 # Get updates
-cd ~/HellsCanyon/code/homemade_bioinformatic_scripts
+cd ~/HellsCanyon/code/HomeBio
 #git fetch
 #git diff ...origin
 git pull
