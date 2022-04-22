@@ -15,4 +15,4 @@ cd ~/HellsCanyon/code
 cd ~/HellsCanyon/code/homemade_bioinformatic_scripts
 #git fetch
 #git diff ...origin
-#git pull
+git pull
