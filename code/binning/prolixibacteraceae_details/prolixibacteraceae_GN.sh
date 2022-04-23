@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ############################################
-# code/prolixibacteraceae_details/gene_neighborhoods/prolixibacteraceae_GN.sh
+# code/prolixibacteraceae_details/prolixibacteraceae_GN.sh
 # Benjamin D. Peterson
 
 # This script will pull out the needed data
