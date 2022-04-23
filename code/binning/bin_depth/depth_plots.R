@@ -8,7 +8,7 @@ setwd("~/Documents/research/HellsCanyon/")
 library(lubridate)
 library(readxl)
 library(tidyverse)
-cb.translator <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
+cb.translator <- readRDS("references/colorblind_friendly_colors.rds")
 cb.translator <- c(cb.translator, "grey50")
 names(cb.translator)[length(cb.translator)] <- "grey"
 
@@ -18,7 +18,7 @@ MG.metadata <- read_xlsx("metadata/metagenome_metadata.xlsx")
 
 
 #### Read in metabolism data ####
-metabolic.data <- read_xlsx("dataEdited/binning/metabolism/metabolic_summary.xlsx",
+metabolic.data <- read_xlsx("dataEdited/bins/binAnalysis/metabolism/aggregated_metabolism.xlsx",
                             sheet = "batch_HMMs") %>%
   select(HMS, binID, metabolic_assignment)
 HMS.colors <- read_xlsx("dataEdited/binning/metabolism/metabolic_summary.xlsx",
