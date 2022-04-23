@@ -288,7 +288,7 @@ sed -i "s/transfer_input_files = \/home\/sstevens2\/ANIcalculator_v1\/ANIcalcula
 condor_submit_dag runAllANIcompare.dag
 # Download output file (hqBins.all.ani.out.cleaned)
 # to my computer:
-# dataEdited/2019_binning/binning_initial/binsGood/hqBins.all.ani.out.cleaned
+# dataEdited/bins/binning/autoBinning/hqBins.all.ani.out.cleaned
 
 
 
