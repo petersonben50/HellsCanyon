@@ -2,7 +2,7 @@
 #Specify the HTCondor docker universe and the repo link to the sppider docker image
 ##########
 universe = docker
-docker_image = repo.glbrc.org/htcondor/metabolic_docker_htcondor
+docker_image = repo.glbrc.org/htcondor/metabolic_htcondor:latest
 
 ##########
 #Redirect the standard output and error streams to files, as well the htcondor log
