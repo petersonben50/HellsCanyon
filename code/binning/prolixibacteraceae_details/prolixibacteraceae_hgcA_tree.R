@@ -124,8 +124,8 @@ color.vector[grep("anvio", raxmlTree.tree$tip.label)] <- cb.translator["skyblue"
 
 #### Save out tree ####
 pdf("results/bins/binAnalysis/prolixibacteraceae_details/hgcA_tree.pdf",
-    height = 11,
-    width = 8.5)
+    height = 6,
+    width = 6)
 ggtree(raxmlTree.tree,
        aes(x = 0,
            xend = 1.8)) +
