@@ -54,7 +54,7 @@ color.vector[grep("anvio", fastTree.tree$tip.label)] <- cb.translator["skyblue"]
 
 
 
-
+#### Visualize Prolixibacteraceae tree ####
 ggtree(fastTree.tree,
        aes(x = 0,
            xend = 0.4)) +
@@ -66,20 +66,21 @@ ggtree(fastTree.tree,
 
 
 #### Read in RAxML tree ####
-fastTree.tree.unrooted <- read.newick("dataEdited/bins/binAnalysis/phylogeny/prolixibacteraceae/RAxML_bipartitions.prolixibacteraceae_rp16")
+raxmlTree.tree.unrooted <- read.newick("dataEdited/bins/binAnalysis/phylogeny/prolixibacteraceae/RAxML_bipartitions.prolixibacteraceae_rp16")
 
 
 #### Root tree ####
-mrca.flavo <- getMRCA(fastTree.tree.unrooted,
+mrca.flavo <- getMRCA(raxmlTree.tree.unrooted,
                       c("GCF_000236705.1",
                         "GCF_000194605.1"))
-fastTree.tree <- root(fastTree.tree.unrooted,
+raxmlTree.tree <- root(raxmlTree.tree.unrooted,
                       node = mrca.flavo)
 
 
 #### Read in taxonomy info ####
 tax.info <- read_xlsx("dataEdited/bins/binAnalysis/phylogeny/prolixibacteraceae/taxonomy_summary.xlsx")
-tax.info.vector <- paste(tax.info$family, tax.info$genus, sep = "-")
+tax.info.vector <- paste(tax.info$family, "-", tax.info$genus, " (", tax.info$user_genome, ")",
+                         sep = "")
 names(tax.info.vector) <- tax.info$user_genome
 
 
@@ -90,17 +91,33 @@ tax.info.vector[hgcA.index] <- paste(tax.info.vector[hgcA.index], "**", sep = ""
 
 
 # Rename references
-ref.index <- which(fastTree.tree$tip.label %in% tax.info$user_genome)
-fastTree.tree$tip.label[ref.index] <- tax.info.vector[fastTree.tree$tip.label[ref.index]]
+ref.index <- which(raxmlTree.tree$tip.label %in% tax.info$user_genome)
+raxmlTree.tree$tip.label[ref.index] <- tax.info.vector[raxmlTree.tree$tip.label[ref.index]]
+
 
 
 #### Set up color vector ####
-color.vector <- rep("black", length(fastTree.tree$tip.label))
-color.vector[grep("\\*\\*", fastTree.tree$tip.label)] <- "red"
-color.vector[grep("anvio", fastTree.tree$tip.label)] <- "blue"
+color.vector <- rep(cb.translator["bluishgreen"], length(raxmlTree.tree$tip.label))
+color.vector[grep("GCF_", raxmlTree.tree$tip.label)] <- "black"
+color.vector[grep("GCA_", raxmlTree.tree$tip.label)] <- "grey50"
+color.vector[grep("\\*\\*", raxmlTree.tree$tip.label)] <- cb.translator["reddishpurple"]
+color.vector[grep("anvio", raxmlTree.tree$tip.label)] <- cb.translator["skyblue"]
 
-ggtree(fastTree.tree,
+
+#### Save out tree ####
+pdf("results/bins/binAnalysis/phylogeny/prolixibacteraceae_tree.pdf",
+    height = 11,
+    width = 8.5)
+ggtree(raxmlTree.tree,
        aes(x = 0,
-           xend = 0.4)) +
+           xend = 1.2)) +
   geom_tiplab(size = 2,
-              colour = color.vector)
+              colour = color.vector) + 
+  geom_nodelab(aes(x = branch),
+               vjust = -.4,
+               hjust = 0.6,
+               size = 2) +
+  geom_treescale(x = 0.05,
+                 y = 100,
+                 width = 0.2)
+dev.off()
