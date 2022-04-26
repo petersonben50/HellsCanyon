@@ -118,6 +118,7 @@ grep '>' $working_directory/hgcA_hits/hgcA_raw.faa | \
 conda deactivate
 
 
+
 ############################################
 # Pull out scaffolds of interest
 ############################################
@@ -221,7 +222,9 @@ HomeBio=/Users/benjaminpeterson/Documents/programs/HomeBio
 python $HomeBio/AM3_binBasedAnalyses/doctor_petersons_neighborhood_visualization.py --gff_file $working_directory/GN/hgcA_geneNeighborhood_all.gff \
                                                                                     --orf_data $working_directory/GN/hgcA_geneNeighborhood_info.txt \
                                                                                     --output_location $working_directory/GN/hgcA_geneNeighborhood_plot.pdf \
+                                                                                    --gene_tree_file $working_directory/hgcA_tree.pdf \
                                                                                     --pdf_height 10 \
-                                                                                    --pdf_width 50
+                                                                                    --pdf_width 50 \
+
 
 """
