@@ -19,62 +19,45 @@ MG.metadata <- read_xlsx("metadata/metagenome_metadata.xlsx")
 
 #### Read in metabolism data ####
 metabolic.data <- read_xlsx("dataEdited/bins/binAnalysis/metabolism/aggregated_metabolism.xlsx",
-                            sheet = "batch_HMMs") %>%
+                            sheet = "Metabolism_summary") %>%
+  rename(metabolic_assignment = `Metabolic classification`) %>%
   select(HMS, binID, metabolic_assignment)
-HMS.colors <- read_xlsx("dataEdited/binning/metabolism/metabolic_summary.xlsx",
-                        sheet = "HMS_colors") %>%
-  select(HMS, colorToUse)
-HMS.colors.vector <- cb.translator[HMS.colors$colorToUse]
-names(HMS.colors.vector) <- HMS.colors$HMS
-rm(HMS.colors)
+
+
+
+#### Prepare colors ####
+metabolism.colors <- read_xlsx("dataEdited/bins/binAnalysis/metabolism/aggregated_metabolism.xlsx",
+                               sheet = "colors_to_use")
+metabolism.colors.vector <- cb.translator[metabolism.colors$color_to_use]
+names(metabolism.colors.vector) <- metabolism.colors$metabolic_assignment
+rm(metabolism.colors, cb.translator)
 
 
 #### Read in depth data ####
-depth.data <- readRDS("dataEdited/binning/depth/bin_depth_clean.rds") %>%
+depth.data <- readRDS("dataEdited/bins/binAnalysis/depth/bin_depth_clean.rds") %>%
   left_join(MG.metadata %>% select(metagenomeID, date, RM, depth)) %>%
-  left_join(metabolic.data)
+  left_join(metabolic.data)%>%
+  filter(((RM %in% c(286, 300)) & (year(date) %in% c(2017, 2018))) |
+           ((RM %in% c(300, 310)) & (year(date) == 2019))) %>%
+  group_by(HMS, RM, date, depth, metabolic_assignment) %>%
+  summarise(coverage = mean(coverage))
 rm(metabolic.data, MG.metadata)
 
 
 #### Generate plot for 2017 ####
-depth.data %>%
-  filter(year(date) == 2017) %>%
-  ggplot(aes(y = coverage,
+plot.bins.by.year <- function(year.of.interest) {
+  depth.data %>%
+    filter(year(date) == year.of.interest) %>%
+    ggplot(aes(y = coverage,
              x = depth,
-             group = binID)) +
-  geom_point(aes(color = HMS)) +
-  geom_line(aes(color = HMS)) +
-  scale_color_manual(values = HMS.colors.vector) +
-  facet_wrap(~metabolic_assignment + RM, nrow = 4) +
-  coord_flip(xlim = c(80, 0)) +
-  theme_bw()
-
-
-#### Generate plot for 2018 ####
-depth.data %>%
-  filter(year(date) == 2018) %>%
-  ggplot(aes(y = coverage,
-             x = depth,
-             group = binID)) +
-  geom_point(aes(color = HMS)) +
-  geom_line(aes(color = HMS)) +
-  scale_color_manual(values = HMS.colors.vector) +
-  facet_wrap(~metabolic_assignment + RM, nrow = 3) +
-  coord_flip(xlim = c(80, 0)) +
-  theme_bw()
-
-
-#### Generate plot for 2019 ####
-depth.data %>%
-  filter(year(date) == 2019) %>%
-  filter(RM %in% c(300, 310)) %>%
-  ggplot(aes(y = coverage,
-             x = depth,
-             group = binID)) +
-  geom_point(aes(color = HMS)) +
-  geom_line(aes(color = HMS)) +
-  scale_color_manual(values = HMS.colors.vector) +
-  facet_wrap(~metabolic_assignment + RM, nrow = 2) +
-  coord_flip(xlim = c(60, 0)) +
-  theme_bw()
-
+             group = HMS)) +
+    geom_point(aes(color = metabolic_assignment)) +
+    geom_line(aes(color = metabolic_assignment)) +
+    scale_color_manual(values = metabolism.colors.vector) +
+    facet_wrap(~RM, nrow = 1) +
+    coord_flip(xlim = c(80, 0)) +
+    theme_bw()
+}
+plot.bins.by.year(2017)
+plot.bins.by.year(2018)
+plot.bins.by.year(2019)
