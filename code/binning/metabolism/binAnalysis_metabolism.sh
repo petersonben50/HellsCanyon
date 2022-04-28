@@ -419,3 +419,27 @@ $raxml -f a \
         -T 20 \
         -s MoORs_ref_masked.afa \
         -n MoORs
+
+
+####################################################
+####################################################
+# Run kofamscan on all bins
+####################################################
+####################################################
+echo "RUNNING KOFAMSCAN ON THE BINS"
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate kofamscan
+PYTHONPATH=""
+PERL5LIB=""
+
+working_directory=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis
+output_location=$working_directory/metabolism
+input_orfs=$working_directory/ORFs.faa
+cd $working_directory
+
+rm -f $output_location/$analysis_name\_raw.tsv
+echo "Running KOFAMscan for" $analysis_name
+~/references/kofamscan_files/kofam_scan-1.3.0/exec_annotation -f detail-tsv \
+                                                              -o $output_location/$analysis_name\_raw.tsv \
+                                                              $input_orfs
+conda deactivate
