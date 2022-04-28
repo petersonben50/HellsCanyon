@@ -5,6 +5,7 @@
 #### Clean up ####
 rm(list = ls())
 setwd("~/Documents/research/HellsCanyon/")
+library(ggpubr)
 library(lubridate)
 library(readxl)
 library(tidyverse)
@@ -44,9 +45,18 @@ depth.data <- readRDS("dataEdited/bins/binAnalysis/depth/bin_depth_clean.rds") %
 rm(metabolic.data, MG.metadata)
 
 
-#### Generate plot for 2017 ####
-plot.bins.by.year <- function(year.of.interest) {
-  depth.data %>%
+#### Plotting function ####
+plot.bins.by.year <- function(year.of.interest,
+                              metabolism_of_interest = NULL) {
+  
+  if (!is.null(metabolism_of_interest)) {
+    depth.data.to.use <- depth.data %>%
+      filter(metabolic_assignment %in% metabolism_of_interest)
+    metabolism.colors.vector <- metabolism.colors.vector[metabolism_of_interest]
+  } else {
+    depth.data.to.use <- depth.data
+  }
+  depth.data.to.use %>%
     filter(year(date) == year.of.interest) %>%
     ggplot(aes(y = coverage,
              x = depth,
@@ -58,6 +68,10 @@ plot.bins.by.year <- function(year.of.interest) {
     coord_flip(xlim = c(80, 0)) +
     theme_bw()
 }
+
+
 plot.bins.by.year(2017)
-plot.bins.by.year(2018)
-plot.bins.by.year(2019)
+bins.2017 <- plot.bins.by.year(2017, metabolism_of_interest = c("fermentative", "fermentative_O2_tolerant"))
+bins.2018 <- plot.bins.by.year(2018, metabolism_of_interest = c("fermentative", "fermentative_O2_tolerant"))
+ggarrange(bins.2017, bins.2018,
+          ncol = 1)
