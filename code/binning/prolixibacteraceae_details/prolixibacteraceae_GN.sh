@@ -217,14 +217,13 @@ conda activate py_viz
 PYTHONPATH=""
 PERL5LIB=""
 
+hgcA_tree=/Users/benjaminpeterson/Documents/research/HellsCanyon/results/bins/binAnalysis/prolixibacteraceae_details/hgcA_tree.pdf
 working_directory=/Users/benjaminpeterson/Documents/research/HellsCanyon/dataEdited/bins/binAnalysis/prolixibacteraceae_details
 HomeBio=/Users/benjaminpeterson/Documents/programs/HomeBio
 python $HomeBio/AM3_binBasedAnalyses/doctor_petersons_neighborhood_visualization.py --gff_file $working_directory/GN/hgcA_geneNeighborhood_all.gff \
                                                                                     --orf_data $working_directory/GN/hgcA_geneNeighborhood_info.txt \
                                                                                     --output_location $working_directory/GN/hgcA_geneNeighborhood_plot.pdf \
-                                                                                    --gene_tree_file $working_directory/hgcA_tree.pdf \
-                                                                                    --pdf_height 10 \
-                                                                                    --pdf_width 50 \
+                                                                                    --gene_tree_file $hgcA_tree
 
 
 """
