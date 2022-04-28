@@ -30,11 +30,12 @@ all.geochem.data <- read_xlsx("dataRaw/dataRelease_chem/Table_3_Water.xlsx") %>%
          HgT_part_ngL = p_thg_vol_ng_per_l,
          MeHg_part_ngL = p_mehg_vol_ng_per_l,
          MeHg_part_percent = percent_p_mehg) %>%
+  mutate(f_mn_mg_per_l = (as.numeric(f_mn_mcg_per_l) / 1000)) %>%
   # Select the data of interest
   select(RM, date, depth,
          HgT_diss_ngL, MeHg_diss_ngL, MeHg_diss_percent,
          HgT_part_ngL, MeHg_part_ngL, MeHg_part_percent,
-         f_mn_mcg_per_l, f_so4_mg_per_l, f_no3_mg_n_per_l,
+         f_mn_mg_per_l, f_so4_mg_per_l, f_no3_mg_n_per_l,
          f_cl_mg_per_l, f_inorganic_sulfide_mg_per_l) %>%
   # Make it long!
   gather(key = constituent,
@@ -47,7 +48,10 @@ all.geochem.data <- read_xlsx("dataRaw/dataRelease_chem/Table_3_Water.xlsx") %>%
            (RM == "300" & date == "2018-09-25") |
            (RM == "300" & date == "2019-07-25") |
            (RM == "310" & date == "2019-07-23")) %>%
-  filter(depth != "--")
+  filter(depth != "--",
+         concentration != "--") %>%
+  mutate(concentration = gsub("<", "", concentration)) %>%
+  mutate(concentration = as.numeric(concentration))
 
 
 #### Add nitrite data for 2019 ####
@@ -69,11 +73,31 @@ nitrite.2019.data <- read_xlsx("dataRaw/waterChemistry/HCC_01272020_July 2019 In
   gather(key = constituent,
          value = concentration,
          -c(RM, depth, date))
-all.geochem.data <- rbind(all.geochem.data,
-                          nitrite.2019.data)
+  
+
+#### Calculate inorganic concentration ####
+inorganic.Hg.data <- all.geochem.data %>%
+  filter(constituent %in% c("HgT_diss_ngL", "HgT_part_ngL", "MeHg_diss_ngL", "MeHg_part_ngL")) %>%
+  spread(key = constituent,
+         value = concentration) %>%
+  mutate(iHg_diss_ngL = HgT_diss_ngL - MeHg_diss_ngL,
+         iHg_part_ngL = HgT_part_ngL - MeHg_part_ngL) %>%
+  gather(key = constituent,
+         value = concentration,
+         -c(RM, depth, date)) %>%
+  filter(constituent %in% c("iHg_diss_ngL", "iHg_part_ngL")) %>%
+  filter(!is.na(concentration))
+
+
+
+#### Combine the nitrite data with the other data
+all.geochem.data.final <- rbind(all.geochem.data,
+                                nitrite.2019.data,
+                                inorganic.Hg.data)
+
 
 #### Write out water column dissolved data ####
-write.csv(all.geochem.data,
+write.csv(all.geochem.data.final,
           "dataEdited/waterChemistry/geochem_WC.csv",
           row.names = FALSE,
           quote = FALSE)
