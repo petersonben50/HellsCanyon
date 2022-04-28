@@ -844,7 +844,6 @@ condor_submit_dag runAllANIcompare.dag
 ##########################
 cd ~/HellsCanyon/dataEdited/binning
 mkdir bins_hgcA_keepers
-cd bins_hgcA_keepers
 # upload bins_hgcA_keepers_list here
 mkdir bins_hgcA_keepers/DNA bins_hgcA_keepers/ORFs
 cat bins_hgcA_keepers/bins_hgcA_keepers_list.txt | while read binID
@@ -856,6 +855,7 @@ do
   awk -F ',' -v binID="$binID" '$1==binID { print $0 }' bins_hgcA/checkM_stats.csv >> bins_hgcA_keepers/checkM_stats.csv
 done
 
+cd bins_hgcA_keepers
 ~/HellsCanyon/code/generalUse/Fasta_to_Scaffolds2Bin.sh -e faa \
                                                         -i ORFs \
                                                         > ORFs_G2B.tsv
@@ -865,7 +865,7 @@ cat ORFs/*.faa > ORFs.faa
                                                         -i DNA \
                                                         > DNA_S2B.tsv
 cat DNA/*.fna > DNA.fna
-
+conda deactivate
 
 ####################################################
 ####################################################
@@ -873,7 +873,6 @@ cat DNA/*.fna > DNA.fna
 ####################################################
 ####################################################
 
-screen -S HCC_hgcA_bins
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
 conda activate bioinformatics
 PYTHONPATH=''

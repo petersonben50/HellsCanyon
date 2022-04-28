@@ -180,4 +180,12 @@ Wow, they all look good, scores over 320.
 I pulled out all of the HgcA amino acid sequences, then aligned them.
 Checked the alignment out in UGENE, and they all have the conserved cap-helix domain.
 Think we're all set to go with that.
-Put together tsv files that link the binID to the *hgcA* ORF ID, and the *hgcA* ORF ID to the representative *hgcA* ORF ID for the assembly-based anlayses.
+Put together tsv files that link the binID to the *hgcA* ORF ID, and the *hgcA* ORF ID to the representative *hgcA* ORF ID for the assembly-based analyses.
+
+
+### After the fact notes:
+
+During the kofamscan analysis of the bins, I realized that fall2017cluster6_bin_0077 and anvio_hgcA_0070 contained some ORFs in common, since these bins had been generated with the same assembly and were not dereplicated between them.
+For later reference, if I'm using manual binning and autobinning, I need to run Das Tool on all the methods together, not just the auto-generated ones.
+So, I just removed fall2017cluster6_bin_0077 from subsequent analyses.
+It may be found throughout the rest of the project folder, but for our purposes, it doesn't exist.
