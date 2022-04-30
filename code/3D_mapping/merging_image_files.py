@@ -41,5 +41,5 @@ OUTPUT_IMAGE_FILE = OUTPUT_IMAGE_LOCATION + "/" + OUTPUT_FILE_NAME
 files_to_mosaic = glob.glob(INPUT_IMAGE_LOCATION + "/*.tif")
 files_string = " ".join(files_to_mosaic)
 
-command = "gdal_merge.py -o " + OUTPUT_IMAGE_FILE + " " + files_string
+command = "gdal_merge.py -co 'ALPHA=NO' -o " + OUTPUT_IMAGE_FILE + " " + files_string
 print(os.popen(command).read())

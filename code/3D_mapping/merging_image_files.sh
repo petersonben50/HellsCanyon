@@ -1,13 +1,21 @@
 #!/bin/sh
 
+####---------------------------------####
+# code/3D_mapping/merging_image_files.sh
+# Benjamin D. Peterson
 
-cd /Users/benjaminpeterson/Documents/research/HellsCanyon/3D/Brownlee_sampling_sites_v2/original_files/images
-ls *jp2 | cut -d "_" -f2 | sort | uniq > image_cluster_list.txt
+# This set of scripts reduces the size of
+# the image files we retrieved for the 3D
+# map of Brownlee and then merges them
+# using gdal_merge.
+####---------------------------------####
 
 
-
+####---------------------------------####
+# Get set up
+####---------------------------------####
+conda activate py_viz
 cd /Users/benjaminpeterson/Documents/research/HellsCanyon/3D/Brownlee_sampling_sites_v2/original_files/
-input_file='images/m_4311501_sw_11_1_20150619_20160104.jp2'
 
 
 
