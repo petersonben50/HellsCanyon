@@ -1,59 +1,56 @@
 #!/bin/sh
 
-###########################
+##################################################
+##################################################
+
 # code/binning/phylogenies/bacteroidetes_tree.sh
 # Benjamin D. Peterson
-###########################
+
+# This script will generate the rp16-based tree for
+# the Bacteroidetes genomes of interest from the
+# study.
+##################################################
+##################################################
 screen -S HCC_bacteroidetes
 binAnalysisFolder=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis
+HomeBio=/home/GLBRCORG/bpeterson26/HellsCanyon/code/HomeBio
 cd $binAnalysisFolder
-mkdir phylogeny
-mkdir phylogeny/Bacteroidetes
-mkdir phylogeny/Bacteroidetes/ORFs
-mkdir phylogeny/Bacteroidetes/lists
+mkdir Bacteroidetes_tree
+mkdir Bacteroidetes_tree/genomes
+mkdir Bacteroidetes_tree/lists
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
 
 
-##################################################
-##################################################
-# Collect references
-##################################################
-##################################################
 
-#########################
-# Collect 5M Bacteroidetes hgcA+ bins
-#########################
-cd $binAnalysisFolder/phylogeny/Bacteroidetes
+############################################
+# Retrieve needed genomes
+############################################
+
+# Genomes from 5M project
+cd $binAnalysisFolder/Bacteroidetes_tree
 grep -E 'BAC_00' ~/5M/dataEdited/binAnalysis/taxonomy/gtdbtk.bac120.summary.tsv | \
   awk -F '\t' '{ print $1 }' \
   > lists/5M_bacteroidetes_bin_list.txt
 cat lists/5M_bacteroidetes_bin_list.txt | while read binID
 do
-  cp ~/5M/dataEdited/binAnalysis/ORFs/$binID.faa ORFs
+  cp ~/5M/dataEdited/binAnalysis/bins_processed/$binID.fna genomes
 done
 
-
-
-#########################
 # References selected for 5M project
-#########################
-cd $binAnalysisFolder/phylogeny/Bacteroidetes
 grep -E 'p__Bacteroidota' ~/5M/dataEdited/binAnalysis/phylogeny/bacteroidetes/reference_taxonomy.tsv | \
   grep -E 'RS_' | \
-  awk -F '\t' '{ print $1"\t"$2 }' | \
+  awk -F '\t' '{ print $1 }' | \
   sed 's/RS_//' | \
-  grep -v 'sp001027725' \
+  grep -v '001027725' \
   > lists/reference_bacteroidetes_bin_list.txt
-awk -F '\t' '{ print $1 }' lists/reference_bacteroidetes_bin_list.txt | while read binID
+cat lists/reference_bacteroidetes_bin_list.txt | while read binID
 do
-  cp -i ~/references/genomes/ORFs/$binID*.faa ORFs/$binID.faa
+  cp -i ~/references/genomes/bins/$binID*.fna genomes/$binID.faa
 done
 
-
-#########################
 # hgcA+ references from McDaniel et al, 2020
-#########################
-
 # Done locally
+"""
 HCC
 cd references/genomes/bacteroidetes
 scripts=~/Documents/research/HellsCanyon/code/generalUse
@@ -66,44 +63,61 @@ list_of_interest=~/Documents/research/HellsCanyon/dataEdited/binning/phylogeny/b
 cat $list_of_interest | while read accessionID
 do
   if [ ! -e $accessionID.fna ]; then
-    echo "Working on" $accessionID
+    echo 'Working on' $accessionID
     fileName=`ls $accessionID*`
     python $scripts/cleanFASTA.py $fileName
     mv $fileName\_temp.fasta $accessionID.fna
     rm $fileName
   else
-    echo "Already cleaned" $accessionID
+    echo 'Already cleaned' $accessionID
   fi
 done
+# Upload all of these bins to /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/Bacteroidetes_tree/genomes
+"""
 
-# Done on GLBRC
-cd $binAnalysisFolder/phylogeny/Bacteroidetes
-mkdir scaffolds
-source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
-conda activate bioinformatics
-scripts=~/HellsCanyon/code/generalUse
-# Upload genomes to scaffolds folder, upload hgcA_bacteroidetes_genome_list.txt to lists folder
-cat lists/hgcA_bacteroidetes_genome_list.txt | while read accessionID
+# Add bins from this project
+# Upload hgcA_minus_bins_to_use_for_phylogeny.txt to lists
+cp ~/HellsCanyon/dataEdited/binning/bins_hgcA_keepers/DNA/anvio_hgcA_0130.fna genomes/anvio_hgcA_0130.fna
+# Add hgcA- bins. Determined here: prolix_hgcA_minus_derep.R
+cat lists/hgcA_minus_bins_to_use_for_phylogeny.txt | while read binID
 do
-  if [ ! -e  ORFs/$accessionID.faa ]; then
-    prodigal -i scaffolds/$accessionID.fna \
-              -o ORFs/$accessionID.gff \
-              -f gff \
-              -a ORFs/$accessionID.faa \
-              -p single
-    python $scripts/cleanFASTA.py ORFs/$accessionID.faa
-    mv -f ORFs/$accessionID.faa_temp.fasta ORFs/$accessionID.faa
-  else
-    echo "Already predicted ORFs for" $accessionID
-  fi
+  cp ~/HellsCanyon/dataEdited/binning/autoBinning/hqBinSet/DNA/$binID.fna genomes/$binID.fna
 done
 
+# Generate list of all bins to use for this tree.
+ls genomes/*fna | \
+    sed 's/genomes\///' | \
+    sed 's/.fna//' > lists/bacteroidetes_bin_list.txt
 
-#########################
-# Add bin from this project
-#########################
-cd $binAnalysisFolder/phylogeny/Bacteroidetes/ORFs
-cp ~/HellsCanyon/dataEdited/binning/bins_hgcA/ORFs/anvio_hgcA_0130.faa .
+
+############################################
+# Predict ORFs
+############################################
+echo "PREDICTING ORFS WITH IMMA_ORF_STAN"
+mkdir ORFs
+conda activate bioinformatics
+PYTHONPATH=''
+PERL5LIB=''
+
+# Predict ORFs
+cat lists/bacteroidetes_bin_list.txt | while read accessionID
+do
+  bash $HomeBio/PM4_binGeneration/IMMA_ORF_STAN_BINS.sh -b $accessionID \
+                                                        -i genomes/$accessionID.fna \
+                                                        -o ORFs \
+                                                        -c $HomeBio/fasta_manipulation/cleanFASTA.py
+done
+
+# Generate scaffold to bin file
+bash $HomeBio/fasta_manipulation/Fasta_to_Scaffolds2Bin.sh -e faa \
+                                                           -i $working_directory/ORFs \
+                                                           > $working_directory/ORFs_G2B.tsv
+cat $working_directory/ORFs/*.faa > $working_directory/ORFs.faa
+conda deactivate
+
+
+
+
 
 
 
