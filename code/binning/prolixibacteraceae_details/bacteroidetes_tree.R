@@ -34,12 +34,12 @@ names(naming.vector) <- naming.df$tipLabel
 #### FastTree ####
 
 # Read in tree
-tree.name <- "dataEdited/bins/binAnalysis/phylogeny/bacteroidetes/rp16.tree"
+tree.name <- "dataEdited/bins/binAnalysis/bacteroidetes_tree/tree_building/rp16.tree"
 hgcA.tree.unrooted <- read.newick(tree.name)
 rm(tree.name)
 ggtree(hgcA.tree.unrooted,
        aes(x = 0,
-           xend = 2)) + 
+           xend = 1)) + 
   geom_tiplab(size=2.5, align = TRUE)
 
 #### Root tree ####
@@ -59,7 +59,7 @@ hgcA.tree$tip.label[hgcA.tree$tip.label %in% names(naming.vector)] <- naming.vec
 
 
 # Check out rooted tree
-pdf("dataEdited/bins/binAnalysis/phylogeny/bacteroidetes/bacteroidetes_tree_FastTree_rooted.pdf",
+pdf("dataEdited/bins/binAnalysis/bacteroidetes_tree/bacteroidetes_tree_FastTree_rooted.pdf",
     height = 10,
     width = 5)
 ggtree(hgcA.tree,

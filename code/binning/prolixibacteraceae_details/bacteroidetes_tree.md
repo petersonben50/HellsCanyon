@@ -82,16 +82,10 @@ I then renamed the fasta file headers with the name of the bin so that they coul
 
 I then downloaded all the clean alignments to my local computer and imported them into Geneious.
 The rpL5 gene has duplicate hits in GCA_004526055.1.
+The rpL15 gene has duplicate hits in fall2017cluster6_bin_0135.
 They seem to be two halves one sequence, so I just concatenated them.
 I then concatenated all the alignments and masked them at 50% gaps.
 I exported this as `rp16_alignment_masked.afa` and uploaded it to the GLBRC servers: `~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/phylogeny/Bacteroidetes/tree_building`.
-
-
-**Identify hgcA sequences in bins**
-
-I wanted to know which of my reference sequences had hgcA, so I searched the ORFs using the custom HMM.
-I pulled out the ORFs, aligned them, and downloaded them to my computer for manual inspection.
-Checked them in Geneious, they all looked good, so I made a list of the bins with hgcA.
 
 
 **Generate tree**
@@ -108,6 +102,14 @@ I added the hgcA information to this vector (hgcA+ bins get two asterisks).
 I also generated a color vector to color code the bins by source.
 Doing this, I realized the Rhodothermia shouldn't be in there, they're far from my bins and kinda messing with the tree.
 I removed these two: GCA_003557245.1 and GCA_003566645.1.
+
+
+**Identify hgcA sequences in bins**
+
+I wanted to know which of my reference sequences had hgcA, so I searched the ORFs using the custom HMM.
+I pulled out the ORFs, aligned them, and downloaded them to my computer for manual inspection.
+Checked them in Geneious, they all looked good, so I made a list of the bins with hgcA.
+
 
 
 **Run references through GTDB database**
