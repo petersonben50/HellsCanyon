@@ -13,7 +13,38 @@ library(phangorn)
 library(readxl)
 library(tidyverse)
 library(treeio)
-cb.translator <- readRDS("~/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
+cb.translator <- readRDS("references/colorblind_friendly_colors.rds")
+
+
+
+#### Investigate GTDB tree ####
+GTDB.tree <- read.newick("dataEdited/bins/binAnalysis/phylogeny/gtdbtk.bac120.classify.tree")
+mrca.node <- getMRCA(phy = GTDB.tree,
+                     c("anvio_hgcA_0261", "anvio_hgcA_0220"))
+
+# Subset tree
+PVC.gtdb.tree <- tree_subset(GTDB.tree,
+                             node = mrca.node,
+                             levels_back = 0)
+ggtree(PVC.gtdb.tree,
+       aes(x = 0,
+           xend = 2))  + 
+  geom_tiplab(size=2.5, align = TRUE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #### Initial check of tree ####
 
