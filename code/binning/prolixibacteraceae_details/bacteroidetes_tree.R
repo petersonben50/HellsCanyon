@@ -73,7 +73,7 @@ rm(hgcA.tree)
 
 #### Read in RAxML tree ####
 # Read in tree
-tree.name <- "dataEdited/bins/binAnalysis/phylogeny/bacteroidetes/RAxML_bipartitions.Bacteroidetes_rp16"
+tree.name <- "dataEdited/bins/binAnalysis/bacteroidetes_tree/tree_building/RAxML_bipartitions.Bacteroidetes_rp16"
 hgcA.tree.unrooted <- read.newick(tree.name)
 rm(tree.name)
 
@@ -88,7 +88,7 @@ rm(mrca.flavo)
 
 
 #### Add hgcA info to renaming vector ####
-hgcA.bin.vector <- readLines("dataEdited/bins/binAnalysis/phylogeny/bacteroidetes/hgcA/hgcA_bin_list.txt")
+hgcA.bin.vector <- readLines("dataEdited/bins/binAnalysis/bacteroidetes_tree/hgcA_bin_list.txt")
 naming.vector[which(names(naming.vector) %in% hgcA.bin.vector)] <- paste(naming.vector[which(names(naming.vector) %in% hgcA.bin.vector)],
                                                                          "**",
                                                                          sep = "")
@@ -99,36 +99,55 @@ naming.vector[which(names(naming.vector) %in% hgcA.bin.vector)] <- paste(naming.
 hgcA.tree$tip.label[hgcA.tree$tip.label %in% names(naming.vector)] <- naming.vector[hgcA.tree$tip.label[hgcA.tree$tip.label %in% names(naming.vector)]]
 
 
-#### Make color vector for tree ####
-color.vector <- rep(cb.translator["bluishgreen"], length(hgcA.tree$tip.label))
-color.vector[grep("\\(GCF", hgcA.tree$tip.label)] <- "black"
-color.vector[grep("\\(GCA", hgcA.tree$tip.label)] <- "grey50"
-color.vector[grep("BAC_00", hgcA.tree$tip.label)] <- cb.translator["skyblue"]
-color.vector[grep("anvio", hgcA.tree$tip.label)] <- cb.translator["orange"]
-
-
 #### Remove BS values <50 ####
 hgcA.tree$node.label <- as.numeric(hgcA.tree$node.label)
 hgcA.tree$node.label[hgcA.tree$node.label < 50] <- ""
 
 
+#### Read in GTDB taxonomy data ####
+gtdb.tax.data <- read.table("dataEdited/bins/binAnalysis/bacteroidetes_tree/taxonomy_summary.txt",
+                            sep = '\t',
+                            header = TRUE)
+
+
+#### Trim off excess ####
+ggtree(hgcA.tree) + 
+  geom_tiplab(size=2.5) +
+  geom_text2(aes(subset=!isTip, label=node))
+# Cut off at node 50
+hgcA.tree.subset <- tree_subset(hgcA.tree,
+                                node = 50,
+                                levels_back = 0)
+
+
+
+#### Make color vector for tree ####
+color.vector <- rep(cb.translator["bluishgreen"], length(hgcA.tree.subset$tip.label))
+color.vector[grep("\\(GCF", hgcA.tree.subset$tip.label)] <- "black"
+color.vector[grep("\\(GCA", hgcA.tree.subset$tip.label)] <- "grey50"
+color.vector[grep("BAC_00", hgcA.tree.subset$tip.label)] <- cb.translator["skyblue"]
+color.vector[grep("anvio", hgcA.tree.subset$tip.label)] <- cb.translator["orange"]
+
+
 
 #### Generate tree ####
-bin.tree <- ggtree(hgcA.tree, aes(x = 0, xend = 1.25)) + 
-  geom_tiplab(size=2.5,
+bin.tree <- ggtree(hgcA.tree.subset, aes(x = 0, xend = 1.75)) + 
+  geom_tiplab(size=2,
               align = TRUE,
               colour = color.vector) + 
   geom_nodelab(aes(x = branch),
                vjust = -.4,
                hjust = 0.6,
-               size = 2) +
-  geom_treescale(x = 0.05,
-                 y = 30,
-                 width = 0.2)
+               size = 1) +
+  geom_treescale(x = 0.02,
+                 y = 21,
+                 width = 0.1)
+bin.tree
+
 
 #### Save out tree ###
 pdf("results/bins/binAnalysis/phylogeny/bacteroidetes_tree.pdf",
-    height = 6,
-    width = 5)
+    height = 3.5,
+    width = 3.5)
 bin.tree
 dev.off()
