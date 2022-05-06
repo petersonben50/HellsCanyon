@@ -1,4 +1,4 @@
-#### code/phylogenies/PVC_tree.R ####
+#### code/binning/PVC_details/PVC_tree.R ####
 # Benjamin D. Peterson
 
 # This script will generate images of
