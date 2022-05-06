@@ -19,18 +19,18 @@ PYTHONPATH=''
 PERL5LIB=''
 
 mkdir $PVC_details/tree_generation
-cd $PVC_details
 
 ##################################################
 # Run tree generation workflow
 ##################################################
-python $HomeBio/bin/gene_alignment_from_bins.py \
+cd $PVC_details
+python $HomeBio/bin/phylogeny_for_bins.py \
           --analysis_name HCC_PVC \
-          --orf_file HCC_PVC_ORFs.faa \
-          --g2b_file HCC_PVC_ORFs_G2B.tsv \
+          --orf_file $PVC_details/HCC_PVC_ORFs.faa \
+          --g2b_file $PVC_details/HCC_PVC_ORFs_G2B.tsv \
           --hmm_list $HomeBio/databases/HMMs/rp16_bact_HMM_list.txt \
           --hmm_location $HomeBio/databases/HMMs/hmm_folder \
-          --output_location tree_generation \
+          --output_location $PVC_details/tree_generation \
           --threads_to_use 16 \
           --minimum_hits 8 \
           --masking_threshold 0.5 \
