@@ -35,3 +35,4 @@ python $HomeBio/bin/phylogeny_for_bins.py \
           --minimum_hits 8 \
           --masking_threshold 0.5 \
           --tree_program RAxML
+rm -rf $PVC_details/tree_generation/temp
