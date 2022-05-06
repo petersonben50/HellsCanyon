@@ -182,3 +182,9 @@ do
     echo "ORF prediction for" $binID "already done"
   fi
 done
+
+# Pull together the ORFs
+bash $HomeBio/fasta_manipulation/Fasta_to_Scaffolds2Bin.sh -e faa \
+                                                           -i ORFs \
+                                                           > HCC_PVC_ORFs_G2B.tsv
+cat ORFs/*faa > HCC_PVC_ORFs.faa
