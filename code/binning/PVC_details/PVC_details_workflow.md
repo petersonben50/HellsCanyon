@@ -49,19 +49,23 @@ All of them will be added to the reference folder: `~/references/genomes/bins/`
 Moved all of these over, cleaned them up.
 
 
+**Remove scaffolds from HC18HY300_bin_0036**
+
+The tree analysis downstream identified two scaffolds that were present in two genomes (this is why I need to clean up my bin-generating pipelines).
+The two bins are anvio_hgcA_0110 and HC18HY300_bin_0036.
+We'll remove the two scaffolds (HC18HY300_000000021381 and HC18HY300_000000059556) from HC18HY300_bin_0036.
+Now will continue as before.
+
+
+
 **Predict ORFs**
 
-Run the IMMA_ORF_STAN workflow to get the needed ORFs.
+Then I ran the IMMA_ORF_STAN workflow to get the needed ORFs.
+After it was done, I concatenated the ORFs and generated the gene-to-bin file.
 
 
 
-*Set up dataframe for renaming tips*
-
-I manually made a tsv file with a name for the bin, the accession number, the phylum, and the name of the tip label: `dataEdited/binning/phylogeny/PVC/tip_naming.tsv`.
-
-
-
-
+#### Tree generation for PVC
 
 
 **Search for rp16 genes**
@@ -100,3 +104,8 @@ I also generated a color vector to color code the bins by source.
 
 I also labeled the Lentisphaerae and Kiritimatiellaeota branches.
 I always have a hard time making these actually pretty, so I saved it out as "unedited", and manually cleaned it up in Illustrator.
+
+
+*Set up dataframe for renaming tips*
+
+I manually made a tsv file with a name for the bin, the accession number, the phylum, and the name of the tip label: `dataEdited/binning/phylogeny/PVC/tip_naming.tsv`.

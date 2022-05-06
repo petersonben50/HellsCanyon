@@ -162,6 +162,20 @@ mv -f $binID.fna_tempCleanedFile $binID.fna
 
 
 #########################
+# Remove scaffolds from HC18HY300_bin_0036
+#########################
+cd /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/PVC_details/genomes
+wc -l HC18HY300_bin_0036.fna
+mv HC18HY300_bin_0036.fna HC18HY300_bin_0036_OG.fna
+echo -e 'HC18HY300_000000021381\nHC18HY300_000000059556' > seqs_to_remove.txt
+python $HomeBio/fasta_manipulation/remove_fasta_seqs_using_list_of_headers.py \
+        --fasta_file HC18HY300_bin_0036_OG.fna \
+        --headers_to_remove seqs_to_remove.txt \
+        --output_file HC18HY300_bin_0036.fna
+rm -f HC18HY300_bin_0036_OG.fna seqs_to_remove.txt
+
+
+#########################
 # Predict ORFs
 #########################
 cd ~/HellsCanyon/dataEdited/binAnalysis/PVC_details
@@ -173,7 +187,6 @@ PERL5LIB=''
 cat genome_list.txt | while read binID
 do
   if [ ! -e ORFs/$binID.faa ]; then
-    echo "Working on ORF prediction for" $binID
     bash $HomeBio/PM4_binGeneration/IMMA_ORF_STAN_BINS.sh -b $binID \
                                                           -i genomes/$binID.fna \
                                                           -o ORFs \
