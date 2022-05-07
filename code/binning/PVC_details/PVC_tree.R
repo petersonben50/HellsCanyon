@@ -17,7 +17,7 @@ cb.translator <- readRDS("references/colorblind_friendly_colors.rds")
 
 
 
-#### Investigate GTDB tree ####
+####-------------Investigate GTDB tree-------------####
 GTDB.tree <- read.newick("dataEdited/bins/binAnalysis/phylogeny/gtdbtk.bac120.classify.tree")
 mrca.node <- getMRCA(phy = GTDB.tree,
                      c("anvio_hgcA_0261", "anvio_hgcA_0220"))
@@ -31,44 +31,30 @@ ggtree(PVC.gtdb.tree,
            xend = 2))  + 
   geom_tiplab(size=2.5, align = TRUE)
 
+rm(GTDB.tree, PVC.gtdb.tree, mrca.node)
 
 
 
 
 
 
+####-------------Visualize ML tree from RAxML-------------####
 
 
+#### Read in PVC bin tree ####
+PVC.bin.tree.unrooted <- read.newick("dataEdited/bins/binAnalysis/PVC_details/tree_generation/RAxML_bipartitions.HCC_PVC")
 
 
-
-
-
-
-
-#### Initial check of tree ####
-
-# Read in tree
-tree.name <- "dataEdited/binning/phylogeny/PVC/RAxML_bipartitions.PVC_rp16"
-hgcA.tree.unrooted <- read.newick(tree.name)
-rm(tree.name)
-
-# Check out unrooted tree
-pdf("dataEdited/binning/phylogeny/PVC/PVC_tree_FastTree_unrooted.pdf",
-    height = 10,
-    width = 5)
-ggtree(hgcA.tree.unrooted,
-       aes(x = 0,
-           xend = 2)) + 
-  geom_tiplab(size=2.5, align = TRUE)
-dev.off()
+#### Read in list of hgcA+ bins ####
+hgcA.G2B.table <- read.table("dataEdited/bins/binAnalysis/PVC_details/hgcA_analysis/PVC_hgcA_G2B.tsv",
+                             sep = '\t',
+                             col.names = c("geneID", "binID"))
 
 
 
 #### Read in naming info ####
-naming.df <- read.table("dataEdited/binning/phylogeny/PVC/tip_naming.tsv",
-                        sep = '\t',
-                        header = TRUE)
+naming.df <- read_xlsx("dataEdited/bins/binAnalysis/PVC_details/tree_generation/tip_naming.xlsx") %>%
+  filter(tipLabel %in% PVC.bin.tree.unrooted$tip.label)
 naming.vector <- paste(naming.df$binName,
                        " (", naming.df$accessionNumber, ")",
                        sep = "")
@@ -77,23 +63,27 @@ naming.vector <- gsub(pattern = " \\(NA\\)",
                       naming.vector)
 names(naming.vector) <- naming.df$tipLabel
 
+index.of.hgcA.in.naming.vector <- which(names(naming.vector) %in% hgcA.G2B.table$binID)
+naming.vector[index.of.hgcA.in.naming.vector] <- paste(naming.vector[index.of.hgcA.in.naming.vector], "**",
+                                                       sep = "")
+
 
 
 #### Root tree ####
-mrca.plancto <- getMRCA(hgcA.tree.unrooted,
+mrca.plancto <- getMRCA(PVC.bin.tree.unrooted,
                         c("GCF_000255705.1",
                           "GCF_000025185.1"))
-hgcA.tree <- root(hgcA.tree.unrooted,
-                  node = mrca.plancto)
+PVC.bin.tree <- root(PVC.bin.tree.unrooted,
+                     node = mrca.plancto)
 
 
 #### Find Lentispharae node ####
-lent.node <- getMRCA(hgcA.tree,
+lent.node <- getMRCA(PVC.bin.tree,
                      naming.df %>%
                        filter(binPhylum == "Lentisphaerae") %>%
                        select(tipLabel) %>%
                        unlist(use.names = FALSE))
-kir.node <- getMRCA(hgcA.tree,
+kir.node <- getMRCA(PVC.bin.tree,
                      naming.df %>%
                        filter(binPhylum == "Kiritimatiellaeota") %>%
                        select(tipLabel) %>%
@@ -101,44 +91,57 @@ kir.node <- getMRCA(hgcA.tree,
 
 
 # Rename tips
-hgcA.tree$tip.label[hgcA.tree$tip.label %in% names(naming.vector)] <- naming.vector[hgcA.tree$tip.label[hgcA.tree$tip.label %in% names(naming.vector)]]
+PVC.bin.tree$tip.label[PVC.bin.tree$tip.label %in% names(naming.vector)] <- naming.vector[PVC.bin.tree$tip.label[PVC.bin.tree$tip.label %in% names(naming.vector)]]
 
 
 #### Make color vector for tree ####
-color.vector <- rep(cb.translator["bluishgreen"], length(hgcA.tree$tip.label))
-color.vector[grep("\\(GCF", hgcA.tree$tip.label)] <- "black"
-color.vector[grep("\\(GCA", hgcA.tree$tip.label)] <- "grey50"
-color.vector[grep("KIR|LEN", hgcA.tree$tip.label)] <- cb.translator["skyblue"]
-color.vector[grep("anvio", hgcA.tree$tip.label)] <- cb.translator["orange"]
+color.vector <- rep(cb.translator["bluishgreen"], length(PVC.bin.tree$tip.label))
+color.vector[grep("\\*\\*", PVC.bin.tree$tip.label)] <- cb.translator["skyblue"]
+color.vector[grep("\\(GCF", PVC.bin.tree$tip.label)] <- "black"
+color.vector[grep("\\(GCA", PVC.bin.tree$tip.label)] <- "grey50"
+color.vector[grep("KIR|LEN", PVC.bin.tree$tip.label)] <- cb.translator["orange"]
+color.vector[grep("IMG:", PVC.bin.tree$tip.label)] <- cb.translator["vermillion"]
 
 
 #### Remove BS values <50 ####
-hgcA.tree$node.label <- as.numeric(hgcA.tree$node.label)
-hgcA.tree$node.label[hgcA.tree$node.label < 50] <- ""
-
-
+PVC.bin.tree$node.label <- as.numeric(PVC.bin.tree$node.label)
+PVC.bin.tree$node.label[PVC.bin.tree$node.label < 50] <- ""
 
 
 
 
 #### Generate tree ####
-bin.tree <- ggtree(hgcA.tree) + 
+bin.tree <- ggtree(PVC.bin.tree,
+                   aes(x = 0,
+                       xend = 4)) + 
   geom_tiplab(size=2.5,
               align = TRUE,
-              col = color.vector) + 
+              colour = color.vector) + 
   geom_nodelab(aes(x = branch),
                vjust = -.3,
-               size = 2) +
+               size = 1.5) +
   geom_treescale(x = 0.05,
                  y = 30,
                  width = 0.25) +
   geom_cladelabel(node = lent.node, label="Lentisphaerae",
-                  align = T, geom = 'label') +
+                  align = T,
+                  offset = 3.6,
+                  offset.text	= 0.15,
+                  hjust = 0.5,
+                  angle = 270) +
   geom_cladelabel(node = kir.node, label="Kiritimatiellaeota",
-                  align = T, geom = 'label')
+                  align = T,
+                  offset = 3.6,
+                  offset.text	= 0.15,
+                  hjust = 0.5,
+                  angle = 270)
+bin.tree
 
-pdf("results/binning/phylogeny/PVC_tree_unedited.pdf",
-    height = 10,
-    width = 5)
+
+
+#### Save tree to PDF ####
+pdf("results/bins/binAnalysis/PVC_details/PVC_tree.pdf",
+    height = 6,
+    width = 3.5)
 bin.tree
 dev.off()
