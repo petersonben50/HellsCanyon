@@ -57,7 +57,6 @@ We'll remove the two scaffolds (HC18HY300_000000021381 and HC18HY300_00000005955
 Now will continue as before.
 
 
-
 **Predict ORFs**
 
 Then I ran the IMMA_ORF_STAN workflow to get the needed ORFs.
@@ -65,35 +64,54 @@ After it was done, I concatenated the ORFs and generated the gene-to-bin file.
 
 
 
+#### hgcA analysis for PVC
+
+**Identify hgcA sequences**
+
+First I used the `protein_identification_and_alignment.py` script in HomeBio to identify potential *hgcA* sequences and saved out an alignment file.
+I downloaded this alignment file to my local computer here: `dataEdited/bins/binAnalysis/PVC_details/hgcA_analysis/hgcA_hits/PVC_hgcA.afa`.
+I then used the alignment viewer within DECIPHER to look at the alignment with `BrowseSeqs`.
+R script is here: `code/binning/PVC_details/hgcA_alignment.R`
+All these sequences look like true *hgcA* sequences.
+Next I made a list and downloaded it to my local computer (`PVC_hgcA_geneID_list.txt`).
+I also pulled out the relevant entries from the G2B file for these *hgcA* sequences (`PVC_hgcA_G2B.tsv`).
+
+
+**Generate hgcA tree**
+
+I then took the HgcA alignment I generated earlier and masked it at 50% gaps using Trimal.
+Then, I used RAxML to generate a maximum likelihood phylogeny.
+I downloaded the bipartitions (`RAxML_bipartitions.PVC_hgcA`) and the info (`RAxML_info.PVC_hgcA`) files to my local computer (`dataEdited/bins/binAnalysis/PVC_details/hgcA_analysis/tree_generation`).
+This data was aggregated into a tree here: `code/binning/PVC_details/hgcA_tree.R`.
+Note, the final version of this includes some bin information that was gathered in the "Tree generation for PVC" step, described below.
+
+
+
 #### Tree generation for PVC
 
+Scripts for this are here: `code/binning/PVC_details/tree_generation_for_PVC.sh`
 
-**Search for rp16 genes**
+
+**Run tree generation workflow**
+
+I then ran my tree generation workflow from HomeBio.
+I used the rp16 bacteria HMMs requiring hits agains at least 8 of the HMMs.
+I masked the alignment at 50% gaps, then ran RAxML on the alignment.
+I downloaded these files here: `dataEdited/bins/binAnalysis/PVC_details/tree_generation`.
 
 
-*Concatenate all bins*
+**Set up dataframe for renaming tips**
 
-First I concatenated all the bins into a single ORF faa file.
-Then I generated a gene to bin file that linked each gene ID to its respective bin.
-I searched the concatenated ORF file for each of the rp16 genes using HMMs with hmmsearch (v3.3.1).
-I then pulled out the amino acid sequences for the rp16 genes and aligned them.
+I manually made a tsv file with a name for the bin, the accession number, the phylum, and the name of the tip label: `tip_naming.xlsx`.
+This is also in the `tree_generation` folder.
+I was mostly interested in getting names for the reference sequences here.
+The RefSeq genomes (GCF prefix) will be named with their genus and species (when available).
+The GenBank genomes (GCA prefix) will be named with their order names, as determined by GTDB.
+These two groups will get an accession ID after their name in the tree.
 
-*Rename fasta headers with bin name*
 
-I then renamed the fasta file headers with the name of the bin so that they could be concatenated later in Geneious.
 
-*Generate alignment*
-
-I then downloaded all the clean alignments to my local computer and imported them into Geneious.
-The rpS3 gene has duplicate hits in LEN_0037, so I deleted LEN_0037 2.
-I then concatenated all the alignments.
-KIR_0040 had less than 1000 ungapped residues and was clearly missing a bunch of the proteins, so I initially removed it from the analysis, but in later iterations kept it, due to its similarity to a few of the genomes from HCC.
-I exported this as `rp16_alignment_masked.afa` and uploaded it to the GLBRC servers: `~/HellsCanyon/dataEdited/binning/manualBinning/binsGood/phylogeny/PVC/tree_building`.
-
-**Generate tree**
-
-I then generated a maximum likelihood tree using RAxML (v8.2.11).
-The R scripts to prepare this tree are here: `code/phylogenies/PVC_tree.R`.
+`code/phylogenies/PVC_tree.R`.
 
 First I read out an unrooted tree, just to check it.
 I did a few iterations of it this way.
@@ -104,8 +122,3 @@ I also generated a color vector to color code the bins by source.
 
 I also labeled the Lentisphaerae and Kiritimatiellaeota branches.
 I always have a hard time making these actually pretty, so I saved it out as "unedited", and manually cleaned it up in Illustrator.
-
-
-*Set up dataframe for renaming tips*
-
-I manually made a tsv file with a name for the bin, the accession number, the phylum, and the name of the tip label: `dataEdited/binning/phylogeny/PVC/tip_naming.tsv`.
