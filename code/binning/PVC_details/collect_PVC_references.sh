@@ -201,3 +201,4 @@ bash $HomeBio/fasta_manipulation/Fasta_to_Scaffolds2Bin.sh -e faa \
                                                            -i ORFs \
                                                            > HCC_PVC_ORFs_G2B.tsv
 cat ORFs/*faa > HCC_PVC_ORFs.faa
+cat ORFs/*gff > HCC_PVC_ORFs.gff
