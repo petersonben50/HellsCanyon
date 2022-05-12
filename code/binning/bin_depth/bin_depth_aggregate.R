@@ -5,6 +5,7 @@
 #### Clean up crew on line 5 ####
 rm(list = ls())
 setwd("/Users/benjaminpeterson/Documents/research/HellsCanyon")
+library(readxl)
 library(tidyverse)
 
 
