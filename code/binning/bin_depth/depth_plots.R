@@ -48,7 +48,6 @@ rm(metabolic.data, MG.metadata)
 #### Plotting function ####
 plot.bins.by.year <- function(year.of.interest,
                               metabolism_of_interest = NULL) {
-  
   if (!is.null(metabolism_of_interest)) {
     depth.data.to.use <- depth.data %>%
       filter(metabolic_assignment %in% metabolism_of_interest)
