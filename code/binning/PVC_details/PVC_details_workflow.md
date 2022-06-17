@@ -128,13 +128,6 @@ For both of these, we'll just keep them as is for now.
 New figure from this.
 
 
-
-
-
-
-
-
-
 #### Tree generation for PVC
 
 Scripts for this are here: `code/binning/PVC_details/tree_generation_for_PVC.sh`
@@ -157,16 +150,15 @@ The RefSeq genomes (GCF prefix) will be named with their genus and species (when
 The GenBank genomes (GCA prefix) will be named with their order names, as determined by GTDB.
 These two groups will get an accession ID after their name in the tree.
 
+**Visualize tree**
 
-
-`code/phylogenies/PVC_tree.R`.
+Scripts to generate the tree are here: `code/phylogenies/PVC_tree.R`.
 
 First I read out an unrooted tree, just to check it.
 I did a few iterations of it this way.
 Settled on using some Planctomycetes as outgroup to root this.
 
 I then renamed all the branches using this file: `dataEdited/binning/phylogeny/PVC/tip_naming.tsv`.
-I also generated a color vector to color code the bins by source.
-
+I also generated a color vector to color code the bins by source and hgcA+ content.
 I also labeled the Lentisphaerae and Kiritimatiellaeota branches.
-I always have a hard time making these actually pretty, so I saved it out as "unedited", and manually cleaned it up in Illustrator.
+PDF is saved out here: `results/bins/binAnalysis/PVC_details/PVC_tree.pdf`.
