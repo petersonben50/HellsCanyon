@@ -156,6 +156,7 @@ I was mostly interested in getting names for the reference sequences here.
 The RefSeq genomes (GCF prefix) will be named with their genus and species (when available).
 The GenBank genomes (GCA prefix) will be named with their order names, as determined by GTDB.
 These two groups will get an accession ID after their name in the tree.
+All bins will be prefaced with the family name (as determined by GTDB).
 
 **Visualize tree**
 
