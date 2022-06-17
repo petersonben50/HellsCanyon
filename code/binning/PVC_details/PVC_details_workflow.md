@@ -64,6 +64,13 @@ After it was done, I concatenated the ORFs and generated the gene-to-bin file.
 
 
 
+#### Run genomes through GTDB
+
+I ran GTDB on these genomes, just so we're not going through and manually assigning names.
+Scripts here: `code/binning/PVC_details/metabolic_genes_PVC.sh`.
+The results were downloaded to my local computer: `dataEdited/bins/binAnalysis/PVC_details/taxonomy/`.
+
+
 #### hgcA analysis for PVC
 
 **Identify hgcA sequences**
@@ -162,3 +169,10 @@ I then renamed all the branches using this file: `dataEdited/binning/phylogeny/P
 I also generated a color vector to color code the bins by source and hgcA+ content.
 I also labeled the Lentisphaerae and Kiritimatiellaeota branches.
 PDF is saved out here: `results/bins/binAnalysis/PVC_details/PVC_tree.pdf`.
+
+
+#### Run all PVC bins through some metabolic analyses
+
+Code here: `code/binning/PVC_details/metabolic_genes_PVC.sh`.
+
+This analysis looked for differences MHC content and the metabolic genes that we included in the batch HMM analysis between the PVC families, particularly the two Kiritimatiellaeota families.
