@@ -86,6 +86,54 @@ This data was aggregated into a tree here: `code/binning/PVC_details/hgcA_tree.R
 Note, the final version of this includes some bin information that was gathered in the "Tree generation for PVC" step, described below.
 
 
+**Gene neighborhood analysis**
+
+*Set up gene neighborhood analysis*:
+Pull out the gene neighborhood data from around the *hgcA* genes using the `doctor_petersons_neighborhood.py` script.
+I grabbed 20,000 residues to either side of the *hgcA* seqs.
+
+*Run KOFAMSCAN on the neighborhood ORFs*:
+I then ran kofamscan on the ORFs within the neighborhood.
+
+*Cluster ORFs with CD-HIT*:
+I then clustered all these ORFs with CD-HIT, using 0.40 as a cut-off.
+Not sure that this is very helpful.
+
+*Search for hgcB*:
+One of the main targets was *hgcB*, considering its importance as the partner to *hgcA*.
+I wanted to extract the downstream genes and check them with the *hgcB* HMM to see if they looked like *hgcB*.
+When I first did this, I was getting some weird results, where the downstream gene was the right size, and clustered with *hgcB* genes, but wasn't annotated as such with the HMM.
+Additionally, there were references that didn't hit the *hgcB* HMM despite me knowing they should have it.
+But, I realized that the code we use to extract the downstream gene is reliant on the direction that *hgcA* is on the strand.
+Since I had been using the gene neighborhood GFF file, which involves manipulating the strand sign, but the ORF numbers aren't changed, this meant I was extracting the wrong ORF.
+To fix this, I need to use the original ORF GFFs.
+To do this, I added a step to the ORF prediction standard output, in that I also concatenated the GFF files.
+Kinda funny, the `retrieve_downstream_genes.py` script was broken anyways, but should be fixed now.
+
+Doing it this way, it looks like there are three genes that are not marked as *hgcB* that are about the right size.
+They are the downstream genes for GCA_002408885.1, LEN_0037, and KIR_0001.
+Let's manually inspect these ones.
+The gene ids for them are KIR_0001_19_36, LEN_0037_131_5, DHTZ01000076.1_16.
+Well, right off the bat, DHTZ01000076.1_16 is assigned as a ferredoxin.
+Let's align these three to the other hgcB sequences.
+I downloaded this to my local computer and checked it in `hgcB_alignment.R`.
+This did get pulled out by HMM, just didn't make it into the GN figure for some reason.
+The other two are definitely not *hgcB*.
+Checking them with MOTIF and BLAST, neither of them returned any hits.
+Two other sequences are very long, from GCA_001804865.1 and GCA_001803235.1.
+- MHBL01000254.1_3 is the hgcB hit from GCA_001803235.1. No hits to MOTIF in the rest protein (just the ferredoxin similarities)
+- MHBK01000043.1_101 is the hgcB hit from GCA_001804865.1. No MOTIF hits to this one either other than the ferredoxin hits.
+
+For both of these, we'll just keep them as is for now.
+New figure from this.
+
+
+
+
+
+
+
+
 
 #### Tree generation for PVC
 
