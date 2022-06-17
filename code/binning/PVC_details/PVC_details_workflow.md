@@ -57,6 +57,14 @@ We'll remove the two scaffolds (HC18HY300_000000021381 and HC18HY300_00000005955
 Now will continue as before.
 
 
+**Removal of one genome**
+
+Added 2022-06-17.
+The genome GCA_001804865.1 is isolated in the tree.
+I'm worried that it is interfering with tree generation, so I am going to remove it.
+I won't re-run all the metabolic analyses, just re-generate the tree.
+
+
 **Predict ORFs**
 
 Then I ran the IMMA_ORF_STAN workflow to get the needed ORFs.
@@ -177,3 +185,13 @@ PDF is saved out here: `results/bins/binAnalysis/PVC_details/PVC_tree.pdf`.
 Code here: `code/binning/PVC_details/metabolic_genes_PVC.sh`.
 
 This analysis looked for differences MHC content and the metabolic genes that we included in the batch HMM analysis between the PVC families, particularly the two Kiritimatiellaeota families.
+
+I looked at this data here: `code/binning/PVC_details/metabolic_genes_PVC.R`.
+It seems there's a cutoff at about 5 MHCs, where it's more likely that the bin will also have a cydAB, so I went with 5 MHCs as a point to split the bins into high and low MHC classifications.
+Save them out here: `dataEdited/bins/binAnalysis/PVC_details/metabolism/high_MHC_bins.rds` and `dataEdited/bins/binAnalysis/PVC_details/metabolism/low_MHC_bins.rds`.
+Let's use these to look at the depth profiles of all the bins, see if there are any trends there. See this below.
+
+
+#### Investigate abundance of all PVC bins
+
+Scripts here: `code/binning/PVC_details/abundance_PVC_bins.R`.

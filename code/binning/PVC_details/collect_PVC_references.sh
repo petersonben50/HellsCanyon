@@ -176,6 +176,15 @@ rm -f HC18HY300_bin_0036_OG.fna seqs_to_remove.txt
 
 
 #########################
+# Removal of one genome
+#########################
+cd /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/binAnalysis/PVC_details/genomes
+rm -f GCA_001804865.1.fna
+#cd ../ORFs
+#rm -f GCA_001804865.1*
+
+
+#########################
 # Predict ORFs
 #########################
 cd ~/HellsCanyon/dataEdited/binAnalysis/PVC_details
