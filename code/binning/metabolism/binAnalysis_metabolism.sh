@@ -440,6 +440,10 @@ cd $working_directory
 rm -f $output_location/$analysis_name\_raw.tsv
 echo "Running KOFAMscan for" $analysis_name
 ~/references/kofamscan_files/kofam_scan-1.3.0/exec_annotation -f detail-tsv \
-                                                              -o $output_location/$analysis_name\_raw.tsv \
+                                                              -o $output_location/kofamscan_raw.tsv \
                                                               $input_orfs
+grep '*' $output_location/$analysis_name\_raw.tsv > $output_location/kofamscan_good.tsv
 conda deactivate
+
+# Download $output_location/$analysis_name\_good.tsv, combine it with
+# ORF_G2B.tsv, and add it to the metabolic Excel sheet.
