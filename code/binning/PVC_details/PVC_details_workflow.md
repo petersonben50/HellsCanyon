@@ -195,3 +195,9 @@ Let's use these to look at the depth profiles of all the bins, see if there are 
 #### Investigate abundance of all PVC bins
 
 Scripts here: `code/binning/PVC_details/abundance_PVC_bins.R`.
+
+There is no major difference in the depth patterns of all of these bins.
+In fact, they nearly all have identical trends in abundance across the water column.
+The one exception is one of the Lentisphaerae bins, which is most abundant in the top part of the hypolimnion.
+This bin has *hgcA*.
+Other than that though, nothing much to write about.

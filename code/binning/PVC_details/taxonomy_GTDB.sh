@@ -39,6 +39,6 @@ gtdbtk classify_wf \
         --out_dir taxonomy
 # Summarize them
 cd taxonomy
-awk -F '\t' '{ print $1"\t"$2 }' gtdbtk.*.summary.tsv \
+awk -F '\t' '{ print $1"\t"$2 }' PVC_taxonomy_GTDB.*.summary.tsv \
         > taxonomy_summary.txt
 conda deactivate
