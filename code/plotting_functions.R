@@ -32,9 +32,10 @@ sonde.profile <- function(seabird.data.of.interest,
                y = concentration,
                color = constituent)) +
     geom_point(aes(color = constituent),
-               size = 1) +
+               size = 0.5) +
     geom_line(aes(color = constituent,
-                  linetype = constituent)) +
+                  linetype = constituent),
+              size = 0.5) +
     scale_colour_manual(values = color.vector.to.use,
                         labels = labels.vector) +
     scale_linetype_manual(values = line.vector,
@@ -59,7 +60,7 @@ sonde.profile <- function(seabird.data.of.interest,
 
 
 
-#### Set plotting function to generate nitrate, Mn, sulfide plot ####
+#### Set plotting function to generate plot of geochem data ####
 plot.redox.profile <- function(geochem.data.of.interest = geochem.data,
                                RM.of.interest,
                                date.of.interest,
@@ -93,9 +94,9 @@ plot.redox.profile <- function(geochem.data.of.interest = geochem.data,
                linetype = constituent,
                shape = constituent)) +
     geom_point(aes(color = constituent),
-               size = 2.5) +
+               size = 1.5) +
     geom_line(aes(color = constituent),
-              size = 1) +
+              size = 0.6) +
     scale_colour_manual(values = color.vector,
                         labels = labels.vector) +
     scale_shape_manual(values = points.vector,
@@ -221,16 +222,14 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
   #### Constrain x-axis if defined in the call ####
   if (!is.null(coverage_limits)) {
     graph.of.interest <- graph.of.interest +
-      scale_y_continuous(trans = 'log10',
-                         limits = coverage_limits)
+      scale_y_continuous(limits = coverage_limits)
   } else {
     max.coverage <- clean.coverage %>%
       select(coverage) %>%
       unlist() %>%
       max()
     graph.of.interest <- graph.of.interest +
-      scale_y_continuous(trans = 'log10',
-                         limits = c(0.01, max.coverage))
+      scale_y_continuous(limits = c(0.01, max.coverage))
 
   }
 

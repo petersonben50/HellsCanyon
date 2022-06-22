@@ -163,8 +163,8 @@ Hg.2018.300 <- plot.redox.profile(geochem.data.of.interest = geochem.data,
 
 
 pdf("results/manuscript_figures/BGC_main_figure.pdf",
-    width = 11,
-    height = 8)
+    width = 7.2,
+    height = 4)
 
 ggarrange(sonde.2017.286, geochem.2017.286, Hg.2017.286,
           sonde.2017.300, geochem.2017.300, Hg.2017.300,
