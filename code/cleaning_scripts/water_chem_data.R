@@ -32,7 +32,7 @@ all.geochem.data <- read_xlsx("dataRaw/dataRelease_chem/Table_3_Water.xlsx") %>%
          MeHg_part_percent = percent_p_mehg) %>%
   mutate(f_mn_mg_per_l = (as.numeric(f_mn_mcg_per_l) / 1000)) %>%
   # Select the data of interest
-  select(RM, date, depth,
+  select(RM, date, depth, medium_code,
          HgT_diss_ngL, MeHg_diss_ngL, MeHg_diss_percent,
          HgT_part_ngL, MeHg_part_ngL, MeHg_part_percent,
          f_mn_mg_per_l, f_so4_mg_per_l, f_no3_mg_n_per_l,
@@ -40,15 +40,9 @@ all.geochem.data <- read_xlsx("dataRaw/dataRelease_chem/Table_3_Water.xlsx") %>%
   # Make it long!
   gather(key = constituent,
          value = concentration,
-         -c(1:3)) %>%
-  # Only keep dates and locations of interest
-  filter((RM == "286" & date == "2017-09-25") |
-           (RM == "300" & date == "2017-09-26") |
-           (RM == "286" & date == "2018-09-24") |
-           (RM == "300" & date == "2018-09-25") |
-           (RM == "300" & date == "2019-07-25") |
-           (RM == "310" & date == "2019-07-23")) %>%
+         -c(1:4)) %>%
   filter(depth != "--",
+         RM != "--",
          concentration != "--") %>%
   mutate(concentration = gsub("<", "", concentration)) %>%
   mutate(concentration = as.numeric(concentration))
@@ -58,13 +52,12 @@ all.geochem.data <- read_xlsx("dataRaw/dataRelease_chem/Table_3_Water.xlsx") %>%
 nitrite.2019.data <- read_xlsx("dataRaw/waterChemistry/HCC_01272020_July 2019 Intensive Metals Data_For Ben Peterson.xlsx",
                                   skip = 2) %>%
   rename(depth = Depth) %>%
-  filter(!is.na(SampDate),
-         RM %in% c("300", "310"),
-         !grepl("cm", depth),
+  filter(!is.na(RM),
          !is.na(NO2)) %>%
   mutate(date = as.Date(as.numeric(SampDate),
                         origin = "1899-12-30")) %>%
-  select(RM, date, depth, NO2) %>%
+  mutate(medium_code = "WS") %>%
+  select(RM, date, depth, medium_code, NO2) %>%
   mutate(NO2 = gsub(pattern = "na", replacement = 0,
                     NO2),
          NO2 = gsub(pattern = "-2E-3", replacement = 0,
@@ -72,19 +65,24 @@ nitrite.2019.data <- read_xlsx("dataRaw/waterChemistry/HCC_01272020_July 2019 In
          NO2 = as.numeric(NO2)) %>%
   gather(key = constituent,
          value = concentration,
-         -c(RM, depth, date))
+         -c(RM, depth, date, medium_code)) %>%
+  filter(depth != "na",
+         !grepl("cm", depth)) %>%
+  mutate(depth = as.numeric(depth))
   
 
 #### Calculate inorganic concentration ####
 inorganic.Hg.data <- all.geochem.data %>%
   filter(constituent %in% c("HgT_diss_ngL", "HgT_part_ngL", "MeHg_diss_ngL", "MeHg_part_ngL")) %>%
+  group_by(RM, depth, date, medium_code, constituent) %>%
+  summarise(concentration = mean(concentration)) %>%
   spread(key = constituent,
          value = concentration) %>%
   mutate(iHg_diss_ngL = HgT_diss_ngL - MeHg_diss_ngL,
          iHg_part_ngL = HgT_part_ngL - MeHg_part_ngL) %>%
   gather(key = constituent,
          value = concentration,
-         -c(RM, depth, date)) %>%
+         -c(RM, depth, date, medium_code)) %>%
   filter(constituent %in% c("iHg_diss_ngL", "iHg_part_ngL")) %>%
   filter(!is.na(concentration))
 
