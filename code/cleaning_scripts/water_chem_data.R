@@ -91,7 +91,9 @@ inorganic.Hg.data <- all.geochem.data %>%
 #### Combine the nitrite data with the other data
 all.geochem.data.final <- rbind(all.geochem.data,
                                 nitrite.2019.data,
-                                inorganic.Hg.data)
+                                inorganic.Hg.data) %>%
+  group_by(RM, date, depth, constituent) %>%
+  summarise(concentration = mean(concentration))
 
 
 #### Write out water column dissolved data ####
