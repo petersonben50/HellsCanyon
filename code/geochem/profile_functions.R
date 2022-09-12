@@ -207,11 +207,11 @@ redox.plot <- function(geochem.data.to.use = geochem.data,
       if (plot.DO == "YES") {
         
         if (is.null(DO.date)) {
-          DO.data.date <- DO.data %>%
+          DO.data.date <- DO.data.to.use %>%
             filter(date == date.of.sampling.at.RM &
                      RM == RM.of.interest)
         } else {
-          DO.data.date <- DO.data %>%
+          DO.data.date <- DO.data.to.use %>%
             filter(date == DO.date,
                    RM == RM.of.interest)
         }

@@ -113,6 +113,6 @@ all.geochem.data <- rbind(all.geochem.data,
 
 #### Write out water column dissolved data ####
 write.csv(all.geochem.data,
-          "dataEdited/waterChemistry/geochem_WC.csv",
+          "dataEdited/geochem/geochem_WC.csv",
           row.names = FALSE,
           quote = FALSE)

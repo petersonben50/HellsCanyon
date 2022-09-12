@@ -11,7 +11,7 @@ source("code/geochem/profile_functions.R")
 
 
 #### Read in geochem data ####
-geochem.data <- read.csv("dataEdited/waterChemistry/geochem_WC.csv") %>%
+geochem.data <- read.csv("dataEdited/geochem/geochem_WC.csv") %>%
   filter(depth != "SW") %>%
   mutate(depth = as.numeric(depth))
 DO.data <- readRDS("dataEdited/seabird/seabird_data.rds") %>%
@@ -161,14 +161,30 @@ date.list <- list(
   c("2017-09-25", "2017-09-28")
   # c("2017-11-14", "2017-11-15")
   )
-par(mfrow = c(3,4),
+par(mfrow = c(4,4),
     mar = c(9, 4.5, 1, 1),
     mgp=c(1.5,0.4,0),
     tck=-0.008)
 redox.plot(geochem.data.to.use = geochem.data,
-           date.range = list.vector,
+           date.range = c("2017-06-05", "2017-06-08"),
+           RMs.to.use = c(286),
+           nitrate.plotting.factor = nitrate.plotting.factor.to.use,
+           MeHg.plotting.factor = 2.5,
+           plot.Mn.instead.of.sulfide.YES.or.NO = "NO",
+           sulfide.plotting.factor = sulfide.plotting.factor.to.use,
+           plot.DO = "YES")
+redox.plot(geochem.data.to.use = geochem.data,
+           date.range = c("2017-06-05", "2017-06-08"),
            DO.date = "2017-06-14",
-           RMs.to.use = c(286, 300, 310, 318),
+           RMs.to.use = c(300),
+           nitrate.plotting.factor = nitrate.plotting.factor.to.use,
+           MeHg.plotting.factor = 2.5,
+           plot.Mn.instead.of.sulfide.YES.or.NO = "NO",
+           sulfide.plotting.factor = sulfide.plotting.factor.to.use,
+           plot.DO = "YES")
+redox.plot(geochem.data.to.use = geochem.data,
+           date.range = c("2017-06-05", "2017-06-08"),
+           RMs.to.use = c(310, 318),
            nitrate.plotting.factor = nitrate.plotting.factor.to.use,
            MeHg.plotting.factor = 2.5,
            plot.Mn.instead.of.sulfide.YES.or.NO = "NO",
