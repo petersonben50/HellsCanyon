@@ -111,62 +111,8 @@ all.geochem.data <- rbind(all.geochem.data,
 
 
 
-
-
-#### Add DO data ####
-# First need to interpolate the data to match the elevations
-# where we collected samples.
-seacat.data <- readRDS("dataEdited/seabird/seabird_data.rds") %>%
-  filter(!is.na(diss_oxy_mg_per_l))
-
-unique.dates.sites.geochem <- unique(all.geochem.data[, c("RM", "date")]) %>%
-  as.data.frame()
-unique.dates.sites.seacat <- unique(seacat.data[, c("RM", "date")]) %>%
-  as.data.frame()
-unique.dates.sites <- inner_join(unique.dates.sites.geochem,
-                                 unique.dates.sites.seacat) %>%
-  arrange(date)
-
-for (entry in 1:dim(unique.dates.sites)[1]) {
-  seacat.data.temporary <- seacat.data %>%
-    filter(RM == unique.dates.sites[entry, "RM"] &
-             date == unique.dates.sites[entry, "date"])
-  
-  elevations.needed <- all.geochem.data %>%
-    filter(RM == unique.dates.sites[entry, "RM"] &
-             date == unique.dates.sites[entry, "date"]) %>%
-    ungroup() %>%
-    select(depth, elevation_m) %>%
-    unique()
-  
-  interpol.data.DO <- approx(x = seacat.data.temporary$elevation_m,
-                             y = seacat.data.temporary$diss_oxy_mg_per_l,
-                             xout = as.numeric(elevations.needed$elevation_m),
-                             rule = 2)
-  seacat.data.adjusted.temp <- data.frame(RM = unique.dates.sites[entry, "RM"],
-                                          date = unique.dates.sites[entry, "date"],
-                                          depth = as.numeric(elevations.needed$depth),
-                                          elevation_m = interpol.data.DO$x,
-                                          diss_oxy_mg_per_l = interpol.data.DO$y)
-  if (entry == 1) {
-    seacat.data.adjusted <- seacat.data.adjusted.temp
-  } else {
-    seacat.data.adjusted <- rbind(seacat.data.adjusted,
-                                  seacat.data.adjusted.temp)
-  }
-}
-
-seacat.data.adjusted <- seacat.data.adjusted %>%
-  rename(concentration = diss_oxy_mg_per_l) %>%
-  mutate(constituent = "diss_oxy_mg_per_l") %>%
-  select(RM, date, depth, elevation_m, constituent, concentration)
-
-all.geochem.data.final <- rbind(all.geochem.data,
-                                seacat.data.adjusted)
-
-
 #### Write out water column dissolved data ####
-write.csv(all.geochem.data.final,
+write.csv(all.geochem.data,
           "dataEdited/waterChemistry/geochem_WC.csv",
           row.names = FALSE,
           quote = FALSE)
