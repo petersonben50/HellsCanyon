@@ -18,12 +18,14 @@ library(readxl)
 
 
 #### Read in data release data ####
-all.geochem.data <- read_xlsx("dataRaw/dataRelease_chem/Table_3_Water.xlsx") %>%
+all.geochem.data <- read_xlsx("dataRaw/dataRelease_chem/v2/HCC - V2 Data Release_Master File_Oct 2019 to present_V2_9_forModelingGroup.xlsx",
+                              sheet = "Table_3_Water_V2") %>%
   # Ensure the date and time column is in correct format
   mutate(date = date(ymd_hms(sample_collection_date_mm_dd_yy_h_mm))) %>%
   # Rename some data columns
   rename(RM = snake_river_mile,
          depth = sample_depth_m,
+         elevation_m = brownlee_reservoir_sample_elevation_m,
          HgT_diss_ngL = f_thg_ng_per_l,
          MeHg_diss_ngL = f_mehg_ng_per_l,
          MeHg_diss_percent = percent_f_mehg,
@@ -32,7 +34,7 @@ all.geochem.data <- read_xlsx("dataRaw/dataRelease_chem/Table_3_Water.xlsx") %>%
          MeHg_part_percent = percent_p_mehg) %>%
   mutate(f_mn_mg_per_l = (as.numeric(f_mn_mcg_per_l) / 1000)) %>%
   # Select the data of interest
-  select(RM, date, depth, medium_code,
+  select(RM, date, depth, elevation_m, medium_code,
          HgT_diss_ngL, MeHg_diss_ngL, MeHg_diss_percent,
          HgT_part_ngL, MeHg_part_ngL, MeHg_part_percent,
          f_mn_mg_per_l, f_so4_mg_per_l, f_no3_mg_n_per_l,
@@ -40,12 +42,15 @@ all.geochem.data <- read_xlsx("dataRaw/dataRelease_chem/Table_3_Water.xlsx") %>%
   # Make it long!
   gather(key = constituent,
          value = concentration,
-         -c(1:4)) %>%
+         -c(1:5)) %>%
   filter(depth != "--",
+         depth != "SW",
+         elevation_m != "--",
          RM != "--",
          concentration != "--") %>%
   mutate(concentration = gsub("<", "", concentration)) %>%
-  mutate(concentration = as.numeric(concentration))
+  mutate(concentration = as.numeric(concentration),
+         depth = as.numeric(depth))
 
 
 #### Add nitrite data for 2019 ####
@@ -68,32 +73,96 @@ nitrite.2019.data <- read_xlsx("dataRaw/waterChemistry/HCC_01272020_July 2019 In
          -c(RM, depth, date, medium_code)) %>%
   filter(depth != "na",
          !grepl("cm", depth)) %>%
-  mutate(depth = as.numeric(depth))
-  
+  mutate(depth = as.numeric(depth)) %>%
+  left_join(all.geochem.data %>%
+              select(RM, depth, date, elevation_m)) %>%
+  mutate(elevation_m = as.character(as.numeric(elevation_m) %>% round(digits = 1))) %>%
+  select(RM, date, depth, elevation_m, medium_code,
+         constituent, concentration)
+
+
 
 #### Calculate inorganic concentration ####
 inorganic.Hg.data <- all.geochem.data %>%
   filter(constituent %in% c("HgT_diss_ngL", "HgT_part_ngL", "MeHg_diss_ngL", "MeHg_part_ngL")) %>%
-  group_by(RM, depth, date, medium_code, constituent) %>%
+  group_by(RM, depth, date, elevation_m, medium_code, constituent) %>%
   summarise(concentration = mean(concentration)) %>%
+  ungroup() %>%
   spread(key = constituent,
          value = concentration) %>%
   mutate(iHg_diss_ngL = HgT_diss_ngL - MeHg_diss_ngL,
          iHg_part_ngL = HgT_part_ngL - MeHg_part_ngL) %>%
   gather(key = constituent,
          value = concentration,
-         -c(RM, depth, date, medium_code)) %>%
+         -c(RM, depth, date, elevation_m, medium_code)) %>%
   filter(constituent %in% c("iHg_diss_ngL", "iHg_part_ngL")) %>%
   filter(!is.na(concentration))
 
 
 
 #### Combine the nitrite data with the other data
+all.geochem.data <- rbind(all.geochem.data,
+                          nitrite.2019.data,
+                          inorganic.Hg.data) %>%
+  group_by(RM, date, depth, elevation_m, constituent) %>%
+  summarise(concentration = mean(concentration)) %>%
+  ungroup() %>%
+  mutate(elevation_m = as.numeric(elevation_m))
+
+
+
+
+
+#### Add DO data ####
+# First need to interpolate the data to match the elevations
+# where we collected samples.
+seacat.data <- readRDS("dataEdited/seabird/seabird_data.rds") %>%
+  filter(!is.na(diss_oxy_mg_per_l))
+
+unique.dates.sites.geochem <- unique(all.geochem.data[, c("RM", "date")]) %>%
+  as.data.frame()
+unique.dates.sites.seacat <- unique(seacat.data[, c("RM", "date")]) %>%
+  as.data.frame()
+unique.dates.sites <- inner_join(unique.dates.sites.geochem,
+                                 unique.dates.sites.seacat) %>%
+  arrange(date)
+
+for (entry in 1:dim(unique.dates.sites)[1]) {
+  seacat.data.temporary <- seacat.data %>%
+    filter(RM == unique.dates.sites[entry, "RM"] &
+             date == unique.dates.sites[entry, "date"])
+  
+  elevations.needed <- all.geochem.data %>%
+    filter(RM == unique.dates.sites[entry, "RM"] &
+             date == unique.dates.sites[entry, "date"]) %>%
+    ungroup() %>%
+    select(depth, elevation_m) %>%
+    unique()
+  
+  interpol.data.DO <- approx(x = seacat.data.temporary$elevation_m,
+                             y = seacat.data.temporary$diss_oxy_mg_per_l,
+                             xout = as.numeric(elevations.needed$elevation_m),
+                             rule = 2)
+  seacat.data.adjusted.temp <- data.frame(RM = unique.dates.sites[entry, "RM"],
+                                          date = unique.dates.sites[entry, "date"],
+                                          depth = as.numeric(elevations.needed$depth),
+                                          elevation_m = interpol.data.DO$x,
+                                          diss_oxy_mg_per_l = interpol.data.DO$y)
+  if (entry == 1) {
+    seacat.data.adjusted <- seacat.data.adjusted.temp
+  } else {
+    seacat.data.adjusted <- rbind(seacat.data.adjusted,
+                                  seacat.data.adjusted.temp)
+  }
+}
+
+seacat.data.adjusted <- seacat.data.adjusted %>%
+  rename(concentration = diss_oxy_mg_per_l) %>%
+  mutate(constituent = "diss_oxy_mg_per_l") %>%
+  select(RM, date, depth, elevation_m, constituent, concentration)
+
 all.geochem.data.final <- rbind(all.geochem.data,
-                                nitrite.2019.data,
-                                inorganic.Hg.data) %>%
-  group_by(RM, date, depth, constituent) %>%
-  summarise(concentration = mean(concentration))
+                                seacat.data.adjusted)
 
 
 #### Write out water column dissolved data ####

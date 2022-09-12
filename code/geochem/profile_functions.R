@@ -21,18 +21,51 @@ empty.plot <- function(title = "") {
        main = title)
 }
 
-
+#### Test data ####
+# date.list <- list(
+#   c("2015-07-14", "2015-07-15"),
+#   c("2015-08-10", "2015-08-11"),
+#   c("2015-09-08", "2015-09-09"),
+#   c("2015-10-19", "2015-10-19")
+# )
+# 
 # geochem.data.to.use = geochem.data
-# date.range <- c("2018-04-10", "2018-04-13")
+# DO.data.to.use = DO.data
+# date.range
+# DO.date = NULL
 # RMs.to.use = NULL
+# plot.Mn.instead.of.sulfide.YES.or.NO = "NO"
 # sulfide.plotting.factor = 100
+# sulfide.color = "blue"
+# plot.Mn.with.sulfide = "YES"
+# Mn.plotting.factor = 3
+# Mn.color = "orange"
+# use.nitrate.chloride.ratios.YES.or.NO = "NO"
 # nitrate.plotting.factor = 5
-# max.depth = 80
-
+# nitrate.chloride.plotting.factor = 100
+# nitrate.color = "reddishpurple"
+# MeHg.plotting.factor = 3
+# MeHg.color = "bluishgreen"
+# DO.plotting.factor = 4
+# DO.color = "black"
+# min.elevation = 545
+# max.elevation = 632
+# plot.DO = "NO"
+# geochem.data.to.use = geochem.data
+# date.range = c("2017-09-25", "2017-09-28")
+# RMs.to.use = c(286, 300, 310, 318)
+# nitrate.plotting.factor = nitrate.plotting.factor.to.use
+# MeHg.plotting.factor = 2.5
+# plot.Mn.instead.of.sulfide.YES.or.NO = "NO"
+# Mn.plotting.factor = Mn.plotting.factor.to.use
+# plot.DO = "YES"
+# 
 
 #### Function to plot redox ####
 redox.plot <- function(geochem.data.to.use = geochem.data,
+                       DO.data.to.use = DO.data,
                        date.range,
+                       DO.date = NULL,
                        RMs.to.use = NULL,
                        plot.Mn.instead.of.sulfide.YES.or.NO = "NO",
                        sulfide.plotting.factor = 100,
@@ -46,7 +79,11 @@ redox.plot <- function(geochem.data.to.use = geochem.data,
                        nitrate.color = "reddishpurple",
                        MeHg.plotting.factor = 3,
                        MeHg.color = "bluishgreen",
-                       max.depth = 80) {
+                       DO.plotting.factor = 4,
+                       DO.color = "black",
+                       min.elevation = 545,
+                       max.elevation = 632,
+                       plot.DO = "NO") {
   
   geochem.data.date <- geochem.data.to.use %>%
     spread(key = constituent,
@@ -63,28 +100,34 @@ redox.plot <- function(geochem.data.to.use = geochem.data,
     geochem.data.site <- geochem.data.date %>%
       filter(RM == RM.of.interest) %>%
       arrange(depth)
+    date.of.sampling.at.RM <- geochem.data.site %>%
+      select(date) %>%
+      unlist(use.names = FALSE) %>%
+      unique()
     
     if (dim(geochem.data.site)[1] == 0) {
       empty.plot()
     } else {
       
+      
+      
       #### Add sulfide plot ####
       if(plot.Mn.instead.of.sulfide.YES.or.NO == "NO") {
         plot(x = geochem.data.site$f_inorganic_sulfide_mg_per_l*sulfide.plotting.factor,
-             y = geochem.data.site$depth,
+             y = geochem.data.site$elevation_m,
              xlab = "Sulfide (mg/L)",
-             ylab = paste(year(date.range[1]), "-", month(date.range[1]), ":",
+             ylab = paste(date.of.sampling.at.RM, "\n",
                           "Depth (m)",
                           sep = ""),
              xlim = c(0, 10),
-             ylim = c(max.depth, 0),
+             ylim = c(min.elevation, max.elevation),
              xaxt = "n",
              col = cb.translator[sulfide.color],
              pch = 18,
              cex = 1.2,
              main = paste("RM", RM.of.interest, sep = ""))
         lines(x = geochem.data.site$f_inorganic_sulfide_mg_per_l*sulfide.plotting.factor,
-              y = geochem.data.site$depth,
+              y = geochem.data.site$elevation_m,
               col = cb.translator[sulfide.color])
         # Add axis for sulfide
         axis(1,
@@ -92,33 +135,33 @@ redox.plot <- function(geochem.data.to.use = geochem.data,
              labels = seq(0, 10, by = 2)/sulfide.plotting.factor)
         if (plot.Mn.with.sulfide == "YES") {
           points(x = geochem.data.site$f_mn_mg_per_l*Mn.plotting.factor,
-                 y = geochem.data.site$depth,
+                 y = geochem.data.site$elevation_m,
                  col = cb.translator[Mn.color],
                  pch = 18)
           lines(x = geochem.data.site$f_mn_mg_per_l*Mn.plotting.factor,
-                y = geochem.data.site$depth,
+                y = geochem.data.site$elevation_m,
                 col = cb.translator[Mn.color])
         }
         
       } else if (plot.Mn.instead.of.sulfide.YES.or.NO == "YES") {
         #### Add Mn plot instead of sulfide (if requested) ####
         plot(x = geochem.data.site$f_mn_mg_per_l*Mn.plotting.factor,
-             y = geochem.data.site$depth,
+             y = geochem.data.site$elevation_m,
              xlab = "Mn (mg/L)",
-             ylab = paste(year(date.range[1]), "-", month(date.range[1]), ":",
+             ylab = paste(date.of.sampling.at.RM, "\n",
                           "Depth (m)",
                           sep = ""),
              xlim = c(0, 10),
-             ylim = c(max.depth, 0),
+             ylim = c(min.elevation, max.elevation),
              xaxt = "n",
              col = cb.translator[Mn.color],
              pch = 18,
              cex = 1.2,
              main = paste("RM", RM.of.interest, sep = ""))
         lines(x = geochem.data.site$f_mn_mg_per_l*Mn.plotting.factor,
-              y = geochem.data.site$depth,
+              y = geochem.data.site$elevation_m,
               col = cb.translator[Mn.color])
-        # Add axis for sulfide
+        # Add axis for Mn
         axis(1,
              at = seq(0, 10, by = 2),
              labels = seq(0, 10, by = 2)/Mn.plotting.factor)
@@ -128,22 +171,22 @@ redox.plot <- function(geochem.data.to.use = geochem.data,
       
       if (use.nitrate.chloride.ratios.YES.or.NO == "YES") {
         points(x = geochem.data.site$f_no3_mg_n_per_l/geochem.data.site$f_cl_mg_per_l*nitrate.chloride.plotting.factor,
-               y = geochem.data.site$depth,
+               y = geochem.data.site$elevation_m,
                col = cb.translator[nitrate.color],
                pch = 18)
         lines(x = geochem.data.site$f_no3_mg_n_per_l/geochem.data.site$f_cl_mg_per_l*nitrate.chloride.plotting.factor,
-              y = geochem.data.site$depth,
+              y = geochem.data.site$elevation_m,
               col = cb.translator[nitrate.color])
-        # Add label for nitrate
+        # Add label for nitrate/chloride ratio
         title(xlab = "Nitrate/Chloride",
               line = 4.5)
       } else if (use.nitrate.chloride.ratios.YES.or.NO == "NO") {
         points(x = geochem.data.site$f_no3_mg_n_per_l*nitrate.plotting.factor,
-               y = geochem.data.site$depth,
+               y = geochem.data.site$elevation_m,
                col = cb.translator[nitrate.color],
                pch = 18)
         lines(x = geochem.data.site$f_no3_mg_n_per_l*nitrate.plotting.factor,
-              y = geochem.data.site$depth,
+              y = geochem.data.site$elevation_m,
               col = cb.translator[nitrate.color])
         # Add label for nitrate
         title(xlab = "Nitrate (mgN/L)",
@@ -152,13 +195,32 @@ redox.plot <- function(geochem.data.to.use = geochem.data,
       }
       
       points(x = geochem.data.site$MeHg_diss_ngL*MeHg.plotting.factor,
-             y = geochem.data.site$depth,
+             y = geochem.data.site$elevation_m,
              col = cb.translator[MeHg.color],
              pch = 18)
       lines(x = geochem.data.site$MeHg_diss_ngL*MeHg.plotting.factor,
-            y = geochem.data.site$depth,
+            y = geochem.data.site$elevation_m,
             col = cb.translator[MeHg.color])
 
+      
+      
+      if (plot.DO == "YES") {
+        
+        if (is.null(DO.date)) {
+          DO.data.date <- DO.data %>%
+            filter(date == date.of.sampling.at.RM &
+                     RM == RM.of.interest)
+        } else {
+          DO.data.date <- DO.data %>%
+            filter(date == DO.date,
+                   RM == RM.of.interest)
+        }
+        
+        points(x = DO.data.date$diss_oxy_mg_per_l*0.5,
+               y = DO.data.date$elevation_m,
+               col = cb.translator[DO.color],
+               pch = 18)
+      }
       # Add axis for nitrate
       axis(1,
            line = 3,
