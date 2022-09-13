@@ -5,6 +5,7 @@
 #### Set the table ####
 rm(list = ls())
 setwd("~/Documents/research/HellsCanyon/")
+library(viridisLite)
 cb.translator <- readRDS("references/colorblind_friendly_colors.rds")
 
 
@@ -237,6 +238,47 @@ redox.plot <- function(geochem.data.to.use = geochem.data,
             line = 7.5)
       }
   }
+}
+
+
+
+
+#### Function to plot time course over year of single parameter ####
+time.course.profile.plot <- function(geochem.data.to.use,
+                                     years.to.use,
+                                     RMs.to.use,
+                                     parameter.to.plot,
+                                     xlabel.to.use,
+                                     color.ramp.to.use = NULL,
+                                     concentrations.to.use = c(0, 2.2)
+                                     ) {
+  geochem.data.to.use.temporary <- geochem.data.to.use %>%
+    filter(year(date) %in% years.to.use,
+           RM %in% RMs.to.use,
+           constituent == parameter.to.plot) %>%
+    arrange(date, elevation_m)
+  
+  if (is.null(color.ramp.to.use)) {
+    color.ramp.to.use <- c("blue", "red")
+  }
+  colorize.function <- colorRampPalette(color.ramp.to.use)
+  
+  geochem.data.to.use.temporary %>%
+    ggplot(aes(x = concentration,
+               y = elevation_m,
+               col = month(date,label = TRUE),
+               group = month(date,label = TRUE))) +
+    geom_point() +
+    geom_path() +
+    theme_classic() +
+    scale_color_manual(values = colorize.function(length(unique(month(geochem.data.to.use.temporary$date)))),
+                       name = "Month") +
+    ylim(c(543, 635)) +
+    xlim(concentrations.to.use) +
+    labs(x = xlabel.to.use,
+         y = "Elevation (m)",
+         title = years.to.use)
+    
 }
 
 
