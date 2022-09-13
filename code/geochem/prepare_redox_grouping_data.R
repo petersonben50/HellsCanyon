@@ -4,6 +4,7 @@
 #### Clean up ####
 rm(list = ls())
 setwd("~/Documents/research/HellsCanyon/")
+library(lubridate)
 library(tidyverse)
 source("code/geochem/profile_functions.R")
 
@@ -173,8 +174,34 @@ for (entry in 1:dim(unique.dates.sites)[1]) {
 
 
 
-#### Combine all data and save it out ####
-all.geochem.data.final <- full_join(geochem.data,
-                                    seabird.data.adjusted)
-saveRDS(all.geochem.data.final,
-        "dataEdited/geochem/geochem_WC_adjusted_for_redox_classification.csv")
+#### Combine all data ####
+all.redox.data <- full_join(geochem.data,
+                            seabird.data.adjusted)
+
+
+#### Assign redox state ####
+all.redox.data <- all.redox.data %>%
+  mutate(redox_status = "none_assigned")
+
+# All samples where sulfide is detected are labeled as sulfidic
+all.redox.data[which(all.redox.data$f_inorganic_sulfide_mg_per_l > 0.01), "redox_status"] <- "sulfidic"
+# 
+all.redox.data[which(all.redox.data$diss_oxy_mg_per_l > 1 &
+                       all.redox.data$f_mn_mg_per_l < 0.1), "redox_status"] <- "oxic"
+# If nitrate is below 0.05 (the max DDL), there's no DO, and
+# sulfide was non-detect, we'll call that no nitrate no sulfide
+all.redox.data[which(all.redox.data$f_no3_mg_n_per_l < 0.05 &
+                       all.redox.data$diss_oxy_mg_per_l < 1 &
+                       all.redox.data$f_inorganic_sulfide_mg_per_l == 0.01), "redox_status"] <- "no_nitrate_no_sulfide"
+# If nitrate is below 0.05 (the max DDL), there's no DO, and
+# sulfide was non-detect, we'll call that no nitrate possible sulfide
+all.redox.data[which(all.redox.data$f_no3_mg_n_per_l < 0.05 &
+                       all.redox.data$diss_oxy_mg_per_l < 1 &
+                       is.na(all.redox.data$f_inorganic_sulfide_mg_per_l)), "redox_status"] <- "no_nitrate_possible_sulfide"
+# All the rest are suboxic
+all.redox.data[which(all.redox.data$redox_status == "none_assigned"), "redox_status"] <- "suboxic"
+
+
+#### Save out data ####
+saveRDS(all.redox.data,
+        "dataEdited/geochem/geochem_WC_adjusted_for_redox_classification.rds")
