@@ -282,3 +282,48 @@ time.course.profile.plot <- function(geochem.data.to.use,
 }
 
 
+
+
+#### Function to plot time course over year of Seabird parameter ####
+seabird.time.course.profile.plot <- function(seabird.data.to.use,
+                                             years.to.use,
+                                             RMs.to.use,
+                                             parameter.to.plot,
+                                             xlabel.to.use,
+                                             color.ramp.to.use = NULL,
+                                             concentrations.to.use = c(0, 2.2)
+) {
+  seabird.data.to.use.temporary <- seabird.data.to.use %>%
+    gather(key = constituent,
+           value = concentration,
+           -c(1:4)) %>%
+    filter(year(date) %in% years.to.use,
+           RM %in% RMs.to.use,
+           constituent == parameter.to.plot) %>%
+    arrange(date, elevation_m) %>%
+    mutate(concentration = as.numeric(concentration))
+  
+  if (is.null(color.ramp.to.use)) {
+    color.ramp.to.use <- c("blue", "red")
+  }
+  colorize.function <- colorRampPalette(color.ramp.to.use)
+  
+  seabird.data.to.use.temporary %>%
+    ggplot(aes(x = concentration,
+               y = elevation_m,
+               col = month(date,label = TRUE),
+               group = date)) +
+    geom_point() +
+    geom_path() +
+    theme_classic() +
+    scale_color_manual(values = colorize.function(length(unique(month(seabird.data.to.use.temporary$date,
+                                                                      label = TRUE)))),
+                       name = "Month") +
+    ylim(c(543, 635)) +
+    xlim(concentrations.to.use) +
+    labs(x = xlabel.to.use,
+         y = "Elevation (m)",
+         title = years.to.use)
+  
+}
+
