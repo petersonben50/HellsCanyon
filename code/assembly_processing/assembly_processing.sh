@@ -77,6 +77,20 @@ conda activate lftp
 #rm -fr 20200731_DNASeq_PE150
 #exit
 
+
+############################################
+############################################
+# Rename metagenomes
+############################################
+############################################
+awk -F "," '{ print $1 }' ~/HellsCanyon/metadata/lists/metagenome_key.csv | while read metagenomeID
+do
+  echo "Processing" $metagenomeID
+  mv $metagenomeID*R1*fastq.gz $metagenomeID\_R1.fastq.gz
+  mv $metagenomeID*R2*fastq.gz $metagenomeID\_R2.fastq.gz
+done
+
+
 ############################################
 ############################################
 # Trimming metagenomes
