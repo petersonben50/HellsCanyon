@@ -250,6 +250,7 @@ time.course.profile.plot <- function(geochem.data.to.use,
                                      parameter.to.plot,
                                      xlabel.to.use,
                                      color.ramp.to.use = NULL,
+                                     color.vector.to.use = NULL,
                                      concentrations.to.use = c(0, 2.2)
                                      ) {
   geochem.data.to.use.temporary <- geochem.data.to.use %>%
@@ -258,20 +259,22 @@ time.course.profile.plot <- function(geochem.data.to.use,
            constituent == parameter.to.plot) %>%
     arrange(date, elevation_m)
   
-  if (is.null(color.ramp.to.use)) {
-    color.ramp.to.use <- c("blue", "red")
+  if (is.null(color.vector.to.use)) {
+    if (is.null(color.ramp.to.use)) {
+      color.ramp.to.use = c("blue", "red")
+    }
+    colorize.function = colorRampPalette(color.ramp.to.use)
+    color.vector.to.use = colorize.function(length(unique(month(geochem.data.to.use.temporary$date))))
   }
-  colorize.function <- colorRampPalette(color.ramp.to.use)
-  
   geochem.data.to.use.temporary %>%
     ggplot(aes(x = concentration,
                y = elevation_m,
                col = month(date,label = TRUE),
-               group = month(date,label = TRUE))) +
+               group = date)) +
     geom_point() +
     geom_path() +
     theme_classic() +
-    scale_color_manual(values = colorize.function(length(unique(month(geochem.data.to.use.temporary$date)))),
+    scale_color_manual(values = color.vector.to.use,
                        name = "Month") +
     ylim(c(543, 635)) +
     xlim(concentrations.to.use) +

@@ -15,55 +15,78 @@ source("code/geochem/profile_functions.R")
 #### Read in geochem data ####
 geochem.data <- read.csv("dataEdited/geochem/geochem_WC.csv") %>%
   filter(depth != "SW") %>%
-  mutate(depth = as.numeric(depth))
+  mutate(depth = as.numeric(depth)) %>%
+  arrange(depth)
 seabird.data <- readRDS("dataEdited/seabird/seabird_data.rds") %>%
   filter(!is.na(diss_oxy_mg_per_l))
-
-
+geochem.data.of.interest <- geochem.data %>%
+  mutate(RM_date = paste(RM, date, sep = "-")) %>%
+  filter(RM_date %in% (geochem.data %>%
+                         filter(month(date) >=5 & month(date) <= 11,
+                                constituent == "f_no3_mg_n_per_l") %>%
+                         group_by(date, RM, constituent) %>%
+                         summarise(count = n()) %>%
+                         ungroup() %>%
+                         filter(count >= 3) %>%
+                         mutate(RM_date = paste(RM, date, sep = "-")) %>%
+                         select(RM_date) %>%
+                         unlist(use.names = FALSE)
+                       )) %>%
+  select(-RM_date)
+  
 
 #### Generate nitrate plots ####
-nitrate.2015 <- time.course.profile.plot(geochem.data.to.use = geochem.data,
-                         years.to.use = 2015,
-                         RMs.to.use = c(286,300, 310),
-                         parameter.to.plot = "f_no3_mg_n_per_l",
-                         xlabel.to.use = "Nitrate (mgN/L)",
-                         color.ramp.to.use = cb.translator[c("black", "orange", "yellow")]) +
+# Nitrate color ramp
+colorize.function = colorRampPalette(cb.translator[c("black", "orange", "yellow")])
+nitrate.vector = colorize.function(7)
+names(nitrate.vector) <- floor_date(seq(from = as.Date("2017-05-01"),
+                                        to = as.Date("2017-11-01"),
+                                        by = 1),
+                                    'month') %>%
+  unique() %>% month(label = TRUE)
+
+nitrate.2015 <- time.course.profile.plot(geochem.data.to.use = geochem.data.of.interest,
+                                         years.to.use = 2015,
+                                         RMs.to.use = c(286,300, 310),
+                                         parameter.to.plot = "f_no3_mg_n_per_l",
+                                         xlabel.to.use = "Nitrate (mgN/L)",
+                                         color.vector.to.use = nitrate.vector) +
     facet_wrap(~RM)
-nitrate.2016 <- time.course.profile.plot(geochem.data.to.use = geochem.data,
+nitrate.2016 <- time.course.profile.plot(geochem.data.to.use = geochem.data.of.interest,
                                          years.to.use = 2016,
                                          RMs.to.use = c(286,300, 310),
                                          parameter.to.plot = "f_no3_mg_n_per_l",
                                          xlabel.to.use = "Nitrate (mgN/L)",
-                                         color.ramp.to.use = cb.translator[c("black", "orange", "yellow")]) +
+                                         color.vector.to.use = nitrate.vector) +
   facet_wrap(~RM)
 
-nitrate.2017 <- time.course.profile.plot(geochem.data.to.use = geochem.data,
+nitrate.2017 <- time.course.profile.plot(geochem.data.to.use = geochem.data.of.interest,
                                          years.to.use = 2017,
                                          RMs.to.use = c(286,300, 310),
                                          parameter.to.plot = "f_no3_mg_n_per_l",
                                          xlabel.to.use = "Nitrate (mgN/L)",
-                                         color.ramp.to.use = cb.translator[c("black", "orange", "yellow")]) +
+                                         color.vector.to.use = nitrate.vector) +
   facet_wrap(~RM)
-nitrate.2018 <- time.course.profile.plot(geochem.data.to.use = geochem.data,
+nitrate.2018 <- time.course.profile.plot(geochem.data.to.use = geochem.data.of.interest,
                                          years.to.use = 2018,
                                          RMs.to.use = c(286,300, 310),
                                          parameter.to.plot = "f_no3_mg_n_per_l",
                                          xlabel.to.use = "Nitrate (mgN/L)",
-                                         color.ramp.to.use = cb.translator[c("black", "orange", "yellow")]) +
+                                         color.vector.to.use = nitrate.vector) +
   facet_wrap(~RM)
-nitrate.2019 <- time.course.profile.plot(geochem.data.to.use = geochem.data,
+nitrate.2019 <- time.course.profile.plot(geochem.data.to.use = geochem.data.of.interest,
                                          years.to.use = 2019,
                                          RMs.to.use = c(286,300, 310),
                                          parameter.to.plot = "f_no3_mg_n_per_l",
                                          xlabel.to.use = "Nitrate (mgN/L)",
-                                         color.ramp.to.use = cb.translator[c("black", "orange", "yellow")]) +
+                                         color.vector.to.use = nitrate.vector) +
   facet_wrap(~RM)
 
 
 #### Save out nitrate plots ####
 pdf("results/geochem/nitrate_time_course.pdf",
-    width = 7,
-    height = 20)
+    width = 5,
+    height = 15)
 ggarrange(nitrate.2015, nitrate.2016, nitrate.2017, nitrate.2018, nitrate.2019,
           ncol = 1)
 dev.off()
@@ -114,7 +137,7 @@ MeHg.2019 <- time.course.profile.plot(geochem.data.to.use = geochem.data,
 
 #### Save out MeHg plots ####
 pdf("results/geochem/MeHg_time_course.pdf",
-    width = 7,
+    width = 5,
     height = 20)
 ggarrange(MeHg.2015, MeHg.2016, MeHg.2017, MeHg.2018, MeHg.2019,
           ncol = 1)
