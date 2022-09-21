@@ -38,7 +38,8 @@ all.geochem.data <- read_xlsx("dataRaw/dataRelease_chem/v2/HCC - V2 Data Release
          HgT_diss_ngL, MeHg_diss_ngL, MeHg_diss_percent,
          HgT_part_ngL, MeHg_part_ngL, MeHg_part_percent,
          f_mn_mg_per_l, f_so4_mg_per_l, f_no3_mg_n_per_l,
-         f_cl_mg_per_l, f_inorganic_sulfide_mg_per_l) %>%
+         f_cl_mg_per_l, f_inorganic_sulfide_mg_per_l,
+         doc_boulder_mgc_per_l, suva_254nm_l_per_mgc_per_m) %>%
   # Make it long!
   gather(key = constituent,
          value = concentration,
@@ -51,7 +52,8 @@ all.geochem.data <- read_xlsx("dataRaw/dataRelease_chem/v2/HCC - V2 Data Release
   mutate(concentration = gsub("<", "", concentration)) %>%
   mutate(concentration = as.numeric(concentration),
          depth = as.numeric(depth))
-
+# Warning messages expected here.
+  
 
 #### Add nitrite data for 2019 ####
 nitrite.2019.data <- read_xlsx("dataRaw/waterChemistry/HCC_01272020_July 2019 Intensive Metals Data_For Ben Peterson.xlsx",
