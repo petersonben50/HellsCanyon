@@ -11,79 +11,40 @@ cb.translator <- readRDS("references/colorblind_friendly_colors.rds")
 
 
 #### Read in data ####
-Hg.data <- read.csv("dataEdited/waterChemistry/Hg_data.csv") %>%
-  group_by(date, RM, depth, constituent) %>%
-  summarise(concentration = sum(concentration))
+geochem.data <- readRDS("dataEdited/geochem/geochem_WC_adjusted_for_redox_classification.rds")
 hgcA.data <- read.csv("dataEdited/hgcA_analysis/depth/hgcA_coverage.csv")
 
 
 #### Summarize hgcA data at each depth ####
-hgcA.data <- hgcA.data %>%
+hgcA.data.sum <- hgcA.data %>%
   filter(rep == TRUE) %>%
   filter(!(RM %in% c(305, 314, 318)),
          !(RM == 286 & year(date) == 2019)) %>%
   group_by(date, RM, depth, redoxClassification) %>%
   summarise(hgcA_coverage = sum(coverage)) %>%
+  mutate(RM = as.character(RM),
+         date = as.Date(date)) %>%
   ungroup()
 
 
 #### Combine data ####
-all.data <- full_join(Hg.data,
-                      hgcA.data)
-rm(Hg.data,
-   hgcA.data)
+all.data <- right_join(geochem.data,
+                      hgcA.data.sum)
+rm(geochem.data,
+   hgcA.data.sum)
 
 
-#### Set up vectors for Hg and hgcA depth plots ####
-color.vector <- c(cb.translator["black"],
-                  cb.translator["bluishgreen"])
-names(color.vector) <- c("hgcA_coverage", "FMHG")
-labels.vector <- c("hgcA coverage\n(per 100X SCG)",
-                   "Dissolved MeHg\n(ng/L)")
-names(labels.vector) <- c("hgcA_coverage", "FMHG")
-points.vector <- c(16, 17)
-names(points.vector) <- c("hgcA_coverage", "FMHG")
 
+#### Generate needed vectors ####
+redox.color.vector <- cb.translator[c("bluishgreen", "reddishpurple", "orange", "black", "blue")]
+names(redox.color.vector) <- c("oxic", "suboxic", "no_nitrate_no_sulfide", "no_nitrate_possible_sulfide", "sulfidic")
 
-#### Prepare data for plotting ####
-MeHg.hgcA.data <- all.data %>%
-  filter(year(date) %in% c(2017, 2018),
-         RM %in% c(286, 300)) %>%
-  spread(key = constituent,
-         value = concentration) %>%
-  filter(!is.na(hgcA_coverage)) %>%
-  gather(key = constituent,
-         value = abundance,
-         -c(1:4)) %>%
-  filter(constituent %in% names(color.vector)) %>%
-  mutate(date.site = paste(year(date), "-RM", RM,
-                           sep = ""))
+redox.year.vector <- c(16, 17, 15)
+names(redox.year.vector) <- c(2017, 2018, 2019)
 
-#### Set up vectors for MeHg vs hgcA scatterplot ####
-redox.color.vector <- c(cb.translator["bluishgreen"],
-                        cb.translator["orange"],
-                        cb.translator["blue"])
-names(redox.color.vector) <- c("oxic", "suboxic", "euxinic")
-redox.year.vector <- c(16, 17, 2)
-names(redox.year.vector) <- c("2017", "2018", "2019")
-
-
-#### Set up data for scatterplot ####
-MeHg.hgcA.scatterplot.data <- all.data %>%
-  spread(key = constituent,
-         value = concentration) %>%
-  filter(!is.na(hgcA_coverage)) %>%
-  gather(key = constituent,
-         value = abundance,
-         -c(1:4)) %>%
-  filter(constituent %in% names(color.vector)) %>%
-  mutate(date.site = paste(year(date), "-RM", RM,
-                           sep = "")) %>%
-  ungroup() %>%
-  spread(key = constituent,
-         value = abundance) %>%
-  mutate(redoxClassification = fct_relevel(redoxClassification,
-                                           names(redox.color.vector)))
+renaming.vector <- c("Oxygen detected", "No oxygen, nitrate detected", "No nitrate, no sulfide",
+                     "No nitrate, sulfide not measured", "Sulfide detected")
+names(renaming.vector) <- names(redox.color.vector)
 
 
 
@@ -92,13 +53,29 @@ MeHg.hgcA.scatterplot.data <- all.data %>%
 # I think they actually are below the effective DL of our analysis. Due to the 
 # log transformation, this is skewing the data left, so we're going to remove
 # these samples.
-MeHg.hgcA.scatterplot.data <- MeHg.hgcA.scatterplot.data %>%
+all.data <- all.data %>%
   filter(hgcA_coverage > 0.001)
 
 
+
+#### Quick look ####
+all.data %>%
+  ggplot(aes(x = log(hgcA_coverage, 10),
+             y = log(MeHg_diss_ngL, 10))) +
+  geom_smooth(method = lm ,
+              color = "black",
+              fill = "grey75",
+              se = TRUE,
+              fullrange = TRUE,
+              level = 0.95) +
+  geom_point(aes(color = redox_status,
+                 shape = as.character(year(date))),
+             size = 2)
+
+
 #### Linear regression of points ####
-mehg.hgcA.model <- lm(log(FMHG, 10) ~ log(hgcA_coverage, 10),
-                      data = MeHg.hgcA.scatterplot.data)
+mehg.hgcA.model <- lm(log(all.data$MeHg_diss_ngL, 10) ~ log(all.data$hgcA_coverage, 10),
+                      data = all.data)
 summary(mehg.hgcA.model)
 # Get p-value
 f <- summary(mehg.hgcA.model)$fstatistic
@@ -108,73 +85,49 @@ summary(mehg.hgcA.model)$coefficients[2, 1]
 
 
 #### Generate scatterplot ####
-hgcA.MeHg.scatterplot <- MeHg.hgcA.scatterplot.data %>%
-  ggplot(aes(x = log(hgcA_coverage, 10),
-             y = log(FMHG, 10),
-             color = redoxClassification,
-             shape = as.character(year(date)))) +
-  geom_point(aes(color = redoxClassification)) +
-  geom_abline(slope = coef(mehg.hgcA.model)[[2]],
-              intercept = coef(mehg.hgcA.model)[[1]]) +
-  geom_label(x = 0.5, y = -0.5,
-             label = paste("Adjusted r2 = ", round(summary(mehg.hgcA.model)$adj.r.squared, 2), "\n",
-                           "p = ", p.value,
-                           sep = ""),
-             color = "black") +
-  scale_color_manual(values = redox.color.vector,
-                     name = "Redox status") +
-  scale_shape_manual(values = redox.year.vector,
-                     name = "Year") +
-  ylim(c(-1.5, 0.75)) +
-  xlab("Log of hgcA abundance") +
-  ylab("Log of dissolved MeHg (ng/L)") +
-  theme_classic() +
-  theme(legend.position = c(0.22, 0.75),
-        axis.text.x = element_text(colour = "black"),
-        axis.text.y = element_text(colour = "black"),
-        legend.key = element_rect(fill = "transparent", colour = "black"))
-hgcA.MeHg.scatterplot
-
-
-
-hgcA.MeHg.scatterplot.shading <- MeHg.hgcA.scatterplot.data %>%
-  ggplot(aes(x = log(hgcA_coverage, 10),
-             y = log(FMHG, 10))) +
+hgcA.MeHg.scatterplot <- all.data %>%
+  ggplot(aes(x = hgcA_coverage,
+             y = MeHg_diss_ngL)) +
   geom_smooth(method = lm ,
               color = "black",
               fill = "grey75",
               se = TRUE,
-              level = 0.98) +
+              fullrange = TRUE,
+              level = 0.95) +
+  geom_point(aes(color = redox_status,
+                 shape = as.character(year(date))),
+             size = 2) +
+  geom_abline(slope = coef(mehg.hgcA.model)[[2]],
+              intercept = coef(mehg.hgcA.model)[[1]]) +
   geom_label(x = 0.5, y = -0.5,
-             label = paste("Adjusted r2 = ", round(summary(mehg.hgcA.model)$adj.r.squared, 2), "\n",
+             label = paste("Adjusted R2 = ", round(summary(mehg.hgcA.model)$adj.r.squared, 2), "\n",
                            "p = ", p.value,
                            sep = ""),
              color = "black") +
   scale_color_manual(values = redox.color.vector,
+                     labels = renaming.vector,
                      name = "Redox status") +
   scale_shape_manual(values = redox.year.vector,
+                     labels = renaming.vector,
                      name = "Year") +
-  xlab("Log of hgcA abundance") +
-  ylab("Log of dissolved MeHg (ng/L)") +
-  ylim(c(-1.5, 0.75)) +
+  xlab("hgcA abundance (%)") +
+  ylab("Filter-passing MeHg (ng/L)") +
   theme_classic() +
   theme(legend.position = c(0.22, 0.75),
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"),
-        legend.key = element_rect(fill = "transparent", colour = "black"))
-hgcA.MeHg.scatterplot.shading
+        legend.key = element_rect(fill = "transparent", colour = "black")) +
+  scale_x_continuous(limits = c(0.003, 10),
+                     trans = 'log10') +
+  scale_y_continuous(limits = c(0.06, 4),
+                     trans = 'log10')
+hgcA.MeHg.scatterplot
 
 
 
 #### Save out scatterplot ####
-pdf("results/manuscript_figures/MeHg_hgcA_corr_main_figure.pdf",
-    width = 5,
-    height = 4.5)
+pdf("results/hgcA_analysis/MeHg_vs_hgcA.pdf",
+    width = 3.5,
+    height = 3)
 hgcA.MeHg.scatterplot
-dev.off()
-
-pdf("results/manuscript_figures/MeHg_hgcA_corr_main_figure_shading.pdf",
-    width = 5,
-    height = 4.5)
-hgcA.MeHg.scatterplot.shading
 dev.off()
