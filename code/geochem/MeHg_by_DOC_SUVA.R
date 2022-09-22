@@ -19,11 +19,11 @@ geochem.data.adj <- readRDS("dataEdited/geochem/geochem_WC_adjusted_for_redox_cl
 
 #### Generate needed vectors ####
 unique(geochem.data.adj$redox_status)
-redox.color.vector <- cb.translator[c("bluishgreen", "reddishpurple", "orange", "skyblue", "blue")]
+redox.color.vector <- cb.translator[c("bluishgreen", "reddishpurple", "orange", "black", "blue")]
 names(redox.color.vector) <- c("oxic", "suboxic", "no_nitrate_no_sulfide", "no_nitrate_possible_sulfide", "sulfidic")
 
-redox.shape.vector <- c(16, 17, 15, 5, 18)
-names(redox.shape.vector) <- names(redox.color.vector)
+redox.year.vector <- c(5, 18, 16, 17, 15)
+names(redox.year.vector) <- c(2015, 2016, 2017, 2018, 2019)
 
 renaming.vector <- c("Oxygen detected", "No oxygen, nitrate detected", "No nitrate, no sulfide",
                      "No nitrate, sulfide not measured", "Sulfide detected")
@@ -37,13 +37,13 @@ geochem.data.adj %>%
              y = suva_254nm_l_per_mgc_per_m,
              col = redox_status)) +
   geom_point(aes(color = redox_status,
-                 shape = redox_status)) +
+                 shape = as.character(year(date)))) +
   scale_color_manual(values = redox.color.vector,
                      labels = renaming.vector,
                      name = "Redox status") +
-  scale_shape_manual(values = redox.shape.vector,
+  scale_shape_manual(values = redox.year.vector,
                      labels = renaming.vector,
-                     name = "Redox status") +
+                     name = "Year") +
   theme_classic()
 
 
@@ -54,13 +54,13 @@ MeHg.vs.SUVA <- geochem.data.adj %>%
              y = MeHg_diss_ngL,
              col = redox_status)) +
   geom_point(aes(color = redox_status,
-                 shape = redox_status)) +
+                 shape = as.character(year(date)))) +
   scale_color_manual(values = redox.color.vector,
                      labels = renaming.vector,
                      name = "Redox status") +
-  scale_shape_manual(values = redox.shape.vector,
+  scale_shape_manual(values = redox.year.vector,
                      labels = renaming.vector,
-                     name = "Redox status") +
+                     name = "Year") +
   theme_classic() +
   labs(x = "DOC SUVA254",
        y = "MeHg (ng/L)") +
@@ -74,13 +74,13 @@ MeHg.vs.DOC <- geochem.data.adj %>%
              y = MeHg_diss_ngL,
              col = redox_status)) +
   geom_point(aes(color = redox_status,
-                 shape = redox_status)) +
+                 shape = as.character(year(date)))) +
   scale_color_manual(values = redox.color.vector,
                      labels = renaming.vector,
                      name = "Redox status") +
-  scale_shape_manual(values = redox.shape.vector,
+  scale_shape_manual(values = redox.year.vector,
                      labels = renaming.vector,
-                     name = "Redox status") +
+                     name = "Year") +
   theme_classic() +
   labs(x = "DOC (mg/L)",
        y = "MeHg (ng/L)") +
