@@ -87,6 +87,29 @@ MeHg.vs.DOC <- geochem.data.adj %>%
   theme(legend.position = c(0.3, 0.85))
 
 
+
+#### Linear correlations ####
+linear.model.doc <- lm(MeHg_diss_ngL ~ doc_boulder_mgc_per_l + year(date),
+                       data = geochem.data.adj %>% filter(redox_status != "oxic"))
+# Check residuals
+shapiro.test(linear.model.doc$residuals)
+par(mfrow = c(1,2))
+plot(density(linear.model.doc$residuals),
+     main="Density plot of residuals",
+     ylab="Density",
+     xlab="Residuals")
+# QQ-normal plot
+qqnorm(linear.model.doc$residuals)
+qqline(linear.model.doc$residuals)
+# Little bit further from normality, but fairly close.
+# Mostly has a right skew here.
+# We'll go ahead with it.
+
+# Summarize model
+summary(linear.model.doc)
+
+
+
 #### Save out plot ####
 pdf("results/geochem/MeHg_DOC.pdf",
     width = 7.2,
