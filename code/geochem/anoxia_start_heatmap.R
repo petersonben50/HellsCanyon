@@ -1,10 +1,14 @@
+#### code/geochem/anoxia_start_heatmap.R ####
+# Benjamin D. Peterson
 
+#### Set the table ####
 setwd("~/Documents/research/HellsCanyon/")
 library(fields)
 library(lubridate)
 library(readxl)
 library(tidyverse)
 cb.translator <- readRDS("references/colorblind_friendly_colors.rds")
+
 
 #### Read in data ####
 seabird.data <- read_xlsx("dataRaw/dataRelease_chem/v2/HCC - V2 Data Release_Master File_Oct 2019 to present_V2_9_forModelingGroup.xlsx",
@@ -15,7 +19,6 @@ seabird.data <- read_xlsx("dataRaw/dataRelease_chem/v2/HCC - V2 Data Release_Mas
          date = as.Date(measurement_collection_date_mm_dd_yy_h_mm)) %>%
   select(RM, date, depth, elevation_m, water_temp_deg_c, diss_oxy_mg_per_l,
          spec_cond_ms_per_cm, ph, turb_ntu)
-
 
 
 #### Generate matrix with min DO value for each profile (by date and RM) ####
@@ -92,7 +95,6 @@ plot.anoxia.by.year <- function(year.of.interest) {
                                                   bias = 1, space = "rgb"))
 
 }
-
 
 
 #### Save out PDF of plots ####
