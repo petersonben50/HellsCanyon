@@ -22,8 +22,7 @@ unique.locations.per.year <- all.redox.data %>%
   select(sampling.year, RM, depth, times.sampled)
 
 
-#### See where DO and geochem data matches up ####
-
+#### Clean up the data ####
 # First, let's see where the data matches up.
 seabird.data <- readRDS("dataEdited/seabird/seabird_data.rds") %>%
   filter(!is.na(diss_oxy_mg_per_l)) %>%
@@ -41,7 +40,8 @@ for (entry in 1:dim(unique.locations.per.year)[1]) {
   data.subset <- seabird.data %>%
     filter(year(date) == sampling.year.of.interest,
            RM == RM.of.interest)
-
+  
+  #### Interpolate profiles and predict DO levels at give depth and location of interest ####
   for (date in unique(data.subset$date)) {
 
     list.of.dates <- unique(data.subset$date)
@@ -58,16 +58,19 @@ for (entry in 1:dim(unique.locations.per.year)[1]) {
                                       DO = DO.at.depth)
 
   }
-
+  
+  #### Interpolate DO levels at depth of interest across the year ####
   interp.DO.by.date <- approx(x = DO.at.depth.by.date$date,
                               y = DO.at.depth.by.date$DO,
                               xout = seq(min(DO.at.depth.by.date$date),
                                          max(DO.at.depth.by.date$date),
                                          by = 1),
                               rule = 2)
+  
+  #### Identify date when DO levels dropped below 0.5 mg/L ####
   date.of.initial.anoxia.df <- data.frame(date = as.Date(interp.DO.by.date$x),
                                        DO = interp.DO.by.date$y) %>%
-    mutate(anoxic = (DO < 1)) %>%
+    mutate(anoxic = (DO < 0.5)) %>%
     group_by(anoxic) %>%
     summarise(date = min(date)) %>%
     ungroup()
@@ -88,7 +91,7 @@ for (entry in 1:dim(unique.locations.per.year)[1]) {
                                                                                    sep = ""))
                                             )
   }
-
+  #### Add anoxia start date to dataframe ####
   if (entry == 1) {
     anoxia.start.df <- date.of.initial.anoxia.df
   } else {
@@ -96,6 +99,9 @@ for (entry in 1:dim(unique.locations.per.year)[1]) {
                              date.of.initial.anoxia.df)
   }
 }
+
+
+#### Save out the data ####
 saveRDS(anoxia.start.df,
         "dataEdited/geochem/anoxia_start_dates.rds")
 
