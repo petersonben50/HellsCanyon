@@ -39,15 +39,11 @@ plot.MeHg.anoxia <- function(year.of.interest) {
     filter(sampling.year == year.of.interest) %>%
     ggplot(aes(x = as.integer(anoxia.age),
                y = MeHg_diss_ngL)) +
-    geom_point(aes(color = redox_status,
-                   shape = as.character(RM)),
+    geom_point(aes(color = redox_status),
                size = 2) +
     scale_color_manual(values = color.vector,
                        labels = renaming.vector,
                        name = "Redox status") +
-    scale_shape_manual(values = shape.vector,
-                       labels = renaming.vector,
-                       name = "River Mile") +
     labs(title = year.of.interest,
          x = "Length of anoxia (days)",
          y = "Filter-passing MeHg (ng/L)") +
