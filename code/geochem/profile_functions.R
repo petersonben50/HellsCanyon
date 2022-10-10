@@ -251,8 +251,9 @@ time.course.profile.plot <- function(geochem.data.to.use,
                                      xlabel.to.use,
                                      color.ramp.to.use = NULL,
                                      color.vector.to.use = NULL,
-                                     concentrations.to.use = c(0, 2.2)
-                                     ) {
+                                     concentrations.to.use = c(0, 2.2),
+                                     depths.to.use = c(543, 641),
+                                     inflow.data.to.use = NULL) {
   geochem.data.to.use.temporary <- geochem.data.to.use %>%
     filter(year(date) %in% years.to.use,
            RM %in% RMs.to.use,
@@ -266,22 +267,43 @@ time.course.profile.plot <- function(geochem.data.to.use,
     colorize.function = colorRampPalette(color.ramp.to.use)
     color.vector.to.use = colorize.function(length(unique(month(geochem.data.to.use.temporary$date))))
   }
-  geochem.data.to.use.temporary %>%
-    ggplot(aes(x = concentration,
-               y = elevation_m,
-               col = month(date,label = TRUE),
-               group = date)) +
-    geom_point() +
-    geom_path() +
-    theme_classic() +
-    scale_color_manual(values = color.vector.to.use,
-                       name = "Month") +
-    ylim(c(543, 635)) +
-    xlim(concentrations.to.use) +
-    labs(x = xlabel.to.use,
-         y = "Elevation (m)",
-         title = years.to.use)
+  
+    plot.image <- geochem.data.to.use.temporary %>%
+      ggplot(aes(x = concentration,
+                 y = elevation_m,
+                 col = month(date,label = TRUE),
+                 group = date)) +
+      geom_point() +
+      geom_path() +
+      scale_color_manual(values = color.vector.to.use,
+                         name = "Month") +
+      theme_classic() +
+      ylim(depths.to.use) +
+      xlim(concentrations.to.use) +
+      labs(x = xlabel.to.use,
+           y = "Elevation (m)",
+           title = years.to.use) +
+      theme(axis.text.x = element_text(colour = "black"),
+            axis.text.y = element_text(colour = "black"))
     
+    # Add inflow data if provided
+    if (!is.null(inflow.data.to.use)) {
+      inflow.data.to.use <- inflow.data.to.use %>%
+        mutate(location = "inflow",
+               date = as.Date(date)) %>%
+        filter(year(date) %in% years.to.use,
+               constituent == parameter.to.plot) %>%
+        arrange(date, elevation_m)
+      plot.image <- plot.image +
+        geom_point(data = inflow.data.to.use,
+                   aes(x = concentration,
+                       y = elevation_m,
+                       col = month(date,label = TRUE)),
+                   pch = 2) +
+        geom_hline(yintercept = 635,
+                   linetype = 2)
+    }
+    plot.image
 }
 
 

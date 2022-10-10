@@ -71,7 +71,7 @@ plot.2019 <- plot.MeHg.anoxia(2019) + theme(legend.position = "none")
 
 
 #### Save PDF of graphs ####
-pdf("results/geochem/MeHg_age_of_anoxia.pdf",
+pdf("results/geochem/MeHg_age_of_anoxia_log.pdf",
     width = 7.2,
     height = 9)
 ggarrange(plot.2016, plot.2017,
@@ -81,6 +81,7 @@ ggarrange(plot.2016, plot.2017,
           ncol = 2,
           labels = c("a.", "b.", "c.", "d."))
 dev.off()
+
 
 
 #### Statistically test linear correlations between MeHg and anoxia age ####
