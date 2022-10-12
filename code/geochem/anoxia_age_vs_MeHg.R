@@ -50,6 +50,7 @@ plot.MeHg.anoxia <- function(year.of.interest) {
     theme_classic() +
     scale_y_continuous(limits = c(0.01, 3.5),
                        trans = 'log10') +
+    scale_x_continuous(limits = c(0, 200)) +
     theme(axis.text.x = element_text(colour="black"),
           axis.text.y = element_text(colour="black"),
           axis.text = element_text(size = 10),
