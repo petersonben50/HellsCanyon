@@ -7,7 +7,7 @@ rm(list = ls())
 setwd("~/Documents/research/HellsCanyon/")
 library(lubridate)
 library(tidyverse)
-cb.translator <- readRDS("references/colorblind_friendly_colors.rds")
+source("code/HCC_plotting_needs.R")
 
 
 #### Read in data ####
@@ -32,19 +32,6 @@ all.data <- right_join(geochem.data,
                       hgcA.data.sum)
 rm(geochem.data,
    hgcA.data.sum)
-
-
-
-#### Generate needed vectors ####
-redox.color.vector <- cb.translator[c("bluishgreen", "reddishpurple", "orange", "black", "blue")]
-names(redox.color.vector) <- c("oxic", "suboxic", "no_nitrate_no_sulfide", "no_nitrate_possible_sulfide", "sulfidic")
-
-redox.year.vector <- c(16, 17, 15)
-names(redox.year.vector) <- c(2017, 2018, 2019)
-
-renaming.vector <- c("Oxygen detected", "No oxygen, nitrate detected", "No nitrate, no sulfide",
-                     "No nitrate, sulfide not measured", "Sulfide detected")
-names(renaming.vector) <- names(redox.color.vector)
 
 
 
@@ -104,10 +91,10 @@ hgcA.MeHg.scatterplot <- all.data %>%
                            "p = ", p.value,
                            sep = ""),
              color = "black") +
-  scale_color_manual(values = redox.color.vector,
+  scale_color_manual(values = color.vector,
                      labels = renaming.vector,
                      name = "Redox status") +
-  scale_shape_manual(values = redox.year.vector,
+  scale_shape_manual(values = shape.vector,
                      labels = renaming.vector,
                      name = "Year") +
   xlab("hgcA abundance (%)") +
