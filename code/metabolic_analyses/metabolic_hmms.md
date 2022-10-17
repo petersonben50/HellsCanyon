@@ -18,7 +18,7 @@ I then used CD-HIT to dereplicate the genes within a single year (since that's h
 I grouped them at 97% identity with the default alignment fraction.
 
 
-**Verify and classify narG gene**
+**Verify narG gene**
 
 I used the reference dataset from Lüke et al, 2016 to generate a phylogenetic tree of the identified *narG* sequences.
 First step was to build a database with the information from Luke et al.
@@ -42,6 +42,31 @@ I'll go forward with using all the *narG* genes we identified with the HMM.
 For completeness sake, I checked the alignment in Geneious.
 There were a number of truncated sequences, but for the most part they looked good.
 I trimmed the alignment to mask residues with 50% gaps and ran it through RAxML for a higher quality tree.
+I looked at the unrooted version to find a good node to root on.
+I didn't want to root it for the purposes of figuring out evo history, I just wanted to see the clades.
+Node 330 seemed like a good location to highlight these differences.
+So, in the end I kept all the *narG* hits.
+
+**Verify nirS gene**
+
+Next I looked at the *nirS* gene.
+Lüke et al, 2016 also had a dataset on this, which I combined with the *nirS* genes I identified.
+I concatenated these sequences, aligned them using MUSCLE, filtered them with Trimal at 50% gaps, and made a tree with FastTree.
+The genes from the study are sprinkled throughout this dataset, so think these are confirmed as well.
+
+
+**Verify nirK gene**
+
+Then I moved on to the nirK gene, also based on a dataset from Lüke et al, 2016.
+Also doing the same analysis, just checking to see if the identified genes look like they're actually nirK.
+Same methods, I concatenated the sequences, aligned them using MUSCLE, filtered them with Trimal at 50% gaps, and made a tree with FastTree.
+I visualized it here: `code/metabolic_analyses/nirK_tree.R`.
+There's a large group of sequences, moving out from node 1026, that form their own large clade.
+Weirdly, the closely *nirS* sequence is from *Elizabethkingia meningoseptica*, which seems to be a pathogen of clinical importance?
+Looking at the alignment, these divergent sequences do have a longer amino acid sequence at the C-terminus.
+My fear is that these are not actually *nirS* and that they're inflating the abundance of *nirS*, which is quite high.
+Let's run a RAxML tree to see what that says.
+
 
 
 **Classify dsrA genes**

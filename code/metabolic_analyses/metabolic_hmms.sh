@@ -164,7 +164,7 @@ done
 
 ############################################
 ############################################
-# Verify and classify narG gene
+# Verify narG gene
 ############################################
 ############################################
 
@@ -231,6 +231,93 @@ $raxml -f a \
         -T 20 \
         -s narG_for_tree_trimmed.afa.reduced \
         -n narG
+
+
+############################################
+############################################
+# Verify nirS gene
+############################################
+############################################
+
+# On GLBRC
+screen -S HCC_nirS_ref_tree
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=""
+
+mkdir ~/HellsCanyon/references/nirS
+cd ~/HellsCanyon/references/nirS
+python ~/HellsCanyon/code/generalUse/cleanFASTA.py nirS_luke_database.faa
+mv -f nirS_luke_database.faa_temp.fasta nirS_luke_database_clean.faa
+
+# Generate alignment and tree for nirS
+cd ~/HellsCanyon/dataEdited/metabolic_analyses/N
+mkdir nirS
+cd nirS
+cp ~/HellsCanyon/dataEdited/metabolic_analyses/dereplication/nirS_derep.faa .
+cat ~/HellsCanyon/references/nirS/nirS_luke_database_clean.faa \
+    nirS_derep.faa >  nirS_for_tree.faa
+muscle -in nirS_for_tree.faa \
+        -out nirS_for_tree.afa
+trimal -in nirS_for_tree.afa \
+        -out nirS_for_tree_trimmed.afa \
+        -gt 0.5
+FastTree nirS_for_tree_trimmed.afa > nirS_for_tree.tree
+# RAxML tree
+# Used the reduced fasta file
+raxml=/opt/bifxapps/raxml-8.2.11/raxmlHPC-PTHREADS
+$raxml -f a \
+        -p 283976 \
+        -N autoMRE \
+        -m PROTGAMMALG \
+        -x 2381 \
+        -T 20 \
+        -s nirS_for_tree_trimmed.afa.reduced \
+        -n narG
+
+
+
+############################################
+############################################
+# Verify nirK gene
+############################################
+############################################
+
+# On GLBRC
+screen -S HCC_nirK_ref_tree
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=""
+
+mkdir ~/HellsCanyon/references/nirK
+cd ~/HellsCanyon/references/nirK
+python ~/HellsCanyon/code/generalUse/cleanFASTA.py nirK_luke_database.faa
+mv -f nirK_luke_database.faa_temp.fasta nirK_luke_database_clean.faa
+
+# Generate alignment and tree for nirK
+cd ~/HellsCanyon/dataEdited/metabolic_analyses/N
+mkdir nirK
+cd nirK
+cp ~/HellsCanyon/dataEdited/metabolic_analyses/dereplication/nirK_derep.faa .
+cat ~/HellsCanyon/references/nirK/nirK_luke_database_clean.faa \
+    nirK_derep.faa >  nirK_for_tree.faa
+muscle -in nirK_for_tree.faa \
+        -out nirK_for_tree.afa
+trimal -in nirK_for_tree.afa \
+        -out nirK_for_tree_trimmed.afa \
+        -gt 0.5
+FastTree nirK_for_tree_trimmed.afa > nirK_for_tree.tree
+# RAxML tree
+# Used the reduced fasta file
+raxml=/opt/bifxapps/raxml-8.2.11/raxmlHPC-PTHREADS
+$raxml -f a \
+        -p 283976 \
+        -N autoMRE \
+        -m PROTGAMMALG \
+        -x 2381 \
+        -T 20 \
+        -s nirK_for_tree_trimmed.afa.reduced \
+        -n nirK
 
 
 ############################################
@@ -636,23 +723,3 @@ do
     > $geneName\_derep_list.txt
   awk -v geneName="$geneName" '{ print $0","geneName }' $geneName\_derep_list.txt >> ../FeGenie_gene_key.csv
 done
-
-
-
-
-
-
-############################################
-############################################
-# Inspection of nirS gene
-############################################
-############################################
-
-cd ~/HellsCanyon/dataEdited/metabolic_analyses/identification
-mkdir ../nirS
-grep -h -v "#" nirS/201*/*_nirS.out | sort -r -k 6 > ../nirS/nirS_scores.txt
-
-source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
-conda activate bioinformatics
-PYTHONPATH=''
-PERL5LIB=''
