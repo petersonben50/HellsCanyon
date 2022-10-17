@@ -60,3 +60,36 @@ ggtree(narG.tree.rooted,
   geom_text2(aes(subset=!isTip, label=node))
 
 
+
+
+#### Final RAxML tree: Read in tree ####
+narG.raxml.unrooted <- read.newick(file = "dataEdited/metabolic_analyses/N/narG/RAxML_bipartitions.narG")
+# Final RAxML tree: Rename branches
+narG.raxml.unrooted$tip.label[which(narG.raxml.unrooted$tip.label %in% names(narG.metadata.vector))] <- narG.metadata.vector[narG.raxml.unrooted$tip.label[which(narG.raxml.unrooted$tip.label %in% names(narG.metadata.vector))]]
+
+pdf("~/Downloads/narG_raxml_raw.pdf",
+    height = 100,
+    width = 15)
+ggtree(narG.raxml.unrooted,
+       aes(x = 0, xend = 3)) +
+  geom_tiplab(size = 2) +
+  geom_text2(aes(subset=!isTip, label=node))
+dev.off()
+
+
+#### Final RAxML tree: Root tree ####
+narG.tree.rooted <- root(narG.raxml.unrooted,node = 330)
+
+
+#### Final RAxML tree: Visualize rooted tree ####
+pdf("results/metabolic_analyses/narG_tree.pdf",
+    height = 80,
+    width = 15)
+ggtree(narG.tree.rooted,
+       aes(x = 0, xend = 3)) +
+  geom_tiplab(size = 2) + 
+  geom_nodelab(aes(x = branch),
+               vjust = -.4,
+               hjust = 0.6,
+               size = 2)
+dev.off()
