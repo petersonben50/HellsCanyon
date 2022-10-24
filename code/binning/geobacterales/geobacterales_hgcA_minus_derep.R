@@ -1,4 +1,4 @@
-#### code/binning/geobacterales/geobacterales_derep.R ####
+#### code/binning/geobacterales/geobacterales_hgcA_minus_derep.R ####
 # Benjamin D. Peterson
 
 
