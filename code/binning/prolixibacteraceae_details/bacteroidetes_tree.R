@@ -1,4 +1,4 @@
-#### code/binning/phylogenies/bacteroidetes_tree.R ####
+#### code/binning/prolixibacteraceae_details/bacteroidetes_tree.R ####
 # Benjamin D. Peterson
 
 # This script will generate images of
@@ -39,7 +39,7 @@ hgcA.tree.unrooted <- read.newick(tree.name)
 rm(tree.name)
 ggtree(hgcA.tree.unrooted,
        aes(x = 0,
-           xend = 1)) + 
+           xend = 1)) +
   geom_tiplab(size=2.5, align = TRUE)
 
 #### Root tree ####
@@ -64,7 +64,7 @@ pdf("dataEdited/bins/binAnalysis/bacteroidetes_tree/bacteroidetes_tree_FastTree_
     width = 5)
 ggtree(hgcA.tree,
        aes(x = 0,
-           xend = 1)) + 
+           xend = 1)) +
   geom_tiplab(size=2.5, align = TRUE)
 dev.off()
 rm(hgcA.tree)
@@ -111,7 +111,7 @@ gtdb.tax.data <- read.table("dataEdited/bins/binAnalysis/bacteroidetes_tree/taxo
 
 
 #### Trim off excess ####
-ggtree(hgcA.tree) + 
+ggtree(hgcA.tree) +
   geom_tiplab(size=2.5) +
   geom_text2(aes(subset=!isTip, label=node))
 # Cut off at node 50
@@ -131,10 +131,10 @@ color.vector[grep("anvio", hgcA.tree.subset$tip.label)] <- cb.translator["orange
 
 
 #### Generate tree ####
-bin.tree <- ggtree(hgcA.tree.subset, aes(x = 0, xend = 1.75)) + 
+bin.tree <- ggtree(hgcA.tree.subset, aes(x = 0, xend = 1.75)) +
   geom_tiplab(size=2,
               align = TRUE,
-              colour = color.vector) + 
+              colour = color.vector) +
   geom_nodelab(aes(x = branch),
                vjust = -.4,
                hjust = 0.6,

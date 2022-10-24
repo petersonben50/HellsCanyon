@@ -3,7 +3,7 @@
 ##################################################
 ##################################################
 
-# code/binning/phylogenies/bacteroidetes_tree.sh
+# code/binning/prolixibacteraceae_details/bacteroidetes_tree.sh
 # Benjamin D. Peterson
 
 # This script will generate the rp16-based tree for
