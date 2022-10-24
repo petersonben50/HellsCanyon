@@ -1,4 +1,4 @@
-#### code/binning/phylogenies/geobacterales_tree.R ####
+#### code/binning/geobacterales/geobacterales_tree.R ####
 # Benjamin D. Peterson
 
 # This script will generate images of
