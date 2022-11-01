@@ -1,4 +1,4 @@
-#### code/cleaning_scripts/water_chem_data.R ####
+#### code/cleaning_scripts/geochem_data.R ####
 # Benjamin D. Peterson
 
 # This file contains the code to pull out the data I
@@ -31,14 +31,16 @@ all.geochem.data <- read_xlsx("dataRaw/dataRelease_chem/v2/HCC - V2 Data Release
          MeHg_diss_percent = percent_f_mehg,
          HgT_part_ngL = p_thg_vol_ng_per_l,
          MeHg_part_ngL = p_mehg_vol_ng_per_l,
-         MeHg_part_percent = percent_p_mehg) %>%
-  mutate(f_mn_mg_per_l = (as.numeric(f_mn_mcg_per_l) / 1000)) %>%
+         MeHg_part_percent = percent_p_mehg,
+         f_s2o3_mg_per_l = f_s2o3_mg_per_l_) %>%
+  mutate(f_mn_mg_per_l = (as.numeric(f_mn_mcg_per_l) / 1000),
+         f_fe_mg_per_l = (as.numeric(f_fe_mcg_per_l) / 1000)) %>%
   # Select the data of interest
   select(RM, date, depth, elevation_m, medium_code,
          HgT_diss_ngL, MeHg_diss_ngL, MeHg_diss_percent,
          HgT_part_ngL, MeHg_part_ngL, MeHg_part_percent,
-         f_mn_mg_per_l, f_so4_mg_per_l, f_no3_mg_n_per_l,
-         f_cl_mg_per_l, f_inorganic_sulfide_mg_per_l,
+         f_mn_mg_per_l, f_so4_mg_per_l, f_s2o3_mg_per_l, f_no3_mg_n_per_l,
+         f_fe_mg_per_l, f_cl_mg_per_l, f_inorganic_sulfide_mg_per_l,
          doc_boulder_mgc_per_l, suva_254nm_l_per_mgc_per_m) %>%
   # Make it long!
   gather(key = constituent,
