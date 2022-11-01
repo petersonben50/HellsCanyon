@@ -25,7 +25,15 @@ list.o.depths <- list.files(path = "dataEdited/hgcA_analysis/depth",
 
 
 #### Metadata vector ####
-metadata.df <- read_xlsx("metadata/metagenome_metadata.xlsx")
+metadata.df <- read_xlsx("metadata/metagenome_metadata.xlsx") %>%
+  select(metagenomeID, date, RM, depth, clusterID) %>%
+  # Add redox classification
+  left_join(readRDS("dataEdited/geochem/geochem_WC_adjusted_for_redox_classification.rds") %>%
+              select(date, RM, depth, redox_status) %>%
+              mutate(date = as.character(date)) %>%
+              rename(redoxClassification = redox_status))
+
+
 
 
 #### Read in and normalize depth data ####
