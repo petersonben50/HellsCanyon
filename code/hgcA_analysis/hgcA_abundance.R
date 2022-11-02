@@ -21,10 +21,10 @@ tax.data <- read_xlsx("dataEdited/hgcA_analysis/hgcA_information_edited.xlsx") %
 
 
 #### Make color vector ####
-hgcA.manual.taxonomy <- read_xlsx("dataEdited/hgcA_analysis/phylogeny/manual_taxonomy.xlsx",
-                                  sheet = "colors_to_use")
-color.vector <- cb.translator[hgcA.manual.taxonomy$colorsToUse]
-names(color.vector) <- hgcA.manual.taxonomy$seqID
+# hgcA.manual.taxonomy <- read_xlsx("dataEdited/hgcA_analysis/phylogeny/manual_taxonomy.xlsx",
+#                                   sheet = "colors_to_use")
+color.vector <- cb.translator[c("bluishgreen", "vermillion", "blue", "reddishpurple", "gray50")]
+names(color.vector) <- c("Fermenter", "high redox respiratory", "SRB", "methanogen", "unknown")
 
 
 
@@ -37,12 +37,12 @@ hgcA.data <- read.csv("dataEdited/hgcA_analysis/depth/hgcA_coverage.csv") %>%
 
 #### Variables to set ####
 abundance.cutoff = 0.05
-suboxic.fig.width = 4
-suboxic.fig.height = 4
-noN.noS.width = 2
-noN.noS.height = 4
+suboxic.fig.width = 5
+suboxic.fig.height = 3
+noN.noS.width = 1.5
+noN.noS.height = 3
 sulf.fig.width = 2
-sulf.fig.height = 4
+sulf.fig.height = 3
 
 
 #### Focus on high-hgcA content samples ####
@@ -58,6 +58,14 @@ high.hgcA.list <- hgcA.data %>%
 
 
 #### Plot total hgcA content under nitrate-reducing conditions ####
+hgcA.data %>%
+  filter(redoxClassification == "suboxic",
+         metagenomeID %in% high.hgcA.list$metagenomeID)%>%
+  mutate(date_location = paste("RM", RM, "\n", year(date), ", ", depth, "m",
+                               sep = "")) %>%
+  group_by(date_location) %>%
+  summarize(coverage = sum(coverage))
+
 nitrate.total.hgcA <- hgcA.data %>%
   filter(redoxClassification == "suboxic",
          metagenomeID %in% high.hgcA.list$metagenomeID)%>%
@@ -71,7 +79,7 @@ nitrate.total.hgcA <- hgcA.data %>%
            fill = "white",
            col = "gray25") +
   theme_classic() +
-  ylim(0, 1.25) +
+  ylim(0, 0.9) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 pdf("results/hgcA_analysis/barplots_figure/suboxic_total_hgcA.pdf",
     height = suboxic.fig.height,
@@ -86,7 +94,7 @@ nitrate.types.hgcA <- hgcA.data %>%
          metagenomeID %in% high.hgcA.list$metagenomeID) %>%
   mutate(date_location = paste("RM", RM, "\n", year(date), ", ", depth, "m",
                                sep = "")) %>%
-  group_by(date_location, predicted_metabolism, manual_classification) %>%
+  group_by(date_location, predicted_metabolism) %>%
   summarize(coverage = sum(coverage)) %>%
   # Set it up so that metabolic potentials are in same order, even if they aren't present in that sample.
   spread(key = date_location,
@@ -94,18 +102,17 @@ nitrate.types.hgcA <- hgcA.data %>%
          fill = 0) %>%
   gather(key = date_location,
          value = coverage,
-         -c(predicted_metabolism, manual_classification)) %>%
+         -c(predicted_metabolism)) %>%
   mutate(predicted_metabolism = factor(predicted_metabolism,
                                        levels = c("Fermenter", "high redox respiratory", "SRB", "methanogen", "unknown"))) %>%
   ggplot(aes(x = date_location,
              y = coverage,
-             group = predicted_metabolism,
-             fill = manual_classification)) +
+             fill = predicted_metabolism)) +
   geom_bar(stat = "identity",
            position = "dodge") +
   scale_fill_manual(values = color.vector) +
   theme_classic() +
-  ylim(0, 1.25) +
+  ylim(0, 0.9) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
         legend.position = "none")
 pdf("results/hgcA_analysis/barplots_figure/suboxic_types_hgcA.pdf",
@@ -146,7 +153,7 @@ no.nitrate.no.sulfide.types.hgcA <- hgcA.data %>%
          metagenomeID %in% high.hgcA.list$metagenomeID) %>%
   mutate(date_location = paste("RM", RM, "\n", year(date), ", ", depth, "m",
                                sep = "")) %>%
-  group_by(date_location, predicted_metabolism, manual_classification) %>%
+  group_by(date_location, predicted_metabolism) %>%
   summarize(coverage = sum(coverage)) %>%
   # Set it up so that metabolic potentials are in same order, even if they aren't present in that sample.
   spread(key = date_location,
@@ -154,13 +161,12 @@ no.nitrate.no.sulfide.types.hgcA <- hgcA.data %>%
          fill = 0) %>%
   gather(key = date_location,
          value = coverage,
-         -c(predicted_metabolism, manual_classification)) %>%
+         -c(predicted_metabolism)) %>%
   mutate(predicted_metabolism = factor(predicted_metabolism,
                                        levels = c("Fermenter", "high redox respiratory", "SRB", "methanogen", "unknown"))) %>%
   ggplot(aes(x = date_location,
              y = coverage,
-             group = predicted_metabolism,
-             fill = manual_classification)) +
+             fill = predicted_metabolism)) +
   geom_bar(stat = "identity",
            position = "dodge") +
   scale_fill_manual(values = color.vector) +
@@ -193,7 +199,7 @@ sulfidic.total.hgcA <- hgcA.data %>%
            fill = "white",
            col = "gray25") +
   theme_classic() +
-  ylim(0, 12) +
+  ylim(0, 10) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 pdf("results/hgcA_analysis/barplots_figure/sulfidic_total_hgcA.pdf",
     height = sulf.fig.height,
@@ -208,7 +214,7 @@ sulfidic.types.hgcA <- hgcA.data %>%
          metagenomeID %in% high.hgcA.list$metagenomeID) %>%
   mutate(date_location = paste("RM", RM, "\n", year(date), ", ", depth, "m",
                                sep = "")) %>%
-  group_by(date_location, predicted_metabolism, manual_classification) %>%
+  group_by(date_location, predicted_metabolism) %>%
   summarize(coverage = sum(coverage)) %>%
   # Set it up so that metabolic potentials are in same order, even if they aren't present in that sample.
   spread(key = date_location,
@@ -216,18 +222,17 @@ sulfidic.types.hgcA <- hgcA.data %>%
          fill = 0) %>%
   gather(key = date_location,
          value = coverage,
-         -c(predicted_metabolism, manual_classification)) %>%
+         -c(predicted_metabolism)) %>%
   mutate(predicted_metabolism = factor(predicted_metabolism,
                                        levels = c("Fermenter", "high redox respiratory", "SRB", "methanogen", "unknown"))) %>%
   ggplot(aes(x = date_location,
              y = coverage,
-             group = predicted_metabolism,
-             fill = manual_classification)) +
+             fill = predicted_metabolism)) +
   geom_bar(stat = "identity",
            position = "dodge") +
   scale_fill_manual(values = color.vector) +
   theme_classic() +
-  ylim(0, 12) +
+  ylim(0, 10) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
         legend.position = "none")
 sulfidic.types.hgcA
