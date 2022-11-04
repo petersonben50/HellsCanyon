@@ -96,17 +96,18 @@ PVC.bin.tree$tip.label[PVC.bin.tree$tip.label %in% names(naming.vector)] <- nami
 
 #### Make color vector for tree ####
 color.vector <- rep(cb.translator["bluishgreen"], length(PVC.bin.tree$tip.label))
-color.vector[grep("\\*\\*", PVC.bin.tree$tip.label)] <- cb.translator["skyblue"]
+color.vector[grep("\\*\\*", PVC.bin.tree$tip.label)] <- cb.translator["vermillion"]
 color.vector[grep("\\(GCF", PVC.bin.tree$tip.label)] <- "black"
 color.vector[grep("\\(GCA", PVC.bin.tree$tip.label)] <- "grey50"
-color.vector[grep("KIR|LEN", PVC.bin.tree$tip.label)] <- cb.translator["orange"]
-color.vector[grep("IMG:", PVC.bin.tree$tip.label)] <- cb.translator["vermillion"]
+color.vector[grep("KIR|LEN", PVC.bin.tree$tip.label)] <- cb.translator["skyblue"]
+color.vector[grep("IMG:", PVC.bin.tree$tip.label)] <- cb.translator["blue"]
 
 
 #### Remove BS values <50 ####
-PVC.bin.tree$node.label <- as.numeric(PVC.bin.tree$node.label)
-PVC.bin.tree$node.label[PVC.bin.tree$node.label < 50] <- ""
-
+high.bootstrap.index <- which(as.numeric(PVC.bin.tree$node.label) >= 80)
+low.bootstrap.index <- which(as.numeric(PVC.bin.tree$node.label) < 80)
+PVC.bin.tree$node.label[high.bootstrap.index] <- "*"
+PVC.bin.tree$node.label[low.bootstrap.index] <- ""
 
 
 
@@ -118,8 +119,8 @@ bin.tree <- ggtree(PVC.bin.tree,
               align = TRUE,
               colour = color.vector) + 
   geom_nodelab(aes(x = branch),
-               vjust = -.3,
-               size = 1.5) +
+               vjust = 0.2,
+               size = 3.5) +
   geom_treescale(x = 0.05,
                  y = 30,
                  width = 0.25) +

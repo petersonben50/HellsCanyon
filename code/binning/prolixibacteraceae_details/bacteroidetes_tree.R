@@ -125,8 +125,7 @@ hgcA.tree.subset <- tree_subset(hgcA.tree,
 color.vector <- rep(cb.translator["bluishgreen"], length(hgcA.tree.subset$tip.label))
 color.vector[grep("\\(GCF", hgcA.tree.subset$tip.label)] <- "black"
 color.vector[grep("\\(GCA", hgcA.tree.subset$tip.label)] <- "grey50"
-color.vector[grep("BAC_00", hgcA.tree.subset$tip.label)] <- cb.translator["skyblue"]
-color.vector[grep("anvio", hgcA.tree.subset$tip.label)] <- cb.translator["orange"]
+color.vector[grep("anvio", hgcA.tree.subset$tip.label)] <- cb.translator["vermillion"]
 
 
 
