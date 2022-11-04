@@ -50,7 +50,7 @@ writeLines(c(tree_subset(GTDB.tree,
 
 #### Read in naming info ####
 naming.df <- read_xlsx("dataEdited/bins/binAnalysis/phylogeny/geobacterales/genome_notes_geo_ref.xlsx")
-naming.vector <- paste(naming.df$family, " - ", naming.df$species,
+naming.vector <- paste(naming.df$species,
                        " (", naming.df$user_genome, ")",
                        sep = "")
 names(naming.vector) <- naming.df$user_genome
@@ -103,7 +103,7 @@ raxml.tree$node.label[raxml.tree$node.label < 50] <- ""
 
 
 #### Visualize and save out tree ####
-pdf("results/bins/binAnalysis/phylogeny/geobacterales_tree.pdf",
+pdf("results/bins/binAnalysis/geobacterales/geobacterales_tree.pdf",
     height = 4,
     width = 5)
 ggtree(raxml.tree,
