@@ -1,0 +1,23 @@
+##################
+# code/submission/emirge_run.sub
+# Submission script for running emirge
+# to extract and assemble 16S genes.
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 10
+request_memory = 30GB
+
+executable = /home/GLBRCORG/bpeterson26/HellsCanyon/code/executables/emirge_run.sh
+
+environment = "metagenome=$(metagenome) \
+                read_storage=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/metagenomes \
+                emirge_db=/home/GLBRCORG/bpeterson26/references/emirge_db \
+                emirge_output=/home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/16S_from_MG/emirge_output"
+
+output = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/outs/$(metagenome)_emirge.out
+error = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/errs/$(metagenome)_emirge.err
+log = /home/GLBRCORG/bpeterson26/HellsCanyon/reports/logs/$(metagenome)_emirge.log
+
+queue metagenome from /home/GLBRCORG/bpeterson26/HellsCanyon/dataEdited/16S_from_MG/MGs_needing_emirge.txt
