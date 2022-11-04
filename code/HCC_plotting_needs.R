@@ -11,7 +11,7 @@ color.vector <- cb.translator[c("bluishgreen", "reddishpurple", "orange", "black
 names(color.vector) <- c("oxic", "suboxic", "no_nitrate_no_sulfide", "no_nitrate_possible_sulfide", "sulfidic")
 
 shape.vector <- c(18, 16, 17, 15)
-names(shape.vector) <- c(2016, 2017, 2018, 318)
+names(shape.vector) <- c(2016, 2017, 2018, 2019)
 
 renaming.vector <- c("DO > 0.5 mg/L",
                      "DO < 0.5 mg/L, nitrate > 0.05 mgN/L",
