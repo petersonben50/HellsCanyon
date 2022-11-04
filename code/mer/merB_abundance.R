@@ -35,7 +35,8 @@ RM.of.interest <- 300
 year.of.interest <- 2018
 merB.profiling <- function(RM.of.interest,
                            year.of.interest,
-                           cluster.of.interest = NULL) {
+                           cluster.of.interest = NULL,
+                           where.to.put.legend = "none") {
   if (!is.null(cluster.of.interest)) {
     merB.data <- merB.data %>%
       filter(clusterName == cluster.of.interest)
@@ -55,16 +56,10 @@ merB.profiling <- function(RM.of.interest,
                        RM.of.interest,
                        " in ",
                        year.of.interest,
-                       sep = ""))
+                       sep = "")) +
+    theme(legend.position = where.to.put.legend)
   
 }
-
-profile.286.2018 <- merB.profiling(RM.of.interest = 286,
-                                   year.of.interest = 2018)
-profile.300.2018 <- merB.profiling(RM.of.interest = 300,
-                                   year.of.interest = 2018)
-
-profile.286.2018 + profile.300.2018
 
 
 
@@ -75,6 +70,21 @@ profile.300.2017 <- merB.profiling(RM.of.interest = 300,
 
 profile.286.2017 + profile.300.2017
 
+profile.286.2018 <- merB.profiling(RM.of.interest = 286,
+                                   year.of.interest = 2018)
+profile.300.2018 <- merB.profiling(RM.of.interest = 300,
+                                   year.of.interest = 2018)
+
+profile.286.2018 + profile.300.2018
+
+
+
+profile.300.2019 <- merB.profiling(RM.of.interest = 300,
+                                   year.of.interest = 2019)
+profile.310.2019 <- merB.profiling(RM.of.interest = 310,
+                                   year.of.interest = 2019)
+profile.300.2019 + profile.310.2019
+
 
 
 profile.286.2018 <- merB.profiling(RM.of.interest = 286,
@@ -94,5 +104,16 @@ profile.286.2017 <- merB.profiling(RM.of.interest = 286,
 profile.300.2017 <- merB.profiling(RM.of.interest = 300,
                                    year.of.interest = 2017,
                                    cluster.of.interest = "merB3")
+
+profile.286.2017 + profile.300.2017
+
+
+
+profile.286.2017 <- merB.profiling(RM.of.interest = 286,
+                                   year.of.interest = 2017,
+                                   cluster.of.interest = "merB_fused")
+profile.300.2017 <- merB.profiling(RM.of.interest = 300,
+                                   year.of.interest = 2017,
+                                   cluster.of.interest = "merB_fused")
 
 profile.286.2017 + profile.300.2017

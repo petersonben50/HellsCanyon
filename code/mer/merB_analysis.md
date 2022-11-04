@@ -1,14 +1,19 @@
 ### Notes on analyzing merB genes in the HCC assemblies
 
-**Identify merB sequences**
+**Identify mer sequences**
 
-We used the PFAM HMM to identify the putative MerB sequences from each of the assemblies.
-We then pulled out all the amino acid sequences and aligned them to the HMM.
+I used the [KOFAM HMMs](https://www.kegg.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1000&locale=en&serv=kegg&dbkey=orthology&keywords=mercuric&page=1) to identify most of the *mer* genes from each of the assemblies.
+I also used the HMM from PFAM for MerB, since there wasn't an equivalent one in KOFAM.
+The cutoffs to use for this were a little tricky.
+
+I separated the identified sequences by year.
+I then pulled out all the amino acid sequences and aligned them to the HMM, both collectively and within a year.
 I downloaded this alignment and looked at it in Geneious.
-It seems that we have different types of sequences here, but that all align fairly well.
+I manually curated the MerB and MerA hits.
 
-First we have sequences that are around 400 bp long.
-The second half of the sequence is what seems to line up with the HMM, although we should probably align the sequences against a well-characterized sequence so we can check for the cysteines.
+**Manually inspect merB hits**
+
+I first looked at the alkylmercury lyase MerB.
 
 *Concatenate and align all merB seqs with references for tree generation*
 
@@ -45,7 +50,19 @@ Alright, so now we have four groups of merB.
 3. merB2_C117I-L: These are the sequences from group 2 that have had the Cys117 residue replaced with either I or L.
 4. merB3: These are the two well-conserved merB sequences.
 
-Upload these lists to GLBRC
+Upload these lists to GLBRC.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 **Pull out depth of merB+ scaffolds**

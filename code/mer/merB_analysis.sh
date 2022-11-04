@@ -12,13 +12,9 @@
 
 ############################################
 ############################################
-# Identify merB sequences
+# Identify mer sequences
 ############################################
 ############################################
-
-######################
-# Identify putative merB genes with HMM
-######################
 
 screen -S HCC_merB_search
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
@@ -26,39 +22,101 @@ conda activate bioinformatics
 PYTHONPATH=''
 PERL5LIB=''
 scripts=~/HellsCanyon/code/generalUse/
+mer_HMMs=~/HellsCanyon/references/mer_genes
 ORFs=~/HellsCanyon/dataEdited/assemblies/ORFs
-mkdir ~/HellsCanyon/dataEdited/merB_analysis
-mkdir ~/HellsCanyon/dataEdited/merB_analysis/identification
-cd ~/HellsCanyon/dataEdited/merB_analysis/identification
-mkdir 2017 2018 2019
-cd ~/HellsCanyon/dataEdited
+mkdir ~/HellsCanyon/dataEdited/mer_analysis
+mkdir ~/HellsCanyon/dataEdited/mer_analysis/identification
+cd ~/HellsCanyon/dataEdited/mer_analysis/identification
 
-cat ~/HellsCanyon/metadata/lists/assembly_key.csv | while read -r line
+awk -F ',' '{ print $1 }' $mer_HMMs.csv | while read geneID
 do
-  assembly=`echo $line | awk -F ',' '{ print $1 }'`
-  year=`echo $line | awk -F ',' '{ print $2 }'`
-  if [ -e $ORFs/$assembly.faa ]; then
-    if [ ! -e merB_analysis/identification/$year/$assembly\_merB_report.txt ]; then
-      echo "Search for merB in" $assembly "from" $year
-      hmmsearch --tblout merB_analysis/identification/$year/$assembly\_merB.out \
-                --cpu 4 \
-                --cut_tc \
-                ~/references/merB/MerB.hmm \
-                $ORFs/$assembly.faa \
-                > merB_analysis/identification/$year/$assembly\_merB_report.txt
-      python $scripts/extract_protein_hitting_HMM.py \
-              merB_analysis/identification/$year/$assembly\_merB.out \
-              $ORFs/$assembly.faa \
-              merB_analysis/identification/$year/$assembly\_merB.faa
-    else
-      echo "Search is already done in" $assembly
-    fi
+  geneName=$(awk -F ',' -v geneID="$geneID" '$1 == geneID { print $2 }' $mer_HMMs.csv)
+  cutoff=$(awk -F ',' -v geneID="$geneID" '$1 == geneID { print $3 }' $mer_HMMs.csv)
+  echo "Searching for" $geneName
+  mkdir $geneName
+  if [ ! -e $geneName\_all.faa ]; then
+    cat ~/HellsCanyon/metadata/lists/assembly_key.csv | while read -r line
+    do
+      assembly=`echo $line | awk -F ',' '{ print $1 }'`
+      year=`echo $line | awk -F ',' '{ print $2 }'`
+      if [ ! -d $geneName/$year ]; then
+        mkdir $geneName/$year
+      fi
+
+      if [ -e $ORFs/$assembly.faa ]; then
+        if [ ! -e $geneName/$year/$assembly\_$geneName\_report.txt ]; then
+          echo "Search for" $geneName "in" $assembly "from" $year
+          hmmsearch --tblout $geneName/$year/$assembly\_$geneName.out \
+                    --cpu 4 \
+                    -T $cutoff \
+                    $mer_HMMs/$geneID.hmm \
+                    $ORFs/$assembly.faa \
+                    > $geneName/$year/$assembly\_$geneName\_report.txt
+          lineCount=`wc -l < $geneName/$year/$assembly\_$geneName.out`
+          if [ $lineCount -eq 13 ]; then
+            echo "No" $gene "hits in" $geneName
+          else
+            echo "Pulling" $geneName "sequences out of" $assembly
+            python $scripts/extract_protein_hitting_HMM.py \
+                    $geneName/$year/$assembly\_$geneName.out \
+                    $ORFs/$assembly.faa \
+                    $geneName/$year/$assembly\_$geneName.faa
+          fi
+        else
+          echo "Search is already done in" $assembly
+        fi
+      else
+        echo "Genes aren't predicted for" $assembly
+      fi
+    done
+
+    awk -F ',' '{ print $2 }' ~/HellsCanyon/metadata/lists/assembly_key.csv | \
+      sort | uniq | \
+      while read year
+      do
+        shopt -s nullglob
+        for i in $geneName/$year/*$geneName.faa; do FOUND=$i;break;done
+
+        if [ ! -z $FOUND ]; then
+          echo "Concatenating and aligning" $geneName
+          cat $geneName/$year/*$geneName.faa \
+              > $geneName\_from_$year\_all.faa
+          hmmalign -o $geneName\_from_$year.sto \
+                      $mer_HMMs/$geneID.hmm \
+                      $geneName\_from_$year\_all.faa
+          $scripts/convert_stockhold_to_fasta.py $geneName\_from_$year.sto
+          grep '>' $geneName\_from_$year\_all.faa | \
+            sed 's/>//' \
+            > $geneName\_from_$year\_all_list.txt
+        else
+          echo "No" $geneName "sequences found in" $year ":("
+        fi
+    done
+    FOUND=""
+
+    cat $geneName/201*/*$geneName.faa \
+        > $geneName\_all.faa
+    hmmalign -o $geneName\_all.sto \
+                $mer_HMMs/$geneID.hmm \
+                $geneName\_all.faa
+    $scripts/convert_stockhold_to_fasta.py $geneName\_all.sto
+    grep '>' $geneName\_all.faa | \
+      sed 's/>//' \
+      > $geneName\_all_list.txt
   else
-    echo "Genes aren't predicted for" $assembly
+    echo "Already pulled out" $geneName "sequences"
   fi
 done
 
-cd merB_analysis/identification
+
+
+############################################
+############################################
+# Manually inspect merB hits
+############################################
+############################################
+
+cd ~/HellsCanyon/dataEdited/mer_analysis/identification/merB
 grep -v '#' */*_merB.out
 
 # Get list of all merB proteins
@@ -67,11 +125,9 @@ grep '>' 201*/*_merB.faa | \
   cut -d":" -f2 \
   > merB_raw_list.txt
 
-
 ######################
 # Concatenate and align all merB seqs for curation
 ######################
-cd ~/HellsCanyon/dataEdited/merB_analysis/identification/
 cat 201*/*_merB.faa > merB_raw.faa
 # Align seqs
 hmmalign -o merB_raw.sto \
@@ -83,6 +139,7 @@ $scripts/convert_stockhold_to_fasta.py merB_raw.sto
 ######################
 # Concatenate and align all merB seqs with references for tree generation
 ######################
+cd ~/HellsCanyon/dataEdited/mer_analysis/identification/merB
 cat 201*/*_merB.faa \
     ../uniprot_ec_4.99.1.2.fasta \
     > merB_tree_all.faa
