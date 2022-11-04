@@ -40,3 +40,4 @@ done
 ####---------------------------------####
 threeD_mapping=/Users/benjaminpeterson/Documents/research/HellsCanyon/code/3D_mapping
 python $threeD_mapping/merging_image_files.py
+gdalwarp -t_srs EPSG:4269 images_merged.tif images_merged_4269.tif
