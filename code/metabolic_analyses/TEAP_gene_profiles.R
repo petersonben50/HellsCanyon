@@ -12,11 +12,23 @@ library(lubridate)
 library(patchwork)
 library(tidyverse)
 source("code/HCC_plotting_needs.R")
-
+rm(shape.vector)
 
 
 #### Read in depth data ####
-gene.data <- readRDS("dataEdited/metabolic_analyses/depth/metabolicProtein_depth_clean.rds")
+gene.data <- readRDS("dataEdited/metabolic_analyses/depth/metabolicProtein_depth_clean.rds") %>%
+  filter(!is.na(geneName))
+
+
+#### Save out summarized file ####
+summarized.gene.data <- gene.data %>%
+  group_by(date, RM, depth, elevation_m, geneName) %>%
+  summarize(coverage = sum(coverage)) %>%
+  spread(key = geneName,
+         value = coverage)
+write.csv(x = summarized.gene.data,
+          file = "dataEdited/metabolic_analyses/summarized_gene_data.csv",
+          row.names = FALSE)
 
 
 #### Define function to plot multiple proteins ####
@@ -44,10 +56,10 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
     filter(gene.names.to.use.for.filtering %in% genesOfInterest) %>%
     filter(year(ymd(date)) == yearOfInterest) %>%
     filter(RM == RMofInterest) %>%
-    group_by(gene.names.to.use.for.filtering, depth) %>%
+    group_by(gene.names.to.use.for.filtering, elevation_m) %>%
     summarise(coverage = sum(coverage)) %>%
     ungroup() %>%
-    arrange(depth)
+    arrange(elevation_m)
   
   if (!is.null(DL)) {
     clean.coverage <- clean.coverage %>%
@@ -55,16 +67,16 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
              value = coverage) %>%
       gather(key = gene.names.to.use.for.filtering,
              value = coverage,
-             -depth)
+             -elevation_m)
     clean.coverage[clean.coverage$coverage < 0.01, "coverage"] <- 0.010001
     
   }
   
   graph.of.interest <- clean.coverage %>%
-    ggplot(aes(x = depth,
+    ggplot(aes(x = elevation_m,
                y = coverage)) +
     theme_classic() +
-    scale_x_reverse(limits = depth_limits)  +
+    scale_x_continuous(limits = depth_limits)+
     theme(axis.text.x = element_text(colour="black"),
           axis.text.y = element_text(colour="black"))
   
@@ -73,12 +85,12 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
     graph.of.interest <- graph.of.interest +
       labs(title = titleToUse,
            y = xlab.to.use,
-           x = "Depth (m)")
+           x = "Elevation (m)")
     
   } else {
     graph.of.interest <- graph.of.interest +
       labs(y = xlab.to.use,
-           x = "Depth (m)")
+           x = "Elevation (m)")
   }
   
   #### Add colors if defined in the call ####
@@ -158,9 +170,9 @@ plot.profile.for.multiple.genes <- function(marker.depth.df,
 
 
 #### TEAP profiles ####
-color.vector.TEAP <- c(cb.translator["vermillion"],
+color.vector.TEAP <- c(cb.translator["reddishpurple"],
                        cb.translator["blue"],
-                       cb.translator["reddishpurple"])
+                       cb.translator["vermillion"])
 names(color.vector.TEAP) <- c("narG", "dsrA", "mcrA")
 shape.vector <- c(16, 17, 18)
 names(shape.vector) <- c("narG", "dsrA", "mcrA")
@@ -173,7 +185,7 @@ TEAP.286.2017 <- plot.profile.for.multiple.genes(marker.depth.df = gene.data,
                                                  RMofInterest = "286",
                                                  show.mean.coverage = FALSE,
                                                  remove.depth.label = FALSE,
-                                                 depth_limits = c(75, 0),
+                                                 depth_limits = c(545, 632),
                                                  coverage_limits = c(0, N.max.coverage),
                                                  color.vector.to.use = color.vector.TEAP,
                                                  point.vector.to.use = shape.vector,
@@ -187,7 +199,7 @@ TEAP.300.2017 <- plot.profile.for.multiple.genes(marker.depth.df = gene.data,
                                                  RMofInterest = "300",
                                                  show.mean.coverage = FALSE,
                                                  remove.depth.label = FALSE,
-                                                 depth_limits = c(75, 0),
+                                                 depth_limits = c(545, 632),
                                                  coverage_limits = c(0, N.max.coverage),
                                                  point.vector.to.use = shape.vector,
                                                  color.vector.to.use = color.vector.TEAP,
@@ -201,7 +213,7 @@ TEAP.286.2018 <- plot.profile.for.multiple.genes(marker.depth.df = gene.data,
                                                  RMofInterest = "286",
                                                  show.mean.coverage = FALSE,
                                                  remove.depth.label = FALSE,
-                                                 depth_limits = c(75, 0),
+                                                 depth_limits = c(545, 632),
                                                  coverage_limits = c(0, N.max.coverage),
                                                  color.vector.to.use = color.vector.TEAP,
                                                  point.vector.to.use = shape.vector,
@@ -215,7 +227,7 @@ TEAP.300.2018 <- plot.profile.for.multiple.genes(marker.depth.df = gene.data,
                                                  RMofInterest = "300",
                                                  show.mean.coverage = FALSE,
                                                  remove.depth.label = FALSE,
-                                                 depth_limits = c(75, 0),
+                                                 depth_limits = c(545, 632),
                                                  coverage_limits = c(0, N.max.coverage),
                                                  point.vector.to.use = shape.vector,
                                                  color.vector.to.use = color.vector.TEAP,

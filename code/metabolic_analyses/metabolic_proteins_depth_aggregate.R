@@ -16,6 +16,13 @@ normalized.coverage.vector <- readRDS("dataEdited/scg_abundance/scg_normalizatio
 metadata.df <- read.csv("metadata/metagenome_metadata.csv")
 
 
+#### Add elevation data ####
+metadata.df <- metadata.df %>%
+  left_join(read.csv("dataEdited/geochem/geochem_WC.csv") %>%
+              select(RM, date, depth, elevation_m) %>%
+              unique())
+
+
 #### Read in metabolic gene key ####
 metabolic.gene.key <- read.csv("dataEdited/metabolic_analyses/metabolic_gene_key.csv") %>%
   mutate(scaffoldID = paste(geneID %>% strsplit("_") %>% sapply("[", 1),
