@@ -51,13 +51,19 @@ depth.data <- rbind(readRDS("dataEdited/bins/binAnalysis/hqBins/bin_depth_clean.
   mutate(mhcContent = MHC.content[binID])
 
 
+####-------------Read in geochem data to get elevation data-------------####
+elevation.info <- read.csv("dataEdited/geochem/geochem_WC.csv") %>%
+  select(date, RM, depth, elevation_m) %>%
+  mutate(RM = as.character(RM))
+
 
 ####-------------Add in metadata-------------####
 MG.metadata <- read_xlsx("metadata/metagenome_metadata.xlsx")
 all.data <- depth.data %>%
   left_join(MG.metadata) %>%
   left_join(tax.data) %>%
-  mutate(hgcA = (binID %in% hgcA.list))
+  mutate(hgcA = (binID %in% hgcA.list)) %>%
+  left_join(elevation.info)
 
 
 
@@ -68,12 +74,12 @@ shape.vector <- c(15, 4)
 names(shape.vector) <- c(TRUE, FALSE)
 
 
-####-------------Plot out data-------------####
+####-------------Plot out profiles of all bins-------------####
 all.data %>%
   filter(((RM %in% c(286, 300)) & (year(date) %in% c(2017, 2018))) |
            ((RM %in% c(300, 310)) & (year(date) == 2019)))%>%
   ggplot(aes(y = coverage,
-             x = depth,
+             x = elevation_m,
              group = binID)) +
   geom_point(aes(color = paste(class, mhcContent, sep = "-"),
                  shape = hgcA)) +
@@ -88,3 +94,112 @@ all.data %>%
   coord_flip(xlim = c(80, 0)) +
   theme_bw()
 
+
+
+
+####-------------Plot profiles of hgcA+ bins-------------####
+all.data <- all.data %>%
+  mutate(plotting.label = binID)
+all.data[!all.data$hgcA, "plotting.label"] <- "hgcA-"
+
+
+color.vector <- c(cb.translator[c("vermillion", "orange")], "gray80")
+names(color.vector) <- c('anvio_hgcA_0261', 'anvio_hgcA_0040', 'hgcA-')
+KIR.2017.plots <- all.data %>%
+  filter(RM %in% c(286, 300),
+         year(date) == 2017,
+         class == "Kiritimatiellae") %>%
+  arrange(desc(binID)) %>%
+  ggplot(aes(y = coverage,
+             x = elevation_m,
+             group = binID,
+             col = plotting.label)) +
+  geom_line() +
+  geom_point() +
+  scale_color_manual(values = color.vector,
+                     name = "") +
+  scale_linetype_manual() +
+  # scale_shape_manual(values = shape.vector,
+  #                    name = "hgcA present") +
+  scale_y_continuous(trans = "log10",
+                     limits = c(0.0001, 3.5)) +
+  coord_flip(xlim = c(80, 0)) +
+  facet_wrap(~RM,
+             nrow = 1, ncol = 2) +
+  xlab("Depth (m)") +
+  ylab("Bin abundance (%)") +
+  theme_classic()
+pdf("results/bins/binAnalysis/PVC_details/abundance_KIR_2017.pdf",
+    height = 2.5,
+    width = 4)
+KIR.2017.plots
+dev.off()  
+
+
+# 2018 Kiritimatiellaeota
+color.vector <- c(cb.translator[c("vermillion", "orange")], "gray80")
+names(color.vector) <- c('HC18HY300_bin_0028', 'anvio_hgcA_0110', 'hgcA-')
+KIR.2018.plots <- all.data %>%
+  filter(RM %in% c(286, 300),
+         year(date) == 2018,
+         class == "Kiritimatiellae") %>%
+  arrange(desc(binID)) %>%
+  ggplot(aes(y = coverage,
+             x = elevation_m,
+             group = binID,
+             col = plotting.label)) +
+  geom_line() +
+  geom_point() +
+  scale_color_manual(values = color.vector,
+                     name = "") +
+  scale_linetype_manual() +
+  # scale_shape_manual(values = shape.vector,
+  #                    name = "hgcA present") +
+  scale_y_continuous(trans = "log10",
+                     limits = c(0.0001, 3.5)) +
+  coord_flip(xlim = c(80, 0)) +
+  facet_wrap(~RM,
+             nrow = 1, ncol = 2) +
+  xlab("Depth (m)") +
+  ylab("Bin abundance (%)") +
+  theme_classic()
+pdf("results/bins/binAnalysis/PVC_details/abundance_KIR_2018.pdf",
+    height = 2.5,
+    width = 4)
+KIR.2018.plots
+dev.off()  
+
+
+
+# 2017 Lentisphaerae
+color.vector <- c(cb.translator[c("vermillion", "yellow")], "gray80")
+names(color.vector) <- c('fall2017coassembly_bin_0332', 'anvio_hgcA_0220', 'hgcA-')
+LEN.2017.plots <- all.data %>%
+  filter(RM %in% c(286, 300),
+         year(date) == 2017,
+         class == "Lentisphaeria") %>%
+  arrange(desc(binID)) %>%
+  ggplot(aes(y = coverage,
+             x = elevation_m,
+             group = binID,
+             col = plotting.label)) +
+  geom_line() +
+  geom_point() +
+  scale_color_manual(values = color.vector,
+                     name = "") +
+  scale_linetype_manual() +
+  # scale_shape_manual(values = shape.vector,
+  #                    name = "hgcA present") +
+  scale_y_continuous(trans = "log10",
+                     limits = c(0.0001, 3.5)) +
+  # coord_flip(xlim = c(80, 0)) +
+  facet_wrap(~RM,
+             nrow = 1, ncol = 2) +
+  xlab("Depth (m)") +
+  ylab("Bin abundance (%)") +
+  theme_classic()
+pdf("results/bins/binAnalysis/PVC_details/abundance_LEN.2017.pdf",
+    height = 2.5,
+    width = 4)
+LEN.2017.plots
+dev.off()  
