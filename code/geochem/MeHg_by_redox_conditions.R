@@ -61,3 +61,11 @@ pdf("results/geochem/MeHg_by_redoxStatus.pdf",
     width = 7.5)
 MeHg.redox.boxplot
 dev.off()
+
+
+#### Check out averages, SD ####
+geochem.data.adj %>%
+  group_by(redox_status) %>%
+  summarize(MeHg_averages = mean(MeHg_diss_ngL),
+            MeHg_SD = sd(MeHg_diss_ngL),
+            count = n())

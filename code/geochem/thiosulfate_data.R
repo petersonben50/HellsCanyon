@@ -47,7 +47,7 @@ geochem.data <- read.csv("dataEdited/geochem/geochem_WC.csv") %>%
          RM = as.character(RM))
 
 
-#### Combine data
+#### Combine data ####
 S.data <- left_join(thiosulfate.data, geochem.data)
 
 S.data.thiosulfate.detected <- S.data %>%

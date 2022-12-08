@@ -11,7 +11,7 @@ source("code/geochem/profile_functions.R")
 
 #### Read in geochem data ####
 geochem.data <- read.csv("dataEdited/geochem/geochem_WC.csv") %>%
-  filter(constituent %in% c("MeHg_diss_ngL", "f_inorganic_sulfide_mg_per_l", "f_mn_mg_per_l",
+  filter(constituent %in% c("HgT_diss_ngL", "MeHg_diss_ngL", "f_inorganic_sulfide_mg_per_l", "f_mn_mg_per_l",
                             "doc_boulder_mgc_per_l", "suva_254nm_l_per_mgc_per_m", "f_no3_mg_n_per_l")) %>%
   spread(key = constituent,
          value = concentration) %>%

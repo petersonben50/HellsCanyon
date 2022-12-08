@@ -21,7 +21,7 @@ geochem.data.of.interest <- geochem.data %>%
   mutate(RM_date = paste(RM, date, sep = "-")) %>%
   filter(RM_date %in% (geochem.data %>%
                          filter(month(date) >=5 & month(date) <= 11,
-                                constituent == "MeHg_diss_ngL") %>%
+                                constituent == "MeHg_part_ngL") %>%
                          group_by(date, RM, constituent) %>%
                          summarise(count = n()) %>%
                          ungroup() %>%
@@ -33,31 +33,6 @@ geochem.data.of.interest <- geochem.data %>%
   select(-RM_date) %>%
   filter(year(date) != 2015)
 sampling.dates <- unique(geochem.data.of.interest$date)
-
-
-
-#### Read in inflow data ####
-inflow.data <- read_xlsx("dataRaw/dataRelease_chem/v2/HCC - V2 Data Release_Master File_Oct 2019 to present_V2_9_forModelingGroup.xlsx",
-                              sheet = "Table_3_Water_V2") %>%
-  # Ensure the date and time column is in correct format
-  mutate(date = date(ymd_hms(sample_collection_date_mm_dd_yy_h_mm))) %>%
-  # Rename some data columns
-  rename(RM = snake_river_mile,
-         depth = sample_depth_m,
-         elevation_m = brownlee_reservoir_sample_elevation_m,
-         MeHg_diss_ngL = u_mehg_ng_per_l) %>%
-  # Select the data of interest
-  select(RM, date, depth, elevation_m, MeHg_diss_ngL) %>%
-  gather(key = constituent,
-         value = concentration,
-         -c(1:4)) %>%
-  filter(date %in% as.Date(sampling.dates),
-         RM == 345.6) %>%
-  mutate(elevation_m = max(geochem.data.of.interest$elevation_m) + 10,
-         concentration = as.numeric(concentration),
-         date = as.Date(date)) %>%
-  filter(!is.na(concentration)) %>%
-  select(date, elevation_m, constituent, concentration)
 
 
 
@@ -75,12 +50,11 @@ names(nitrate.vector) <- floor_date(seq(from = as.Date("2017-05-01"),
 function.of.function <- function(year.you.want) {
   time.course.profile.plot(geochem.data.to.use = geochem.data.of.interest,
                            years.to.use = year.you.want,
-                           concentrations.to.use = c(0, 3.3),
+                           concentrations.to.use = c(0, 1),
                            RMs.to.use = c(286,300, 310),
-                           parameter.to.plot = "MeHg_diss_ngL",
+                           parameter.to.plot = "MeHg_part_ngL",
                            xlabel.to.use = "MeHg (ng/L)",
-                           color.vector.to.use = nitrate.vector,
-                           inflow.data.to.use = inflow.data) +
+                           color.vector.to.use = nitrate.vector) +
     facet_wrap(~RM) +
     theme(text = element_text(size = 9))
 }
@@ -97,7 +71,7 @@ plotted.legend <- as_ggplot(legend.to.use)
 
 
 #### Save out nitrate plots ####
-pdf("results/geochem/MeHg_time_course.pdf",
+pdf("results/geochem/MeHg_time_course_particulate.pdf",
     width = 7,
     height = 8)
 ggarrange(plot.2016, plot.2017, plot.2018, plot.2019,
