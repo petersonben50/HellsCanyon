@@ -496,3 +496,37 @@ $raxml -f a \
         -T 20 \
         -s hgcA_for_tree_final_masked.afa \
         -n hgcA
+
+
+
+#########################
+# Generate tree in RAxML for UNIFRAC
+#########################
+screen -S UNIFRAC_hgcA
+cd ~/HellsCanyon/dataEdited/hgcA_analysis/phylogeny
+mkdir for_unifrac
+cat hgcA_rep_list.txt | while read hgcA
+do
+  echo "Including" $hgcA "in phylogenetic analysis"
+  grep -A 1 $hgcA hgcA_for_phylogeny.faa >> for_unifrac/hgcA.faa
+done
+cd for_unifrac
+muscle -in hgcA.faa \
+        -out hgcA.afa
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=''
+PERL5LIB=''
+trimal -in hgcA.afa \
+       -out hgcA_trimmed.afa \
+       -gt 0.5
+
+raxml=/opt/bifxapps/raxml-8.2.11/raxmlHPC-PTHREADS
+$raxml -f a \
+        -p 283976 \
+        -m PROTGAMMAAUTO \
+        -N autoMRE \
+        -x 2381 \
+        -T 20 \
+        -s hgcA_trimmed.afa \
+        -n hgcA
