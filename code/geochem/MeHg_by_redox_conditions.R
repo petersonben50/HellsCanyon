@@ -52,7 +52,6 @@ MeHg.redox.boxplot <- geochem.data.adj %>%
   #               y = 0.012,
   #               label = "Detection limit"))
 MeHg.redox.boxplot
-# Linearity looks pretty good
 
 
 #### Save out plot ####
@@ -67,5 +66,6 @@ dev.off()
 geochem.data.adj %>%
   group_by(redox_status) %>%
   summarize(MeHg_averages = mean(MeHg_diss_ngL),
+            MeHg_max = max(MeHg_diss_ngL),
             MeHg_SD = sd(MeHg_diss_ngL),
             count = n())
