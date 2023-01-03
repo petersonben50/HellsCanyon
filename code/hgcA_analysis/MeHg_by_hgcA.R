@@ -40,8 +40,7 @@ rm(geochem.data,
 # I think they actually are below the effective DL of our analysis. Due to the 
 # log transformation, this is skewing the data left, so we're going to remove
 # these samples.
-all.data <- all.data %>%
-  filter(hgcA_coverage > 0.001)
+all.data$hgcA_coverage[all.data$hgcA_coverage <= 0.001] <- 0.001
 
 
 
@@ -104,9 +103,9 @@ hgcA.MeHg.scatterplot <- all.data %>%
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"),
         legend.key = element_rect(fill = "transparent", colour = "black")) +
-  scale_x_continuous(limits = c(0.003, 10),
+  scale_x_continuous(limits = c(0.001, 10),
                      trans = 'log10') +
-  scale_y_continuous(limits = c(0.06, 4),
+  scale_y_continuous(limits = c(0.05, 4),
                      trans = 'log10')
 hgcA.MeHg.scatterplot
 
