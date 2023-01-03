@@ -34,6 +34,28 @@ all.redox.data.year$anoxia.age[all.redox.data.year$diss_oxy_mg_per_l >= 0.5] <- 
 
 
 #### Generate plot of anoxia age vs. MeHg ####
+all.redox.data.year %>%
+  filter(redox_status != "oxic") %>%
+  ggplot(aes(x = as.integer(anoxia.age),
+             y = MeHg_diss_ngL)) +
+  geom_point(aes(color = redox_status),
+             size = 2) +
+  scale_color_manual(values = color.vector,
+                     labels = renaming.vector,
+                     name = "Redox status") +
+  labs(x = "Length of anoxia (days)",
+       y = "Filter-passing MeHg (ng/L)") +
+  theme_classic() +
+  scale_y_continuous(limits = c(0.01, 3.5),
+                     trans = 'log10') +
+  scale_x_continuous(limits = c(0, 200)) +
+  theme(axis.text.x = element_text(colour="black"),
+        axis.text.y = element_text(colour="black"),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12)) 
+
+
+#### Generate plot of anoxia age vs. MeHg by year ####
 plot.MeHg.anoxia <- function(year.of.interest) {
   all.redox.data.year %>%
     filter(sampling.year == year.of.interest) %>%
@@ -91,6 +113,9 @@ linear.model <- lm(MeHg_diss_ngL ~ anoxia.age,
                      filter(redox_status != "oxic"))
 summary(linear.model)
 
+
+
+#### Statistically test linear correlations between MeHg and anoxia age with year ####
 linear.model <- lm(MeHg_diss_ngL ~ anoxia.age + sampling.year,
                    data = all.redox.data.year %>%
                      filter(redox_status != "oxic"))
