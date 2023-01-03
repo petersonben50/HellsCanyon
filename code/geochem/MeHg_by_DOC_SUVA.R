@@ -75,9 +75,9 @@ MeHg.vs.DOC <- geochem.data.adj %>%
 
 
 
-#### Linear correlations ####
-linear.model.doc <- lm(MeHg_diss_ngL ~ doc_boulder_mgc_per_l + year(date),
-                       data = geochem.data.adj %>% filter(redox_status != "oxic"))
+#### Linear correlation: MeHg to DOC ####
+linear.model.doc <- lm(MeHg_diss_ngL ~ doc_boulder_mgc_per_l + redox_status,
+                       data = geochem.data.adj)
 # Check residuals
 shapiro.test(linear.model.doc$residuals)
 par(mfrow = c(1,2))
@@ -94,6 +94,28 @@ qqline(linear.model.doc$residuals)
 
 # Summarize model
 summary(linear.model.doc)
+
+
+
+#### Linear correlation: MeHg to SUVA ####
+linear.model.suva <- lm(MeHg_diss_ngL ~ suva_254nm_l_per_mgc_per_m + redox_status,
+                        data = geochem.data.adj)
+# Check residuals
+shapiro.test(linear.model.suva$residuals)
+par(mfrow = c(1,2))
+plot(density(linear.model.suva$residuals),
+     main="Density plot of residuals",
+     ylab="Density",
+     xlab="Residuals")
+# QQ-normal plot
+qqnorm(linear.model.suva$residuals)
+qqline(linear.model.suva$residuals)
+# Little bit further from normality, but fairly close.
+# Mostly has a right skew here.
+# We'll go ahead with it.
+
+# Summarize model
+summary(linear.model.suva)
 
 
 
