@@ -69,7 +69,7 @@ hgcA.plot <- hgcA.data %>%
 
 
 #### Save plot ####
-pdf("results/hgcA_analysis/hgcA_abundance_by_redox.pdf",
+pdf("results/hgcA_analysis/abundance_hgcA_by_redox.pdf",
     width = 4,
     height = 4.5)
 hgcA.plot
