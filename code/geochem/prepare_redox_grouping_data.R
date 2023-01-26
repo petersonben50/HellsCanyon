@@ -11,7 +11,8 @@ source("code/geochem/profile_functions.R")
 
 #### Read in geochem data ####
 geochem.data <- read.csv("dataEdited/geochem/geochem_WC.csv") %>%
-  filter(constituent %in% c("HgT_diss_ngL", "MeHg_diss_ngL", "f_inorganic_sulfide_mg_per_l", "f_mn_mg_per_l",
+  filter(constituent %in% c("HgT_diss_ngL", "MeHg_diss_ngL", "f_inorganic_sulfide_mg_per_l", "f_so4_mg_per_l", "f_s2o3_mg_per_l",
+                            "f_mn_mg_per_l", "p_mn_mg_per_l", "f_fe_mg_per_l", "p_fe_mg_per_l",
                             "doc_boulder_mgc_per_l", "suva_254nm_l_per_mgc_per_m", "f_no3_mg_n_per_l")) %>%
   spread(key = constituent,
          value = concentration) %>%
@@ -203,6 +204,32 @@ all.redox.data[which(all.redox.data$f_no3_mg_n_per_l < 0.05 &
 all.redox.data[which(all.redox.data$redox_status == "none_assigned"), "redox_status"] <- "suboxic"
 
 
+
+#### Organize spreadsheet ####
+all.redox.data <- all.redox.data %>%
+  select(RM, date, depth, elevation_m, diss_oxy_mg_per_l, f_no3_mg_n_per_l, p_mn_mg_per_l, f_mn_mg_per_l,
+         p_fe_mg_per_l, f_fe_mg_per_l, f_so4_mg_per_l, f_s2o3_mg_per_l, f_inorganic_sulfide_mg_per_l,
+         doc_boulder_mgc_per_l, suva_254nm_l_per_mgc_per_m,
+         HgT_diss_ngL, MeHg_diss_ngL, redox_status)
+
+
 #### Save out data ####
 saveRDS(all.redox.data,
         "dataEdited/geochem/geochem_WC_adjusted_for_redox_classification.rds")
+write.csv(x = all.redox.data,
+          file = "results/geochem/redox_info.csv",
+          row.names = FALSE)
+
+
+
+#### Save csv of this data for profiles with metagenomes ####
+redox.info.metagenomes <- all.redox.data %>%
+  filter((date == "2017-09-25" & RM == 286) |
+           (date == "2017-09-26" & RM == 300) |
+           (date == "2018-09-24" & RM == 286) |
+           (date == "2018-09-25" & RM == 300) |
+           (date == "2019-07-25" & RM == 300) |
+           (date == "2019-07-23" & RM == 310))
+write.csv(x = redox.info.metagenomes,
+          file = "results/geochem/redox_info_metagenome_profiles.csv",
+          row.names = FALSE)

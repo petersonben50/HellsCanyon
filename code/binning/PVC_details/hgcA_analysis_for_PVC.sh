@@ -201,7 +201,7 @@ conda activate py_viz
 PYTHONPATH=""
 PERL5LIB=""
 
-hgcA_tree=/Users/benjaminpeterson/Documents/research/HellsCanyon/results/bins/binAnalysis/PVC_details/hgcA_tree_edited.pdf
+hgcA_tree=/Users/benjaminpeterson/Documents/research/HellsCanyon/results/bins/binAnalysis/PVC_details/hgcA_tree.pdf
 working_directory=/Users/benjaminpeterson/Documents/research/HellsCanyon/dataEdited/bins/binAnalysis/PVC_details/hgcA_analysis/GN_of_hgcA
 HomeBio=/Users/benjaminpeterson/Documents/programs/HomeBio
 python $HomeBio/AM3_binBasedAnalyses/doctor_petersons_neighborhood_visualization.py --gff_file $working_directory/hgcA_geneNeighborhood_all.gff \

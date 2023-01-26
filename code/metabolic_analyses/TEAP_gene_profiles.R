@@ -16,19 +16,7 @@ rm(shape.vector)
 
 
 #### Read in depth data ####
-gene.data <- readRDS("dataEdited/metabolic_analyses/depth/metabolicProtein_depth_clean.rds") %>%
-  filter(!is.na(geneName))
-
-
-#### Save out summarized file ####
-summarized.gene.data <- gene.data %>%
-  group_by(date, RM, depth, elevation_m, geneName) %>%
-  summarize(coverage = sum(coverage)) %>%
-  spread(key = geneName,
-         value = coverage)
-write.csv(x = summarized.gene.data,
-          file = "dataEdited/metabolic_analyses/summarized_gene_data.csv",
-          row.names = FALSE)
+gene.data <- readRDS("dataEdited/metabolic_analyses/depth/metabolicProtein_depth_clean.rds")
 
 
 #### Define function to plot multiple proteins ####

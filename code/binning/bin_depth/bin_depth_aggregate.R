@@ -67,3 +67,6 @@ test <- depth.df.tax %>%
 #### Write out file
 saveRDS(depth.df,
         "dataEdited/bins/binAnalysis/depth/bin_depth_clean.rds")
+write.csv(depth.df %>% spread(key = metagenomeID, value = coverage),
+          "dataEdited/bins/binAnalysis/depth/bin_depth_clean.csv",
+          row.names = FALSE)

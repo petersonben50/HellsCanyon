@@ -173,22 +173,36 @@ corewater.profile.MeHg.and.HgT.function <- function(corewater.data.to.use = core
 }
 
 
-pdf("results/geochem/profiles_for_figure/CW_profiles.pdf",
+#### Save out profiles of early stratification ####
+pdf("results/geochem/profiles_for_figure/CW_profiles_early_stratification.pdf",
     width = 7.5,
     height = 2)
-
 par(mfrow = c(2,6),
     mar = c(2, 2.5, 1, 0.5),
     mgp=c(1.5,0.2,0),
     tck=-0.008)
+corewater.profile.MeHg.and.HgT.function(date.range = c("2017-06-05","2017-06-08"),
+                                        max.height = 110)
+corewater.profile.MeHg.and.HgT.function(date.range =  c("2018-06-18", "2018-06-19"),
+                                        max.height = 110)
+corewater.profile.MeHg.and.HgT.function(date.range = c("2019-07-22", "2019-07-25"),
+                                        max.height = 110)
+dev.off()
 
-
+#### Save out profiles of late stratification ####
+pdf("results/geochem/profiles_for_figure/CW_profiles_late_stratification.pdf",
+    width = 7.5,
+    height = 2)
+par(mfrow = c(2,6),
+    mar = c(2, 2.5, 1, 0.5),
+    mgp=c(1.5,0.2,0),
+    tck=-0.008)
 corewater.profile.MeHg.and.HgT.function(date.range = c("2016-10-03","2016-10-06"),
                                         max.height = 110)
 corewater.profile.MeHg.and.HgT.function(date.range = c("2017-09-25", "2017-09-28"),
                                         max.height = 110)
 corewater.profile.MeHg.and.HgT.function(date.range = c("2018-09-24", "2018-09-26"),
                                         max.height = 110)
-corewater.profile.MeHg.and.HgT.function(date.range = c("2019-07-22", "2019-07-25"),
-                                        max.height = 110)
 dev.off()
+
+

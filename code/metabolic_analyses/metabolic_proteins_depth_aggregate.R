@@ -79,6 +79,30 @@ all.data[which((all.data$scaffoldID %in% rdsrA.scaffolds) & (all.data$geneName =
 all.data[which((all.data$scaffoldID %in% dsrA.scaffolds) & (all.data$geneName == 'dsrA')), "geneName"]
 
 
-#### Write out file
-saveRDS(all.data,
+
+#### Add EET gene data ####
+EET.data <- readRDS("dataEdited/metabolic_analyses/BBOMP/bbomp_depth_clean.rds") %>%
+  left_join(read.csv("dataEdited/geochem/geochem_WC.csv") %>%
+              select(RM, date, depth, elevation_m) %>%
+              unique())
+all.data.w.EET <- rbind(all.data,
+                        EET.data) %>%
+  filter(!is.na(geneName))
+
+
+#### Write out file ####
+saveRDS(all.data.w.EET,
         "dataEdited/metabolic_analyses/depth/metabolicProtein_depth_clean.rds")
+
+
+
+#### Save out summarized file ####
+summarized.gene.data <- all.data.w.EET %>%
+  group_by(metagenomeID, date, RM, depth, elevation_m, geneName) %>%
+  summarize(coverage = sum(coverage)) %>%
+  spread(key = geneName,
+         value = coverage)
+write.csv(x = summarized.gene.data,
+          file = "dataEdited/metabolic_analyses/summarized_gene_data.csv",
+          row.names = FALSE)
+

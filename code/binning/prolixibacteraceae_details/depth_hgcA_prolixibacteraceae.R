@@ -15,13 +15,17 @@ names(cb.translator)[length(cb.translator)] <- "grey"
 
 
 #### Read in metadata ####
-MG.metadata <- read_xlsx("metadata/metagenome_metadata.xlsx")
+MG.metadata <- read_xlsx("metadata/metagenome_metadata.xlsx") %>%
+  left_join(read.csv("dataEdited/geochem/geochem_WC.csv") %>%
+              select(RM, date, depth, elevation_m) %>%
+              mutate(RM = as.character(RM)) %>%
+              unique())
 
 
 
 #### Read in depth data ####
 depth.data <- readRDS("dataEdited/bins/binAnalysis/depth/bin_depth_clean.rds") %>%
-  left_join(MG.metadata %>% select(metagenomeID, date, RM, depth)) %>%
+  left_join(MG.metadata %>% select(metagenomeID, date, RM, depth, elevation_m)) %>%
   filter(binID == "anvio_hgcA_0130")
 
 
@@ -30,13 +34,13 @@ depth.data <- readRDS("dataEdited/bins/binAnalysis/depth/bin_depth_clean.rds") %
 bin.depth.286 <- depth.data %>%
   filter(RM == "286") %>%
   ggplot(aes(y = coverage,
-             x = depth)) +
-  geom_point(color = cb.translator["orange"]) +
-  geom_line(color = cb.translator["orange"]) +
+             x = elevation_m)) +
+  geom_point(color = cb.translator["vermillion"]) +
+  geom_line(color = cb.translator["vermillion"]) +
   labs(y = "Genome\nabundance (%)",
-       x = "Depth (m)",
+       x = "Elevation (m)",
        title = "Sept 2018 - RM286") +
-  coord_flip(xlim = c(80, 0),
+  coord_flip(xlim = c(545, 632),
              ylim = c(0, 0.3)) +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black"),
@@ -45,13 +49,13 @@ bin.depth.286 <- depth.data %>%
 bin.depth.300 <- depth.data %>%
   filter(RM == "300") %>%
   ggplot(aes(y = coverage,
-             x = depth)) +
-  geom_point(color = cb.translator["orange"]) +
-  geom_line(color = cb.translator["orange"]) +
+             x = elevation_m)) +
+  geom_point(color = cb.translator["vermillion"]) +
+  geom_line(color = cb.translator["vermillion"]) +
   labs(y = "Genome\nabundance (%)",
-       x = "Depth (m)",
+       x = "Elevation (m)",
        title = "Sept 2018 - RM300") +
-  coord_flip(xlim = c(80, 0),
+  coord_flip(xlim = c(545, 632),
              ylim = c(0, 0.3)) +
   theme_classic() +
   theme(axis.text.x = element_text(colour = "black"),

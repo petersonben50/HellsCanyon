@@ -16,15 +16,6 @@ names(cb.translator)[length(cb.translator)] <- "grey"
 
 
 
-####-------------Read in MHC data-------------####
-high.mhc.bins <- readRDS("dataEdited/bins/binAnalysis/PVC_details/metabolism/high_MHC_bins.rds")
-low.mhc.bins <- readRDS("dataEdited/bins/binAnalysis/PVC_details/metabolism/low_MHC_bins.rds")
-MHC.content <- c(rep("high", length(high.mhc.bins)),
-                 rep("low", length(low.mhc.bins)))
-names(MHC.content) <- c(high.mhc.bins, low.mhc.bins)
-rm(high.mhc.bins, low.mhc.bins)
-
-
 ####-------------Read in taxonomy depth data-------------####
 tax.data <- read.table("dataEdited/bins/binAnalysis/PVC_details/taxonomy/taxonomy_summary.txt",
                        sep = '\t', header = TRUE) %>%
@@ -47,14 +38,14 @@ hgcA.list <- readLines("dataEdited/bins/binning/bins_hgcA_keepers/bins_hgcA_keep
 ####-------------Read in depth data-------------####
 depth.data <- rbind(readRDS("dataEdited/bins/binAnalysis/hqBins/bin_depth_clean.rds"),
                     readRDS("dataEdited/bins/binAnalysis/depth/bin_depth_clean.rds")) %>%
-  filter(binID %in% names(MHC.content)) %>%
-  mutate(mhcContent = MHC.content[binID])
+  unique()
 
 
 ####-------------Read in geochem data to get elevation data-------------####
 elevation.info <- read.csv("dataEdited/geochem/geochem_WC.csv") %>%
   select(date, RM, depth, elevation_m) %>%
-  mutate(RM = as.character(RM))
+  mutate(RM = as.character(RM)) %>%
+  unique()
 
 
 ####-------------Add in metadata-------------####
@@ -91,24 +82,27 @@ all.data %>%
   facet_wrap(~year(date) + RM, nrow = 3) +
   scale_y_continuous(trans = "log10",
                      limits = c(0.0001, 3.5)) +
-  coord_flip(xlim = c(80, 0)) +
+  coord_flip(xlim = c(545, 632)) +
   theme_bw()
-
 
 
 
 ####-------------Plot profiles of hgcA+ bins-------------####
 all.data <- all.data %>%
   mutate(plotting.label = binID)
-all.data[!all.data$hgcA, "plotting.label"] <- "hgcA-"
+all.data[!all.data$hgcA, "plotting.label"] <- paste("hgcA- ",
+                                                    all.data[!all.data$hgcA, "class"],
+                                                    sep = "")
 
 
-color.vector <- c(cb.translator[c("vermillion", "orange")], "gray80")
-names(color.vector) <- c('anvio_hgcA_0261', 'anvio_hgcA_0040', 'hgcA-')
+color.vector <- c(cb.translator[c("vermillion", "orange")],
+                  "gray80", "gray20")
+names(color.vector) <- c('anvio_hgcA_0261', 'anvio_hgcA_0040',
+                         'hgcA- Kiritimatiellae')
 KIR.2017.plots <- all.data %>%
   filter(RM %in% c(286, 300),
          year(date) == 2017,
-         class == "Kiritimatiellae") %>%
+         class == 'Kiritimatiellae') %>%
   arrange(desc(binID)) %>%
   ggplot(aes(y = coverage,
              x = elevation_m,
@@ -123,7 +117,7 @@ KIR.2017.plots <- all.data %>%
   #                    name = "hgcA present") +
   scale_y_continuous(trans = "log10",
                      limits = c(0.0001, 3.5)) +
-  coord_flip(xlim = c(80, 0)) +
+  coord_flip(xlim = c(545, 632)) +
   facet_wrap(~RM,
              nrow = 1, ncol = 2) +
   xlab("Depth (m)") +
@@ -136,9 +130,9 @@ KIR.2017.plots
 dev.off()  
 
 
-# 2018 Kiritimatiellaeota
+####-------------2018 Kiritimatiellaeota-------------####
 color.vector <- c(cb.translator[c("vermillion", "orange")], "gray80")
-names(color.vector) <- c('HC18HY300_bin_0028', 'anvio_hgcA_0110', 'hgcA-')
+names(color.vector) <- c('HC18HY300_bin_0028', 'anvio_hgcA_0110', 'hgcA- Kiritimatiellae')
 KIR.2018.plots <- all.data %>%
   filter(RM %in% c(286, 300),
          year(date) == 2018,
@@ -157,10 +151,10 @@ KIR.2018.plots <- all.data %>%
   #                    name = "hgcA present") +
   scale_y_continuous(trans = "log10",
                      limits = c(0.0001, 3.5)) +
-  coord_flip(xlim = c(80, 0)) +
+  coord_flip(xlim = c(545, 632)) +
   facet_wrap(~RM,
              nrow = 1, ncol = 2) +
-  xlab("Depth (m)") +
+  xlab("Elevation (m)") +
   ylab("Bin abundance (%)") +
   theme_classic()
 pdf("results/bins/binAnalysis/PVC_details/abundance_KIR_2018.pdf",
@@ -171,9 +165,9 @@ dev.off()
 
 
 
-# 2017 Lentisphaerae
-color.vector <- c(cb.translator[c("vermillion", "yellow")], "gray80")
-names(color.vector) <- c('fall2017coassembly_bin_0332', 'anvio_hgcA_0220', 'hgcA-')
+####-------------2017 Lentisphaerae-------------####
+color.vector <- c(cb.translator["yellow"], "gray50")
+names(color.vector) <- c('anvio_hgcA_0220', 'hgcA- Lentisphaeria')
 LEN.2017.plots <- all.data %>%
   filter(RM %in% c(286, 300),
          year(date) == 2017,
@@ -192,10 +186,10 @@ LEN.2017.plots <- all.data %>%
   #                    name = "hgcA present") +
   scale_y_continuous(trans = "log10",
                      limits = c(0.0001, 3.5)) +
-  # coord_flip(xlim = c(80, 0)) +
+  coord_flip(xlim = c(545, 632)) +
   facet_wrap(~RM,
              nrow = 1, ncol = 2) +
-  xlab("Depth (m)") +
+  xlab("Elevation (m)") +
   ylab("Bin abundance (%)") +
   theme_classic()
 pdf("results/bins/binAnalysis/PVC_details/abundance_LEN.2017.pdf",

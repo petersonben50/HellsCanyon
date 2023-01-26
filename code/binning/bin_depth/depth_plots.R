@@ -20,8 +20,9 @@ MG.metadata <- read_xlsx("metadata/metagenome_metadata.xlsx")
 
 #### Read in metabolism data ####
 metabolic.data <- read_xlsx("dataEdited/bins/binAnalysis/metabolism/aggregated_metabolism.xlsx",
-                            sheet = "Metabolism_summary") %>%
+                            sheet = "Metabolism_summary_hgcA_bins") %>%
   rename(metabolic_assignment = `Metabolic classification`) %>%
+  rename(HMS = `mOTU ID`) %>%
   select(HMS, binID, metabolic_assignment)
 
 
@@ -74,3 +75,6 @@ bins.2017 <- plot.bins.by.year(2017, metabolism_of_interest = c("fermentative", 
 bins.2018 <- plot.bins.by.year(2018, metabolism_of_interest = c("fermentative", "fermentative_O2_tolerant"))
 ggarrange(bins.2017, bins.2018,
           ncol = 1)
+
+
+plot.bins.by.year(2017, metabolism_of_interest = c("sulfate-reducer"))

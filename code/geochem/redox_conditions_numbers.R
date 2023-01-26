@@ -38,7 +38,7 @@ geochem.data.adj %>%
   dim()
   
 
-# Total number of samples with no sulfide
+# Total number of samples with sulfide
 geochem.data.adj %>%
   filter(redox_status %in% c("sulfidic")) %>%
   dim()

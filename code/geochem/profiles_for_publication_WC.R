@@ -80,7 +80,7 @@ redox.plot <- function(geochem.data.to.use = geochem.data,
                  RM == RM.of.interest)
     } else {
       DO.data.date <- DO.data.to.use %>%
-        filter(date == DO.date,
+        filter(date %in% DO.date,
                RM == RM.of.interest)
     }
 
@@ -163,7 +163,7 @@ redox.plot <- function(geochem.data.to.use = geochem.data,
 
 
 #### Save out plots ####
-pdf("results/geochem/profiles_for_figure/WC_profiles.pdf",
+pdf("results/geochem/profiles_for_figure/WC_profiles_late_stratification.pdf",
     width = 7.5,
     height = 7)
 
@@ -174,11 +174,30 @@ par(mfrow = c(2,6),
 redox.plot(date.range =  c("2016-10-03","2016-10-06"),
            RMs.to.use = c(286, 300, 310),
            DO.date = "2016-09-21")
-
 redox.plot(date.range =  c("2017-09-25", "2017-09-28"),
            RMs.to.use = c(286, 300, 310))
 redox.plot(date.range =  c("2018-09-24", "2018-09-26"),
            RMs.to.use = c(286, 300, 310))
+
+dev.off()
+
+
+
+#### Save out plots ####
+pdf("results/geochem/profiles_for_figure/WC_profiles_early_stratification.pdf",
+    width = 7.5,
+    height = 7)
+
+par(mfrow = c(2,6),
+    mar = c(9, 2.5, 1, 0.5),
+    mgp=c(1.5,0.2,0),
+    tck=-0.008)
+redox.plot(date.range = c("2017-06-05","2017-06-08"),
+           RMs.to.use = c(286, 300, 310),
+           DO.date = "2017-06-14")
+redox.plot(date.range =  c("2018-06-18", "2018-06-19"),
+           RMs.to.use = c(286, 300, 310),
+           DO.date = "2018-06-12")
 redox.plot(date.range =  c("2019-07-22", "2019-07-25"),
            RMs.to.use = c(286, 300, 310))
 dev.off()

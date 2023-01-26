@@ -70,6 +70,7 @@ raxmlTree.tree.unrooted <- read.newick("dataEdited/bins/binAnalysis/phylogeny/pr
 
 
 #### Root tree ####
+# Rooted by 2 Flavobacteriales genomes
 mrca.flavo <- getMRCA(raxmlTree.tree.unrooted,
                       c("GCF_000236705.1",
                         "GCF_000194605.1"))

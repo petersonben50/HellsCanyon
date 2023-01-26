@@ -14,8 +14,13 @@ source("code/HCC_plotting_needs.R")
 
 
 #### Read in hgcA classification ####
-tax.data <- read_xlsx("dataEdited/hgcA_analysis/hgcA_information_edited.xlsx") %>%
-  select(seqID, manual_classification, predicted_metabolism)
+tax.data <- read_xlsx("manuscript/SI/peterson_ISME_SI_tables.xlsx",
+                      sheet = "Table S4-hgcA_info") %>%
+  rename(seqID = `Sequence ID`,
+         manual_classification = `Manual classification`,
+         predicted_metabolism = `Predicted metabolism`) %>%
+  select(seqID, manual_classification, predicted_metabolism) %>%
+  filter(predicted_metabolism != "N/A")
 
 
 #### Read in data ####
@@ -31,6 +36,10 @@ hgcA.data <- read.csv("dataEdited/hgcA_analysis/depth/hgcA_coverage.csv") %>%
                                            names(color.vector)[c(1:3, 5)]))
 
 
+#### Individual group abundance info ####
+hgcA.data.individual <- read.csv("dataEdited/hgcA_analysis/depth/hgcA_coverage.csv") %>%
+  filter(rep) %>%
+  left_join(tax.data)
 
 #### Make color vector ####
 # hgcA.manual.taxonomy <- read_xlsx("dataEdited/hgcA_analysis/phylogeny/manual_taxonomy.xlsx",
@@ -49,28 +58,13 @@ hgcA.data <- hgcA.data %>%
   mutate(rel.coverage = coverage / total.coverage * 100)
 
 
-# 
-# #### Variables to set ####
-# abundance.cutoff = 0.01
-# suboxic.fig.width = 7.2
-# suboxic.fig.height = 3
-# noN.noS.width = 2
-# noN.noS.height = 3
-# sulf.fig.width = 2
-# sulf.fig.height = 3
-
-
-# #### Focus on high-hgcA content samples ####
-# high.hgcA.list <- hgcA.data %>%
-#   group_by(metagenomeID) %>%
-#   summarise(coverage = sum(coverage)) %>%
-#   filter(coverage >= abundance.cutoff)
-
-# #### Set it up so that metabolic potentials are in same order, even if they aren't present in a given sample ####
-# hgcA.data <- hgcA.data %>%
-#          predicted_metabolism = fct_relevel(predicted_metabolism,
-#                                             ))
-
+#### Summarized data ####
+summarized.data <- hgcA.data %>%
+  group_by(date, RM, depth, redoxClassification, predicted_metabolism) %>%
+  summarise(coverage = sum(coverage)) %>%
+  spread(key = predicted_metabolism,
+         value = coverage) %>%
+  as.data.frame()
 
 
 #### Plot abundance of functional guilds with hgcA ####
@@ -82,8 +76,13 @@ plot.functional.guilds.with.hgcA <- function(redox.state.to.use,
     ggplot(aes(x = predicted_metabolism,
                y = coverage)) +
     geom_boxplot(outlier.shape = NA) +
+    # geom_line(aes(x = predicted_metabolism,
+    #               y = coverage,
+    #               group = metagenomeID),
+    #           col = "gray60") +
     geom_jitter(aes(col = predicted_metabolism),
                 width = 0.1) +
+    # geom_point(aes(col = predicted_metabolism)) +
     scale_y_continuous(limits = abundance.limits) +
     scale_color_manual(values = color.vector.metabolism) +
     theme_classic() +

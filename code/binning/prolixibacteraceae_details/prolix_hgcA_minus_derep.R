@@ -129,5 +129,13 @@ allData.with.depth <- allData %>%
   right_join(depth.data) %>%
   group_by(HMS, metagenomeID) %>%
   summarise(coverage = mean(coverage))
+# Add binID of bins used in phylogeny
+key.df <- allData %>%
+  filter(binID %in% bins.to.keep.phylogeny) %>%
+  select(binID, HMS)
+allData.with.depth <- allData.with.depth %>%
+  left_join(key.df)
+
+#### Save out data ####
 saveRDS(allData.with.depth,
         "dataEdited/bins/binAnalysis/phylogeny/prolixibacteraceae/depth_of_bins.rds")
