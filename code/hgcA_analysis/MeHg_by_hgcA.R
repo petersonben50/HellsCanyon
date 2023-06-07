@@ -69,6 +69,15 @@ p.value <- pf(f[1],f[2],f[3],lower.tail=F) %>% round(4)
 
 summary(mehg.hgcA.model)$coefficients[2, 1]
 
+#### Housekeeping ####
+plot(density(mehg.hgcA.model$residuals),
+     main="Density plot of residuals",
+     ylab="Density",
+     xlab="Residuals")
+
+qqnorm(mehg.hgcA.model$residuals)
+qqline(mehg.hgcA.model$residuals)
+
 
 #### Generate scatterplot ####
 hgcA.MeHg.scatterplot <- all.data %>%

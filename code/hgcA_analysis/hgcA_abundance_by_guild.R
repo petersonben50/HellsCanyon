@@ -14,8 +14,8 @@ source("code/HCC_plotting_needs.R")
 
 
 #### Read in hgcA classification ####
-tax.data <- read_xlsx("manuscript/SI/peterson_ISME_SI_tables.xlsx",
-                      sheet = "Table S4-hgcA_info") %>%
+tax.data <- read_xlsx("manuscript/prep/SI/peterson_ISME_SI_tables.xlsx",
+                      sheet = "Table S5-hgcA_info") %>%
   rename(seqID = `Sequence ID`,
          manual_classification = `Manual classification`,
          predicted_metabolism = `Predicted metabolism`) %>%
@@ -75,7 +75,7 @@ plot.functional.guilds.with.hgcA <- function(redox.state.to.use,
     filter(redoxClassification == redox.state.to.use) %>%
     ggplot(aes(x = predicted_metabolism,
                y = coverage)) +
-    geom_boxplot(outlier.shape = NA) +
+    # geom_boxplot(outlier.shape = NA) +
     # geom_line(aes(x = predicted_metabolism,
     #               y = coverage,
     #               group = metagenomeID),
@@ -103,7 +103,7 @@ no_nitrate.hgcA <- plot.functional.guilds.with.hgcA(redox.state.to.use = "no_nit
 sulfidic.hgcA <- plot.functional.guilds.with.hgcA(redox.state.to.use = "sulfidic",
                                                   abundance.limits = c(-0.001, 6))
 
-pdf("results/hgcA_analysis/abundance_hgcA_functional_guilds_by_redox.pdf",
+pdf(" abundance_hgcA_functional_guilds_by_redox.pdf",
     width = 9,
     height = 3.5)
 ggarrange(suboxic.hgcA, no_nitrate.hgcA, sulfidic.hgcA,

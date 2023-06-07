@@ -43,7 +43,6 @@ hgcA.data %>%
 hgcA.plot <- hgcA.data %>%
   ggplot(aes(x = redoxClassification,
              y = coverage)) +
-  geom_boxplot() +
   geom_jitter(aes(shape = as.character(year(date)),
                   col = redoxClassification),
               width = 0.2,

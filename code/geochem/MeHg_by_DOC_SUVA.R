@@ -76,11 +76,18 @@ MeHg.vs.DOC <- geochem.data.adj %>%
 
 
 #### Linear correlation: MeHg to DOC ####
-linear.model.doc <- lm(MeHg_diss_ngL ~ doc_boulder_mgc_per_l + redox_status,
+linear.model.doc <- lm(MeHg_diss_ngL ~ doc_boulder_mgc_per_l,
+                       data = geochem.data.adj %>%
+                         filter(redox_status != "oxic"))
+# Summarize model
+summary(linear.model.doc)
+linear.model.doc <- lm(MeHg_diss_ngL ~ doc_boulder_mgc_per_l,
                        data = geochem.data.adj)
+# Summarize model
+summary(linear.model.doc)
 # Check residuals
-shapiro.test(linear.model.doc$residuals)
-par(mfrow = c(1,2))
+# shapiro.test(linear.model.doc$residuals)
+# par(mfrow = c(1,2))
 plot(density(linear.model.doc$residuals),
      main="Density plot of residuals",
      ylab="Density",
@@ -92,14 +99,21 @@ qqline(linear.model.doc$residuals)
 # Mostly has a right skew here.
 # We'll go ahead with it.
 
-# Summarize model
-summary(linear.model.doc)
 
 
 
 #### Linear correlation: MeHg to SUVA ####
-linear.model.suva <- lm(MeHg_diss_ngL ~ suva_254nm_l_per_mgc_per_m + redox_status,
+linear.model.suva <- lm(MeHg_diss_ngL ~ suva_254nm_l_per_mgc_per_m,
+                        data = geochem.data.adj %>%
+                          filter(redox_status != "oxic"))
+# Summarize model
+summary(linear.model.suva)
+linear.model.suva <- lm(MeHg_diss_ngL ~ suva_254nm_l_per_mgc_per_m,
                         data = geochem.data.adj)
+# Summarize model
+summary(linear.model.suva)
+
+
 # Check residuals
 shapiro.test(linear.model.suva$residuals)
 par(mfrow = c(1,2))
@@ -114,8 +128,7 @@ qqline(linear.model.suva$residuals)
 # Mostly has a right skew here.
 # We'll go ahead with it.
 
-# Summarize model
-summary(linear.model.suva)
+
 
 
 

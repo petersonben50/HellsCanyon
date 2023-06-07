@@ -1,0 +1,46 @@
+---
+title: "dsrA_HCC"
+author: "Benjamin D. Peterson"
+date: "2023-06-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+rm(list = ls())
+library(ggtree)
+library(tidyverse)
+library(treeio)
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(echo = TRUE)
+new.wd <- gsub("\\/[[:alpha:]]+\\/[[:alpha:]]+$", "", getwd())
+knitr::opts_knit$set(root.dir = new.wd)
+rm(new.wd)
+#knitr::opts_knit$set(root.dir = "/Users/benjaminpeterson/Documents/research/HellsCanyon")
+```
+
+
+
+```{r DsrA_tree, fig.height = 30}
+
+dsrA_tree <- read.newick("dataEdited/metabolic_analyses/dsrA_GID/dsrA.tree")
+dsrA_tree_rooted <- phangorn::midpoint(dsrA_tree)
+# Subset dsrA
+dsrA_tree_rooted <- tree_subset(tree = dsrA_tree_rooted,
+                                node = 950,
+                                levels_back = 0)
+# Subset reductive dsrA
+dsrA_tree_rooted <- tree_subset(tree = dsrA_tree_rooted,
+                                node = 788,
+                                levels_back = 0)
+
+ggtree(dsrA_tree_rooted) +
+  geom_tiplab(size = 2) +
+  geom_text2(aes(subset = !isTip, label = node),
+             size = 2) +
+  geom_treescale(x = 9)
+
+red_dsrA_list <- grep("_", dsrA_tree_rooted$tip.label, value = TRUE)
+  
+```
+
